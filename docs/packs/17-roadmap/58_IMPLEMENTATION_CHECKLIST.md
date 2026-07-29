@@ -1,0 +1,22 @@
+# Checklist general de implementación
+
+- Repositorio configurado.
+- Ambientes listos.
+- Base creada.
+- Autenticación.
+- Sucursales.
+- Roles.
+- Catálogo.
+- Inventario.
+- Layout.
+- Ventas.
+- CRM.
+- Comercialización.
+- Juntas.
+- CEDIS.
+- Proveedores.
+- Apartados.
+- IA.
+- Reportes.
+- Pruebas.
+- Piloto.
