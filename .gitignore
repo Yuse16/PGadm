@@ -25,6 +25,7 @@ Desktop.ini
 # Build
 dist/
 build/
+.next/
 *.tsbuildinfo
 
 # Logs
