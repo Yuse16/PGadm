@@ -28,3 +28,74 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  db-validate:
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'pull_request'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pgadm_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply migrations
+        env:
+          PGPASSWORD: postgres
+        run: |
+          for f in supabase/migrations/*.sql; do
+            echo "Applying: $f"
+            psql -h localhost -U postgres -d pgadm_test -f "$f"
+          done
+
+      - name: Apply seed
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d pgadm_test -f supabase/seed.sql
+
+      - name: Run database verification
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d pgadm_test -v ON_ERROR_STOP=1 <<'EOSQL'
+            SELECT 'CI-DB-TEST: Migration applied without errors';
+
+            SELECT 'Schema _core: ' || CASE
+              WHEN EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = '_core')
+              THEN 'PASS' ELSE 'FAIL' END AS check_core_schema;
+
+            SELECT 'Schema _audit: ' || CASE
+              WHEN EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = '_audit')
+              THEN 'PASS' ELSE 'FAIL' END AS check_audit_schema;
+
+            SELECT 'Function _core.updated_at: ' || CASE
+              WHEN EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = '_core' AND p.proname = 'updated_at')
+              THEN 'PASS' ELSE 'FAIL' END AS check_updated_at_fn;
+
+            SELECT 'Function _core.is_uuid: ' || CASE
+              WHEN EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = '_core' AND p.proname = 'is_uuid')
+              THEN 'PASS' ELSE 'FAIL' END AS check_is_uuid_fn;
+
+            SELECT 'Extension pgcrypto: ' || CASE
+              WHEN EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pgcrypto')
+              THEN 'PRESENT' ELSE 'MISSING' END AS check_pgcrypto;
+
+            SELECT 'is_uuid valid UUID: ' || CASE
+              WHEN _core.is_uuid('0195e4b0-5b4f-782c-b23e-3c0d8c12a3f4') THEN 'PASS'
+              ELSE 'FAIL' END AS check_uuid_valid;
+
+            SELECT 'is_uuid invalid input: ' || CASE
+              WHEN _core.is_uuid('not-a-uuid') THEN 'FAIL'
+              ELSE 'PASS' END AS check_uuid_invalid;
+EOSQL

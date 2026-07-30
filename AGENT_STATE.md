@@ -3,35 +3,50 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1A — COMPLETED ✅**
+- Current Phase: **1B.1 — IN PROGRESS**
 - Integration Branch: `develop`
-- Last Feature Branch: `feature/f1-PG-CORE-001-app-foundation`
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\core-app-foundation` (preserved)
-- Status: Next.js app scaffolded, health check active, CI configured, PR #1 merged
-- Last Stable Commit: `a6a6384` (merge commit into develop)
-- PR #1: **MERGED** into `develop`
-- Next Phase: **1B — Identidad, organización, sucursales y permisos**
+- Active Feature Branch: `feature/f1b-PG-DATA-001-supabase-foundation`
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\supabase-foundation`
+- Status: Supabase local infrastructure prepared (config, migration, TS boundaries, tests)
+- Last Stable Commit (develop): `f9259ed`
+- PRs: #1 — MERGED | #2 — MERGED
+- Next Phase: 1B.2 (after PR merge)
 
 ## Active Agents
 
 | Agent | Role |
 |-------|------|
 | Orquestador | Phase coordination |
-| Arquitectura | App foundation structure |
-| Frontend | App shell, health check, 404, error, loading |
-| Backend | Health endpoint, lib utilities |
-| QA | Vitest + testing-library, 10 tests passing |
-| Seguridad | No secrets, no external services connected |
-| Documentación | State, decisions, changelog updated |
+| Arquitectura | DB foundation & conventions |
+| Base de datos | Migration, seed, SQL tests |
+| Backend | Supabase client/server boundaries |
+| QA | 29 tests (10 existing + 19 new) |
+| Seguridad | Client/server separation, no secrets, schema locked |
+| Documentación | State, decisions, changelog, handoff updated |
 
 ## Phase 1A Summary
 
-- **6 commits** on feature branch (`feature/f1-PG-CORE-001-app-foundation`)
-- **PR #1**: merged via merge commit `a6a6384` into `develop`
-- **Reviews**: Architecture ✅ | QA ✅ | Security ✅ (2 issues fixed mid-review)
-- **Validation**: lint ✅ | typecheck ✅ | tests 10/10 ✅ | build ✅
-- **CI**: All checks passed on PR (2 runs, initial + post-fix)
+- **6 commits** → PR #1 merged ✅
+- **Architecture**: PASS | **QA**: PASS | **Security**: PASS
+
+## Phase 1B.1 Summary
+
+- Supabase local structure: `config.toml`, migration 001, seed, tests, README
+- `_core` schema with `updated_at()` trigger, `is_uuid()`, pgcrypto
+- `_audit` schema prepared for future use
+- TypeScript clients: browser (`client.ts`), server (`server.ts`), config validation
+- Env validation: safe handling when Supabase not configured (build-safe)
+- Database types placeholder for auto-generation
+- CI: `db-validate` job added (PostgreSQL service, migration apply, SQL verify)
+- 8 scripts: `db:start`, `db:stop`, `db:status`, `db:reset`, `db:lint`, `db:test`, `db:types`, `db:verify`
+- Security: no secrets, client/server separated, public schema locked, creds git-ignored
+
+## Blockers
+
+| Blocker | Detail |
+|---------|--------|
+| Docker Desktop not installed | `npm run db:start`, `db:stop`, `db:status`, `db:reset`, `db:test`, `db:types` require Docker. CI db-validate will run on GitHub Actions. |
 
 ## Next Action
 
-Prepare Phase 1B — identity, organization, branches and permissions module.
+Create PR toward develop, await merge authorization.
