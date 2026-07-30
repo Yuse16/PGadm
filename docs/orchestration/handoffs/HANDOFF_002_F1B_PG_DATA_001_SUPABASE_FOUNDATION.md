@@ -8,7 +8,11 @@ Orquestador → Arquitectura, Base de datos, Backend, QA, Seguridad, Documentaci
 
 ## Commit Hashes
 ```
-(to be added after commits)
+3b680fe build(db): add local Supabase tooling
+08cfd9b feat(db): add baseline database foundation
+13f19af feat(core): add Supabase configuration boundaries
+ab3b9bb test(core): add Supabase boundary and environment tests
+0863e65 docs(db): document local database workflow and handoff
 ```
 
 ## Worktree
