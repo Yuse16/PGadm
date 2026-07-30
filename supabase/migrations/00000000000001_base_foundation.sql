@@ -30,11 +30,6 @@ create schema if not exists _audit;
 create extension if not exists "pgcrypto" with schema public;
 
 -- ============================================================
--- Extension: pgcrypto — ensure it's available in _core too
--- ============================================================
-create extension if not exists "pgcrypto" with schema extensions;
-
--- ============================================================
 -- Function: _core.updated_at()
 -- Purpose: Trigger function to auto-set updated_at on row update.
 -- Justification: Standard convention per database rules (23-contracts/25).

@@ -4,7 +4,7 @@
 -- Or manually: psql -f supabase/tests/test_base_foundation.sql
 
 begin;
-select plan(10);
+select plan(12);
 
 -- 1. _core schema exists
 select has_schema('_core', 'Schema _core should exist');
@@ -29,13 +29,13 @@ select function_lang_is('_core', 'updated_at', 'plpgsql', 'updated_at should be 
 select function_returns('_core', 'updated_at', 'trigger', 'updated_at should return trigger');
 
 -- 8. _core.is_uuid validates correctly
-select is('_core.is_uuid'::text, '0195e4b0-5b4f-782c-b23e-3c0d8c12a3f4', 'Valid UUID should return true');
-select is('_core.is_uuid'::text, 'not-a-uuid', 'Invalid UUID should return false');
+select is(_core.is_uuid('0195e4b0-5b4f-782c-b23e-3c0d8c12a3f4'), true, 'Valid UUID should return true');
+select is(_core.is_uuid('not-a-uuid'), false, 'Invalid UUID should return false');
 
--- 9. Revoke create on public
-select isnt_superuser('postgres', 'postgres should be superuser (test setup)');
+-- 9. Verify revoke create on schema public from public
+select is(has_schema_privilege('public', 'create'), false, 'Public should NOT have create privilege on schema public');
 
--- 10. Ensure public has no create privilege (skip in test if not superuser)
+-- 10. Ensure public retains usage (only create was revoked)
 select has_schema_privilege('public', 'usage', 'Public should have usage on schema public');
 
 select * from finish();

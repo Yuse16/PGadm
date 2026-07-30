@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { execSync } = await import("child_process");
-const { existsSync, readFileSync } = await import("fs");
+const { existsSync, readFileSync, readdirSync } = await import("fs");
 const { resolve } = await import("path");
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -125,11 +125,3 @@ console.log(`Exit code: ${exitCode}\n`);
 
 process.exit(exitCode);
 
-function readdirSync(dir) {
-  const { readdirSync } = await import("fs");
-  try {
-    return readdirSync(dir);
-  } catch {
-    return [];
-  }
-}
