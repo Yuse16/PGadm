@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1 (2026-07-30)
+
+- Fix: Migration 001 — removed `create extension with schema extensions` (inexistent schema in standard PostgreSQL)
+- Fix: pgTAP tests — corrected `plan(10)` → `plan(12)` and replaced always-pass `isnt_superuser` with real privilege assertion
+- Fix: `scripts/verify-db.mjs` — corrected `await import()` inside non-async function (Node 24 syntax error)
+- Fix: pgTAP tests — corrected `is()` call syntax for `is_uuid` validation
+- Docs: NIGHT_WORKLOG, REPORT, overnight session artifacts
+- Docs: AGENT_STATE.md updated with overnight review summary
+
 ## 0.3.0 (2026-07-29)
 
 - Supabase local infrastructure: `config.toml`, migrations, seed, tests, README

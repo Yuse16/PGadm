@@ -41,6 +41,17 @@
 - 8 scripts: `db:start`, `db:stop`, `db:status`, `db:reset`, `db:lint`, `db:test`, `db:types`, `db:verify`
 - Security: no secrets, client/server separated, public schema locked, creds git-ignored
 
+## Overnight Review (29 Jul 2026)
+
+**3 bugs found and fixed (no commits):**
+1. Migration: removed `create extension with schema extensions` — `extensions` schema does not exist in standard PostgreSQL (would break CI)
+2. pgTAP tests: `plan(10)` → `plan(12)` — mismatch between declared plan and actual assertions
+3. pgTAP tests: replaced `isnt_superuser('postgres')` (always passes) with `is(has_schema_privilege('public', 'create'), false)` (verifies actual revoke)
+4. `scripts/verify-db.mjs`: fixed `readdirSync` function — used `await import()` without async context (syntax error in Node 24)
+
+**Cross-reviews completed:** Architecture ✅ | Security ✅ | QA ✅
+**All gates pass:** lint ✅ typecheck ✅ 29 tests ✅ build ✅ db:verify ✅
+
 ## Blockers
 
 | Blocker | Detail |
@@ -49,4 +60,4 @@
 
 ## Next Action
 
-Create PR toward develop, await merge authorization.
+Awaiting authorization: 3 fix commits + PR toward develop.
