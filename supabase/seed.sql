@@ -1,0 +1,4 @@
+-- PGadm seed
+-- Phase 1B.1: Infrastructure only — no business data.
+-- No organizations, branches, users, roles, permissions, or products.
+-- Seed data for functional domains will be added in their respective phases.
