@@ -29,12 +29,18 @@ Orquestador → Equipo multi-agente (Arquitectura, Frontend, Backend, QA, Seguri
 - No external services connected (Supabase, Vercel, Intelisis deferred)
 - All original `docs/` preserved untouched
 
-## Open Items
+## Observations
+- La rama `docs/f1-PG-CORE-001-close-phase` usa la nomenclatura correcta "PG" (PGadm). En reportes previos se mencionó "PC" por error en el texto del reporte, no en el nombre real de la rama.
+
+## Technical Backlog (Deferred — Non-blocking)
 1. Install actual PWA service worker with offline support (Fase 2+)
 2. Connect real data sources (Supabase, APIs) — deferred
 3. Add i18n support for multi-language
 4. Add Storybook or similar component explorer
 5. Set up Vercel deployment
+6. **Dependencies audit**: Review 12 high-severity vulnerabilities in transitive deps (brace-expansion, postcss, sharp). Do NOT run `npm audit fix --force`. Evaluate compatible updates without breaking Next.js, ESLint, PostCSS or Sharp. Non-blocking while no runtime exploit confirmed.
+7. **CI enhancement**: Add `push` trigger for develop/main in PR validation workflow post-merge.
+8. **Naming consistency**: Confirm branch naming convention follows `f1-PG-CORE-*` pattern consistently.
 
 ## Decisiones de Fase 1A
 | Decisión | Opción | Razón |
