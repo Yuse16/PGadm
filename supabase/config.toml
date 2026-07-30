@@ -1,0 +1,44 @@
+[project]
+name = "pgadm"
+ref = "local"
+id = "pgadm-local"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "pg_graphql", "pgbouncer"]
+extra_search_path = ["public"]
+max_request_size = 5_000_000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = false
+
+[storage]
+enabled = false
+
+[auth]
+enabled = false
+
+[edge_runtime]
+enabled = false
+
+[analytics]
+enabled = false
+
+[experimental]
+orioledb_version = ""
+
+[analytics.vector]
+enabled = false
+
+# Local-only — never commit real values
+[auth.email]
+enabled = false

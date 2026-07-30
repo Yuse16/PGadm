@@ -36,6 +36,9 @@ logs/
 coverage/
 .nyc_output/
 
+# Supabase local state
+.supabase/
+
 # Temp
 tmp/
 temp/
