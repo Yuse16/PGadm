@@ -1,0 +1,10 @@
+{
+  "name": "PGadm — Plomería García",
+  "short_name": "PGadm",
+  "description": "PWA de gestión multi-sucursal para Plomería García",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "icons": []
+}
