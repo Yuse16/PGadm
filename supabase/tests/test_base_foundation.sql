@@ -33,10 +33,10 @@ select is(_core.is_uuid('0195e4b0-5b4f-782c-b23e-3c0d8c12a3f4'), true, 'Valid UU
 select is(_core.is_uuid('not-a-uuid'), false, 'Invalid UUID should return false');
 
 -- 9. Verify revoke create on schema public from public
-select is(has_schema_privilege('public', 'create'), false, 'Public should NOT have create privilege on schema public');
+select is(has_schema_privilege('public', 'public', 'create'), false, 'Role public should NOT have create privilege on schema public');
 
 -- 10. Ensure public retains usage (only create was revoked)
-select has_schema_privilege('public', 'usage', 'Public should have usage on schema public');
+select is(has_schema_privilege('public', 'public', 'usage'), true, 'Role public should have usage on schema public');
 
 select * from finish();
 rollback;

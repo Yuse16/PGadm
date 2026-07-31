@@ -40,7 +40,7 @@ returns trigger
 language plpgsql
 as $$
 begin
-  new.updated_at = now() at time zone 'utc';
+  new.updated_at = now();
   return new;
 end;
 $$;
@@ -57,13 +57,24 @@ create or replace function _core.set_updated_at_column(table_name text)
 returns void
 language plpgsql
 as $$
+declare
+  trigger_name text := table_name || '_updated_at';
 begin
   execute format(
     'alter table %I add column if not exists updated_at timestamptz not null default now()'
   , table_name);
-  execute format(
-    'create trigger if not exists %I before update on %I for each row execute function _core.updated_at()'
-  , table_name || '_updated_at', table_name);
+  if not exists (
+    select 1
+    from pg_trigger t
+    join pg_class c on c.oid = t.tgrelid
+    where c.relname = table_name
+      and t.tgname = trigger_name
+      and not t.tgisinternal
+  ) then
+    execute format(
+      'create trigger %I before update on %I for each row execute function _core.updated_at()'
+    , trigger_name, table_name);
+  end if;
 end;
 $$;
 

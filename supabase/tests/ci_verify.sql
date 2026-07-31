@@ -31,3 +31,11 @@ SELECT 'is_uuid valid UUID: ' || CASE
 SELECT 'is_uuid invalid input: ' || CASE
   WHEN _core.is_uuid('not-a-uuid') THEN 'FAIL'
   ELSE 'PASS' END AS check_uuid_invalid;
+
+SELECT 'Revoke create on schema public: ' || CASE
+  WHEN NOT has_schema_privilege('public', 'public', 'create') THEN 'PASS'
+  ELSE 'FAIL' END AS check_revoke_create;
+
+SELECT 'Public usage on schema public: ' || CASE
+  WHEN has_schema_privilege('public', 'public', 'usage') THEN 'PASS'
+  ELSE 'FAIL' END AS check_public_usage;
