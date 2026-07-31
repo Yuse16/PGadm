@@ -55,14 +55,14 @@ jobs:
         run: |
           for f in supabase/migrations/*.sql; do
             echo "Applying: $f"
-            psql -h localhost -U postgres -d pgadm_test -f "$f"
+            psql -h localhost -U postgres -d pgadm_test -v ON_ERROR_STOP=1 -f "$f"
           done
 
       - name: Apply seed
         env:
           PGPASSWORD: postgres
         run: |
-          psql -h localhost -U postgres -d pgadm_test -f supabase/seed.sql
+          psql -h localhost -U postgres -d pgadm_test -v ON_ERROR_STOP=1 -f supabase/seed.sql
 
       - name: Run database verification
         env:

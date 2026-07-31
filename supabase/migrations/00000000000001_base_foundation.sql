@@ -112,7 +112,6 @@ revoke create on schema public from public;
 -- Security: Restrict _core and _audit schemas
 -- Only superuser/owner should manage internal schemas.
 -- ============================================================
-alter default privileges in schema _core revoke all on functions from public;
-alter default privileges in schema _core revoke all on procedures from public;
+alter default privileges in schema _core revoke all on routines from public;
 
 reset all;
