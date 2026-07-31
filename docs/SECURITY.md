@@ -7,7 +7,9 @@
 ### Client/Server Separation
 
 - Browser code uses only `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-- Server code uses `SUPABASE_SERVICE_ROLE_KEY` (never exposed to client).
+- The admin client (`src/lib/supabase/admin.ts`) uses `SUPABASE_SERVICE_ROLE_KEY` and is protected by `import "server-only"`, so it can never be imported from browser code.
+- The general server client (`src/lib/supabase/server.ts`) uses the anon key and is session-ready for future auth phases; it does not touch the service role key.
+- No service role variable uses the `NEXT_PUBLIC_` prefix.
 - Environment validation throws at import time if required variables are missing.
 
 ### Database Security

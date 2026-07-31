@@ -3,13 +3,13 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.1 — IN PROGRESS**
+- Current Phase: **1B.1 — READY FOR MERGE**
 - Integration Branch: `develop`
 - Active Feature Branch: `feature/f1b-PG-DATA-001-supabase-foundation`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\supabase-foundation`
 - Status: Supabase local infrastructure prepared (config, migration, TS boundaries, tests)
 - Last Stable Commit (develop): `f9259ed`
-- PRs: #1 — MERGED | #2 — MERGED
+- PRs: #1 — MERGED | #2 — MERGED | **#3 — OPEN — CHECKS PASSED**
 - Next Phase: 1B.2 (after PR merge)
 
 ## Active Agents
@@ -60,4 +60,9 @@
 
 ## Next Action
 
-Awaiting authorization: 3 fix commits + PR toward develop.
+Merge PR #3 toward develop (merge commit, no squash/rebase) once authorized.
+
+## Status
+
+Fase 1B.1: READY FOR MERGE
+PR #3: OPEN — CHECKS PASSED

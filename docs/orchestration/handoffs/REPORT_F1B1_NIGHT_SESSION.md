@@ -120,3 +120,38 @@ supabase/tests/test_base_foundation.sql                    | 4 ++--
 - All gates pass ✅
 
 Next step after merge: **Phase 1B.2** — identity, organizations, branches, permissions.
+
+---
+
+# Cierre Final (30 Jul 2026) — Evidencia de CI para Merge
+
+## Resultados finales de CI (PR #3)
+
+| Gate | Resultado |
+|------|-----------|
+| `npm run lint` | ✅ |
+| `npm run typecheck` | ✅ |
+| `npm test` | ✅ 34/34 (7 suites) |
+| `npm run build` | ✅ Next.js 16.2.12 |
+| Migración desde PostgreSQL 15 limpio | ✅ sin errores |
+| Seed aplicado | ✅ |
+| Verificaciones SQL | ✅ 10/10 |
+| `ON_ERROR_STOP=1` | ✅ activo en migración y seed |
+| Shutdown contenedor CI | ✅ |
+
+## Fixes finales aplicados (3 + 1 seguridad)
+
+| Commit | Descripción |
+|--------|-------------|
+| `da8dcef` | YAML heredoc inválido rompía el workflow → `ci_verify.sql` standalone |
+| `3e65626` | `ON PROCEDURES` sintaxis inválida (CI pasaba en silencio) → `ON ROUTINES` + `ON_ERROR_STOP=1` |
+| `c10d1ff` | Migración PG15-safe (trigger, timestamps UTC, aserciones pgTAP) + checks de privilegios en CI |
+| `a1d861e` | Service role aislada en `admin.ts` (`import "server-only"`); `server.ts` usa anon key |
+
+## Commits totales
+14 commits en `feature/f1b-PG-DATA-001-supabase-foundation` (12 de la fase + fix de aislamiento + commit documental).
+
+## Pendientes
+- Docker Desktop no instalado → `db:start`, `db:test`, `db:types` pendientes localmente (CI cubre la validación).
+- Generación real de tipos (`npm run db:types`) pendiente hasta disponer de Supabase local.
+- `npm audit`: 12 high / 3 high prod — sin cambio vs Fase 1A.

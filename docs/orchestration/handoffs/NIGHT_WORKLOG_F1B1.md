@@ -190,3 +190,60 @@ supabase/tests/test_base_foundation.sql                    | 4 ++--
 | LOW      | DB types placeholder not auto-generated| Requires Docker + running Supabase. Placeholder adequate. |
 
 ---
+
+## Block 8: Day Session Closure (30 Jul 2026)
+
+**Mode:** Commits authorized, PR #3 created, CI validated, service role isolated.
+
+### Final CI Evidence (run `30596999456` / `30596787264`)
+
+| Check | Result |
+|-------|--------|
+| `validate` job — npm ci / Lint / Type Check / Test / Build | ✅ ✅ ✅ ✅ ✅ |
+| Tests | 34/34 (29 previos + 5 aislamiento service role) |
+| `db-validate` — PostgreSQL 15.18 fresh service | ✅ |
+| Migración aplicada desde BD limpia | ✅ sin errores (`ON_ERROR_STOP=1`) |
+| Seed aplicado | ✅ |
+| Verificaciones SQL | 10/10 PASS |
+| Shutdown contenedor | ✅ |
+
+### Final Corrections Applied
+| Commit | Fix |
+|--------|-----|
+| `da8dcef` | YAML heredoc inválido (jobs nunca arrancaban) → `supabase/tests/ci_verify.sql` standalone |
+| `3e65626` | `ALTER DEFAULT PRIVILEGES ... ON PROCEDURES` era sintaxis inválida y psql la ignoraba en silencio → `ON ROUTINES` + `ON_ERROR_STOP=1` en migración y seed |
+| `c10d1ff` | `CREATE TRIGGER IF NOT EXISTS` es PG17+ (fallaría en PG15); `now() at time zone 'utc'` corrompía timestamps en sesiones no-UTC; aserciones pgTAP #9/#10 mal resueltas; checks de privilegios añadidos a CI |
+| `a1d861e` | Service role aislada en `src/lib/supabase/admin.ts` con `import "server-only"`; cliente general de servidor usa anon key |
+
+### Service Role Isolation (revisión obligatoria)
+- `client.ts` (navegador): solo anon key ✅
+- `server.ts` (servidor general): anon key + `import "server-only"`, sin service role ✅
+- `admin.ts` (nuevo): service role + `import "server-only"` + `createSupabaseAdminClient` ✅
+- Ninguna variable service role con prefijo `NEXT_PUBLIC_` ✅
+- 5 pruebas nuevas impiden importar/exponer el cliente administrativo desde el navegador ✅
+- Paquete `server-only` añadido como dependencia directa ✅
+
+### Commits Totales (14)
+```
+3b680fe build(db): add local Supabase tooling
+08cfd9b feat(db): add baseline database foundation
+13f19af feat(core): add Supabase configuration boundaries
+ab3b9bb test(core): add Supabase boundary and environment tests
+0863e65 docs(db): document local database workflow and handoff
+736c85d docs(db): update handoff with actual commit hashes
+576aebe fix(db): stabilize baseline migration and schema tests
+d641068 docs(db): add F1B1 validation report and night worklog
+b726f04 docs(orchestration): archive F1B1 no-commit night workflow
+da8dcef ci(db): fix YAML heredoc parse error and add standalone CI SQL verification
+3e65626 fix(db): correct ALTER DEFAULT PRIVILEGES syntax and enforce ON_ERROR_STOP in CI
+c10d1ff fix(db): make base foundation PG15-safe and verify privilege revocation in CI
+a1d861e fix(security): isolate Supabase service role client
+(último) docs(db): finalize F1B1 CI validation evidence
+```
+
+### Pendientes (no bloqueantes para el merge)
+- Docker Desktop no instalado → `db:start`, `db:test`, `db:types` siguen pendientes localmente
+- Generación real de tipos (`npm run db:types`) pendiente hasta disponer de Supabase local
+- `npm audit`: 12 high / 3 high prod (sin cambio)
+
+---
