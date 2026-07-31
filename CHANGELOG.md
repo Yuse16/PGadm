@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.1 (2026-07-30)
+
+- Fix: Migration 001 — removed `create extension with schema extensions` (inexistent schema in standard PostgreSQL)
+- Fix: pgTAP tests — corrected `plan(10)` → `plan(12)` and replaced always-pass `isnt_superuser` with real privilege assertion
+- Fix: `scripts/verify-db.mjs` — corrected `await import()` inside non-async function (Node 24 syntax error)
+- Fix: pgTAP tests — corrected `is()` call syntax for `is_uuid` validation
+- Docs: NIGHT_WORKLOG, REPORT, overnight session artifacts
+- Docs: AGENT_STATE.md updated with overnight review summary
+
+## 0.3.0 (2026-07-29)
+
+- Supabase local infrastructure: `config.toml`, migrations, seed, tests, README
+- Migration 001: `_core` and `_audit` schemas, pgcrypto, `updated_at()` trigger, UUID validation function
+- TypeScript Supabase boundaries: `client.ts`, `server.ts`, `config.ts`, `types.ts`
+- Environment validation: `src/schemas/env.ts` with safe missing-var handling
+- Database types: `src/types/database.ts` (placeholder for auto-generation)
+- 19 new TypeScript tests (env validation, client/server separation, config)
+- CI workflow extended with `db-validate` job (PostgreSQL service, migration apply, SQL verification)
+- Scripts: `db:start`, `db:stop`, `db:status`, `db:reset`, `db:lint`, `db:test`, `db:types`, `db:verify`
+- `.env.example` reorganized with classifications (public, private, optional, obligatory)
+- Security: client/server env separation, no secrets in code, public schema locked
+- Docs: ARCHITECTURE.md, SECURITY.md, TESTING.md updated with Supabase content
+- Blocking: Docker Desktop not installed — `npm run db:*` commands requiring Docker cannot execute locally
+
 ## 0.2.0 (2026-07-29)
 
 - Next.js 16 application scaffolded (App Router, TypeScript, Tailwind v4, ESLint)
