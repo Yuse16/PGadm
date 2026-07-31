@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 beforeEach(() => {
   vi.unstubAllEnvs();
 });
@@ -13,15 +15,16 @@ describe("client/server separation", () => {
     expect(clientModuleStr).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
   });
 
-  it("server module imports service role key", async () => {
+  it("server module uses anon key and not service role key", async () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
-    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "service-role-key-123");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon-key-789");
 
     const serverSource = await import("@/lib/supabase/server");
-    expect(serverSource.getSupabaseServerClient).toBeDefined();
+    expect(serverSource.createSupabaseServerClient).toBeDefined();
 
-    const serverModuleStr = serverSource.getSupabaseServerClient.toString();
-    expect(serverModuleStr).toContain("SUPABASE_SERVICE_ROLE_KEY");
+    const serverModuleStr = serverSource.createSupabaseServerClient.toString();
+    expect(serverModuleStr).toContain("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    expect(serverModuleStr).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
   });
 
   it("client uses anon key not service role key", async () => {
