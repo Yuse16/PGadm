@@ -47,6 +47,23 @@ describe("organization feature security", () => {
     expect(source).not.toContain("createSupabaseAdminClient");
   });
 
+  it("the demo repository is standalone and never touches the database", () => {
+    const source = readSource(
+      "src/features/organization/infrastructure/demo-organization-repository.ts"
+    );
+    expect(source).not.toContain("createSupabaseServerClient");
+    expect(source).not.toContain("createSupabaseAdminClient");
+    expect(source).not.toContain("process.env");
+  });
+
+  it("the repository selection never falls back to demo after a failed read", () => {
+    const source = readSource(
+      "src/features/organization/infrastructure/repository-selection.ts"
+    );
+    expect(source).not.toContain("catch");
+    expect(source).toContain("DEFAULT_DATA_SOURCE");
+  });
+
   it("the admin page does not leak environment variables to the client", () => {
     const source = readSource("src/app/admin/organization/page.tsx");
     expect(source).not.toContain("process.env");

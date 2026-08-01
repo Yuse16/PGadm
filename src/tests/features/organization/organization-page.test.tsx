@@ -5,7 +5,7 @@ vi.mock("server-only", () => ({}));
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn(() => {
-    throw new Error("should not be called without configuration");
+    throw new Error("should not be called in demo mode");
   }),
 }));
 
@@ -14,7 +14,7 @@ beforeEach(() => {
   vi.resetModules();
 });
 
-describe("Organization admin page", () => {
+describe("Organization admin page (demo data source)", () => {
   it("renders the section header", async () => {
     const pageModule = await import("@/app/admin/organization/page");
     const Page = pageModule.default;
@@ -24,14 +24,28 @@ describe("Organization admin page", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows a safe state when Supabase is not configured", async () => {
+  it("renders the demo organization data without a database", async () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
     const pageModule = await import("@/app/admin/organization/page");
     const Page = pageModule.default;
     render(await Page());
+
+    expect(screen.getByText("Plomería García")).toBeInTheDocument();
+    expect(screen.getByText("Nogalera")).toBeInTheDocument();
+    expect(screen.getByText(/116NOG-PGM/)).toBeInTheDocument();
+    expect(screen.getByText("CEDIS Saltillo")).toBeInTheDocument();
+    expect(screen.getByText(/106SAL-PGM/)).toBeInTheDocument();
+    expect(screen.getByText(/NOG-01/)).toBeInTheDocument();
+    expect(screen.getByText(/SAL-01/)).toBeInTheDocument();
+  });
+
+  it("labels the data source as demo data", async () => {
+    const pageModule = await import("@/app/admin/organization/page");
+    const Page = pageModule.default;
+    render(await Page());
     expect(
-      screen.getByText("Base de datos no configurada")
+      screen.getByText(/Fuente de datos: Datos demo locales/)
     ).toBeInTheDocument();
   });
 

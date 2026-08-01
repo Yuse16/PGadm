@@ -1,7 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { OrganizationOverview } from "@/features/organization/components/organization-overview";
 import type { OrganizationStructureResult } from "@/features/organization/application";
+
+vi.mock("server-only", () => ({}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: vi.fn(() => {
+    throw new Error("should not be called in demo mode");
+  }),
+}));
 
 function sampleStructure(): OrganizationStructureResult {
   return {
@@ -65,7 +73,12 @@ function sampleStructure(): OrganizationStructureResult {
 
 describe("OrganizationOverview", () => {
   it("renders organization name and legal name", () => {
-    render(<OrganizationOverview structure={sampleStructure()} />);
+    render(
+      <OrganizationOverview
+        structure={sampleStructure()}
+        dataSource="supabase"
+      />
+    );
     expect(screen.getByText("Plomería García")).toBeInTheDocument();
     expect(
       screen.getByText("Plomería García, S.A. de C.V.")
@@ -73,14 +86,36 @@ describe("OrganizationOverview", () => {
   });
 
   it("renders the organization code", () => {
-    render(<OrganizationOverview structure={sampleStructure()} />);
+    render(
+      <OrganizationOverview
+        structure={sampleStructure()}
+        dataSource="supabase"
+      />
+    );
     expect(screen.getByText(/PGM/)).toBeInTheDocument();
   });
 
   it("labels the data source as seed demo when no external source exists", () => {
-    render(<OrganizationOverview structure={sampleStructure()} />);
+    render(
+      <OrganizationOverview
+        structure={sampleStructure()}
+        dataSource="supabase"
+      />
+    );
     expect(
       screen.getByText(/Fuente de datos: Base de datos \(seed demo\)/)
+    ).toBeInTheDocument();
+  });
+
+  it("labels the data source as local demo data in demo mode", () => {
+    render(
+      <OrganizationOverview
+        structure={sampleStructure()}
+        dataSource="demo"
+      />
+    );
+    expect(
+      screen.getByText(/Fuente de datos: Datos demo locales/)
     ).toBeInTheDocument();
   });
 
@@ -91,18 +126,28 @@ describe("OrganizationOverview", () => {
       externalSource: "intelisis",
       externalId: "116NOG-PGM",
     };
-    render(<OrganizationOverview structure={structure} />);
+    render(<OrganizationOverview structure={structure} dataSource="supabase" />);
     expect(screen.getByText(/intelisis \(116NOG-PGM\)/)).toBeInTheDocument();
   });
 
   it("renders branch name and type", () => {
-    render(<OrganizationOverview structure={sampleStructure()} />);
+    render(
+      <OrganizationOverview
+        structure={sampleStructure()}
+        dataSource="supabase"
+      />
+    );
     expect(screen.getByText("Nogalera")).toBeInTheDocument();
     expect(screen.getByText("NOG · Sucursal")).toBeInTheDocument();
   });
 
   it("renders warehouse with primary badge", () => {
-    render(<OrganizationOverview structure={sampleStructure()} />);
+    render(
+      <OrganizationOverview
+        structure={sampleStructure()}
+        dataSource="supabase"
+      />
+    );
     expect(screen.getByText("Almacén Nogalera 1")).toBeInTheDocument();
     expect(screen.getByText("Principal")).toBeInTheDocument();
   });
@@ -110,7 +155,7 @@ describe("OrganizationOverview", () => {
   it("renders an empty state when there are no branches", () => {
     const structure = sampleStructure();
     structure.branches = [];
-    render(<OrganizationOverview structure={structure} />);
+    render(<OrganizationOverview structure={structure} dataSource="supabase" />);
     expect(screen.getByText("Sin sucursales registradas.")).toBeInTheDocument();
   });
 });
