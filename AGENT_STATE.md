@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.2 — READY FOR PR (commits pending)**
+- Current Phase: **1B.2 — COMPLETED AND INTEGRATED**
 - Integration Branch: `develop`
-- Active Feature Branch: `feature/f1b-PG-ORG-002-organization-branches-warehouses`
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\organization-foundation`
-- Status: DB local funcional y validada (db:verify ALL PASSED); schema, domain, UI y tests implementados; commits y PR listos
-- Last Stable Commit (develop): `1ea1246`
-- PRs: #1 — MERGED | #2 — MERGED | **#3 — MERGED** | #4 — OPEN (docs close-phase)
-- Next Phase: 1B.3 (identity, sessions, RBAC — planning docs drafted)
+- Active Feature Branch: `feature/f1b-PG-ORG-002-organization-branches-warehouses` (conservada, sin borrar)
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\organization-foundation` (conservado, sin borrar)
+- Status: Fase 1B.2 integrada en develop vía PR #5 (merge commit `05872c9`); db:verify ALL CHECKS PASSED; SQL 119/119; app 111/111
+- Last Stable Commit (develop): `05872c9` (merge PR #5)
+- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado por cierre actualizado) | **#5 — MERGED** | #6 — OPEN (cierre documental)
+- Next Phase: 1B.3 — identidad, sesiones, roles, permisos y RLS (planning docs drafted)
 
 ## Active Agents
 
@@ -21,7 +21,7 @@
 | Base de datos | Migration 002, seed, SQL tests |
 | Backend | Organization domain, application, infrastructure |
 | Frontend/UX | Admin organization overview |
-| QA | 81 tests (36 existing baseline + 45 org) |
+| QA | 111 tests (36 baseline + 75 org) |
 | Seguridad | Service role isolation review, no secrets |
 | Documentación | Matrix, worklog, report, handoff draft |
 
@@ -98,6 +98,16 @@
 - **CI PASS** en PR #5: `validate` PASS y `db-validate` PASS (119 pgTAP reales sobre servicio PostgreSQL 15 con extensión pgtap; fix `ad532b1` — antes `ci_verify.sql` pgTAP fallaba en CI por `function plan(integer) does not exist`).
 - Pendiente: revisiones (Arquitectura, BD, Backend, Frontend, Seguridad, QA) y merge manual del PR.
 
+## Phase 1B.2 Final Integration (1 Aug 2026)
+
+- **PR #5 MERGED** en `develop` con merge commit **`05872c9`** (12 commits: `1feaf20`…`9bc24e1`). Merge commit solicitado (no squash/rebase/force).
+- **Fuente de datos demo (decisión final)**: `DemoOrganizationRepository` explícito etiquetado "Datos demo locales"; selección determinista vía `ORGANIZATION_DATA_SOURCE=demo` (default). Modo `supabase` debe pedirse explícito y falla ruidoso (error tipado), nunca fallback silencioso. `SupabaseOrganizationRepository` (anon server client) reservado para Fase 1B.3.
+- **Sin `service_role`**: cero uso de admin client/service role en la feature; blindado por `feature-security.test.ts`.
+- **Semántica de `priority` unificada**: 1 = mayor prioridad, orden `ascending` (valores menores primero). Comentario SQL de migración 002 corregido; alineación cubierta por `priority-semantics.test.ts`.
+- **Seis revisiones técnicas PASS**: Arquitectura · Base de datos · Backend · Frontend · Seguridad · QA.
+- **Validación manual real**: `GET /admin/organization` → HTTP 200 con seed completo (PGM, NOG, SAL, NOG-01, SAL-01) y "Fuente de datos: Datos demo locales"; modo `supabase` verificado a fallo ruidoso sin fallback.
+- **Regresión post-merge (repositorio principal)**: `npm ci` ✅ · `db:reset` ✅ · `db:test` **119/119** ✅ · `db:types` ✅ · `db:verify` **ALL CHECKS PASSED** ✅ · lint ✅ · typecheck ✅ · `npm test` **111/111** ✅ · build ✅ · `git diff --check` limpio ✅ · sin secretos ✅.
+
 ## Blockers
 
 | Blocker | Detail |
@@ -105,12 +115,13 @@
 | ~~Docker Desktop not installed~~ | Resuelto: Docker Desktop disponible en el entorno; Supabase local corre y `db:reset`/`db:test`/`db:verify` se ejecutan de verdad |
 | ~~psql/pg_ctl/initdb ausentes en Windows~~ | Resuelto: validación SQL local vía contenedor `pg_prove` de Supabase (pgTAP 1.2.0) |
 | `[inbucket]` deprecado (backlog) | Migrar a `[local_smtp]` en un cambio de configuración separado (no mezclar con la corrección PostgREST) |
+| `public_repo`/token scope (histórico) | Token antiguo sin scope bloqueó edición/merge de PR; resuelto con token con scope `repo` (escritura) |
 
 ## Next Action
 
-Esperar revisiones del PR #5 (Arquitectura, BD, Backend, Frontend, Seguridad, QA) y corregir hallazgos con commits nuevos; merge manual a `develop` tras aprobación.
+Merge del PR documental de cierre (#6, docs/f1b-PG-ORG-002-close-phase) tras revisión; preparar inicio de Fase 1B.3 — identidad, sesiones, roles, permisos y RLS (sin implementación funcional aún).
 
 ## Status
 
-Fase 1B.2: READY FOR PR — CI PASS, esperando revisiones (sin COMPLETED/INTEGRATED/MERGED)
-PR #3: MERGED (develop `1ea1246`) | PR #4: OPEN (docs close-phase) | **PR #5: OPEN (Fase 1B.2, CI green)**
+Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`)
+PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: OPEN (cierre documental, sin fusionar)**
