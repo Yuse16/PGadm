@@ -7,6 +7,7 @@ const { resolve } = await import("path");
 const ROOT = resolve(import.meta.dirname, "..");
 const MIGRATIONS_DIR = resolve(ROOT, "supabase/migrations");
 const TESTS_DIR = resolve(ROOT, "supabase/tests");
+const TYPES_PATH = resolve(ROOT, "src/types/database.ts");
 
 let exitCode = 0;
 const results = [];
@@ -22,11 +23,7 @@ function check(label, fn) {
   }
 }
 
-function info(label, detail) {
-  results.push({ label, status: "INFO", detail });
-}
-
-// 1. Docker check
+// 1. Docker available
 check("Docker available", () => {
   try {
     execSync("docker --version", { stdio: "pipe", timeout: 5000 });
@@ -36,7 +33,7 @@ check("Docker available", () => {
   }
 });
 
-// 2. Docker compose check
+// 2. Docker compose available
 check("Docker Compose available", () => {
   execSync("docker compose version", { stdio: "pipe", timeout: 5000 });
   return true;
@@ -88,31 +85,54 @@ check("supabase/config.toml exists", () => {
   return true;
 });
 
-// 7. Supabase status (requires running Docker)
+// 7. Supabase local running (requires Docker)
 check("Supabase local running", () => {
   try {
-    execSync("npx supabase status", { stdio: "pipe", timeout: 10000 });
+    execSync("npx supabase status", { stdio: "pipe", timeout: 15000 });
     return true;
   } catch {
     throw new Error("Supabase local not running. Run: npm run db:start");
   }
 });
 
-// 8. Migration application (dry run if possible)
-check("Migrations apply cleanly", () => {
-  // This would use supabase db reset in practice
-  // For now, we check SQL syntax minimally
-  const files = readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith(".sql"));
-  for (const file of files) {
-    const content = readFileSync(resolve(MIGRATIONS_DIR, file), "utf-8");
-    if (!content.trim()) {
-      throw new Error(`Migration file is empty: ${file}`);
-    }
+// 8. Migrations + seed apply cleanly (full local reset)
+check("Migrations + seed apply cleanly (db reset)", () => {
+  try {
+    execSync("npx supabase db reset", { stdio: "inherit", timeout: 240000 });
+    return true;
+  } catch {
+    throw new Error("Migration/seed application failed. See output above.");
+  }
+});
+
+// 9. Database tests pass (pgTAP + ci_verify) — real execution, failures propagate
+check("Database tests pass (db test)", () => {
+  try {
+    execSync("npx supabase db test", { stdio: "inherit", timeout: 240000 });
+    return true;
+  } catch {
+    throw new Error("Database tests failed. See output above.");
+  }
+});
+
+// 10. Generated types match the committed types (deterministic generation)
+check("Generated database types in sync", () => {
+  if (!existsSync(TYPES_PATH)) {
+    throw new Error(`Committed types file not found: ${TYPES_PATH}. Run: npm run db:types`);
+  }
+  const generated = execSync("npx supabase gen types typescript --local", {
+    encoding: "utf8",
+    timeout: 60000,
+  });
+  const committed = readFileSync(TYPES_PATH, "utf-8");
+  const norm = (s) => s.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\s+$/gm, "").trim();
+  if (norm(generated) !== norm(committed)) {
+    throw new Error(
+      "src/types/database.ts is out of sync with the local database. Run: npm run db:types"
+    );
   }
   return true;
 });
-
-info("Phase 1B.1 status", "Infrastructure prepared. Docker required to execute migrations and SQL tests.");
 
 console.log("\n=== PGadm DB Verification ===\n");
 for (const r of results) {
@@ -124,4 +144,3 @@ console.log(`\nResult: ${exitCode === 0 ? "ALL CHECKS PASSED" : "SOME CHECKS FAI
 console.log(`Exit code: ${exitCode}\n`);
 
 process.exit(exitCode);
-
