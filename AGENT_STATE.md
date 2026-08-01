@@ -94,7 +94,9 @@
 - Docker/WSL OPERATIONAL: contenedores db/kong/studio/pg_meta/realtime healthy; `db:reset`/`db:status` reales.
 - SQL tests 119/119 PASSED; Application tests 81/81 PASSED (lint/typecheck/build verdes; audit 3 high prod baseline sin cambio).
 - Review final independiente completada sin cambios al código; `git diff --check` limpio; sin secretos; staging vacío.
-- Plan de 7 commits ordenados (config → db → test db → core → admin → test org → docs). Pendiente: commits, push, PR, CI, revisiones.
+- **8 commits + push + PR #5 hacia develop**: `1feaf20`, `05f51ce`, `7e36b48`, `beed6bd`, `c8ba689`, `8905489`, `a837d92`, `ad532b1`.
+- **CI PASS** en PR #5: `validate` PASS y `db-validate` PASS (119 pgTAP reales sobre servicio PostgreSQL 15 con extensión pgtap; fix `ad532b1` — antes `ci_verify.sql` pgTAP fallaba en CI por `function plan(integer) does not exist`).
+- Pendiente: revisiones (Arquitectura, BD, Backend, Frontend, Seguridad, QA) y merge manual del PR.
 
 ## Blockers
 
@@ -106,9 +108,9 @@
 
 ## Next Action
 
-Ejecutar plan de 7 commits (commit plan en REPORT_F1B2_NIGHT_SESSION_V2.md y F1B2_DECISION_MATRIX.md), push a origin, crear PR hacia `develop` y esperar CI `db-validate` + revisiones.
+Esperar revisiones del PR #5 (Arquitectura, BD, Backend, Frontend, Seguridad, QA) y corregir hallazgos con commits nuevos; merge manual a `develop` tras aprobación.
 
 ## Status
 
-Fase 1B.2: READY FOR PR — commits y PR pendientes (sin COMPLETED/INTEGRATED/MERGED)
-PR #3: MERGED (develop `1ea1246`) | PR #4: OPEN (docs close-phase)
+Fase 1B.2: READY FOR PR — CI PASS, esperando revisiones (sin COMPLETED/INTEGRATED/MERGED)
+PR #3: MERGED (develop `1ea1246`) | PR #4: OPEN (docs close-phase) | **PR #5: OPEN (Fase 1B.2, CI green)**
