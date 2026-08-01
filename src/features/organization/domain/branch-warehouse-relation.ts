@@ -13,6 +13,7 @@ export interface BranchWarehouseRelation {
   branchId: string;
   warehouseId: string;
   relationshipType: RelationshipType;
+  /** Ordering priority: 1 is the highest priority, lower values are evaluated first (ascending). */
   priority: number;
   active: boolean;
   validFrom: string;
@@ -63,6 +64,11 @@ export function assertRelationshipType(value: string, context: string): Relation
   return value;
 }
 
+/**
+ * Validates the ordering priority of a branch-warehouse relation.
+ * Semantics: 1 is the highest priority and lower values are evaluated first
+ * (ascending order), matching the SQL comment and the repository ordering.
+ */
 export function assertRelationshipPriority(priority: number, context: string): number {
   if (!Number.isInteger(priority) || priority < 1) {
     throw new OrganizationDataError(

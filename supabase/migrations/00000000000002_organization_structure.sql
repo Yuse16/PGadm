@@ -267,7 +267,7 @@ comment on table public.branch_warehouse_relations is
 comment on column public.branch_warehouse_relations.relationship_type is
   'Initial type: supply. Evolving catalog (D15).';
 comment on column public.branch_warehouse_relations.priority is
-  'Ordering priority for the relation (higher wins); default 1.';
+  'Ordering priority for the relation: 1 is the highest priority and lower values are evaluated first (ascending order); default 1.';
 comment on column public.branch_warehouse_relations.active is
   'Whether the relation is currently in effect.';
 comment on column public.branch_warehouse_relations.valid_from is
