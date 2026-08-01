@@ -22,3 +22,13 @@
 | 018 | Seed file empty for Phase 1B.1 | No business entities exist yet; seed data belongs in their respective phase branches | 2026-07-29 |
 | 019 | DB CI uses direct PostgreSQL service (not Supabase) | Simpler, faster, no Docker-in-Docker overhead; Supabase-specific features not needed yet | 2026-07-29 |
 | 020 | pgTAP tests deferred for CI; simple SQL used instead | pgTAP requires extension installation; standard SQL verification is sufficient for Phase 1B.1 | 2026-07-29 |
+| 021 | `project_id = "organization-foundation"` top-level in `config.toml` | Required by Supabase CLI v2.111.0; obsolete `[project]` section removed | 2026-08-01 |
+| 022 | Migration 002: organizations, branches, warehouses, branch_warehouse_relations | Core org model with composite FKs, uniques, CHECKs, triggers, minimal PG15-safe revokes | 2026-08-01 |
+| 023 | Idempotent demo seed (PGM, NOG, SAL, NOG-01, SAL-01) | Deterministic fixtures for dev and UI; codes "pending validation" used as external_id | 2026-08-01 |
+| 024 | `src/types/database.ts` generated via `db:types` | DB is single source of truth; replaces manual contract; verified deterministic | 2026-08-01 |
+| 025 | `ci_verify.sql` converted to pgTAP `plan(41)` | Plain SQL emitted no plan and pg_prove exited 1; real TAP assertions now count (30 structural + 11 behavioral) | 2026-08-01 |
+| 026 | `test_organization_structure.sql` rebuilt as pgTAP `plan(66)` | Incident: file emptied by invalid PowerShell `-replace`; rebuilt verbatim and validated against real local DB | 2026-08-01 |
+| 027 | `scripts/verify-db.mjs` with 10 checks and exit ≠ 0 on failure | Runs real `db reset` + `db test` + deterministic types; hard gate for CI/local | 2026-08-01 |
+| 028 | Repository uses normal anon client, no `service_role` | Principle of least privilege; service-role isolation review completed (F1B2_SERVICE_ROLE_REVIEW.md) | 2026-08-01 |
+| 029 | `/admin/organization` server component with `force-dynamic` | Reads seed/demo data safely, empty/error states, no client secrets | 2026-08-01 |
+| 030 | No auth, roles, permissions, functional RLS, or inventory in Phase 1B.2 | Out of scope; deferred to Phase 1B.3 (identity, sessions, RBAC — drafts ready) | 2026-08-01 |
