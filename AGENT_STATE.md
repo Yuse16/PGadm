@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.2 — COMPLETED AND INTEGRATED**
+- Current Phase: **1B.3 — IN PROGRESS** (turno de tarde: kickoff controlado)
 - Integration Branch: `develop`
-- Active Feature Branch: `feature/f1b-PG-ORG-002-organization-branches-warehouses` (conservada, sin borrar)
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\organization-foundation` (conservado, sin borrar)
-- Status: Fase 1B.2 integrada en develop vía PR #5 (merge commit `05872c9`); db:verify ALL CHECKS PASSED; SQL 119/119; app 111/111
-- Last Stable Commit (develop): `05872c9` (merge PR #5)
-- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado por cierre actualizado) | **#5 — MERGED** | #6 — OPEN (cierre documental)
-- Next Phase: 1B.3 — identidad, sesiones, roles, permisos y RLS (planning docs drafted)
+- Active Feature Branch: `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado — docs, modelo y migración 003 inicial; sin PR ni merge
+- Last Stable Commit (develop): `3c4b258` (merge PR #6, cierre documental 1B.2)
+- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2)
+- Next Phase: 1B.3 en curso — identidad, sesiones, roles, permisos y RLS (subfases 1B.3A–D)
 
 ## Active Agents
 
@@ -119,9 +119,10 @@
 
 ## Next Action
 
-Merge del PR documental de cierre (#6, docs/f1b-PG-ORG-002-close-phase) tras revisión; preparar inicio de Fase 1B.3 — identidad, sesiones, roles, permisos y RLS (sin implementación funcional aún).
+Continuar Fase 1B.3 en el turno nocturno según `F1B3_AFTERNOON_HANDOFF.md`: implementar auth/sesiones (1B.3A), RBAC (1B.3B), grants y RLS (1B.3C) y validación end-to-end con cambio a `ORGANIZATION_DATA_SOURCE=supabase` (1B.3D).
 
 ## Status
 
-Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`)
-PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: OPEN (cierre documental, sin fusionar)**
+Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
+Fase 1B.3: **IN PROGRESS** — kickoff de tarde en `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` (sin PR, sin merge)
+PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED**
