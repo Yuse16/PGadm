@@ -1,14 +1,11 @@
-[project]
-name = "pgadm"
-ref = "local"
-id = "pgadm-local"
+project_id = "organization-foundation"
 
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "pg_graphql", "pgbouncer"]
-extra_search_path = ["public"]
-max_request_size = 5_000_000
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
 [db]
 port = 54322
@@ -35,10 +32,3 @@ enabled = false
 
 [experimental]
 orioledb_version = ""
-
-[analytics.vector]
-enabled = false
-
-# Local-only — never commit real values
-[auth.email]
-enabled = false
