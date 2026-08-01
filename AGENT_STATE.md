@@ -3,26 +3,27 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.1 — READY FOR MERGE**
+- Current Phase: **1B.2 — READY FOR PR (commits pending)**
 - Integration Branch: `develop`
-- Active Feature Branch: `feature/f1b-PG-DATA-001-supabase-foundation`
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\supabase-foundation`
-- Status: Supabase local infrastructure prepared (config, migration, TS boundaries, tests)
-- Last Stable Commit (develop): `f9259ed`
-- PRs: #1 — MERGED | #2 — MERGED | **#3 — OPEN — CHECKS PASSED**
-- Next Phase: 1B.2 (after PR merge)
+- Active Feature Branch: `feature/f1b-PG-ORG-002-organization-branches-warehouses`
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\organization-foundation`
+- Status: DB local funcional y validada (db:verify ALL PASSED); schema, domain, UI y tests implementados; commits y PR listos
+- Last Stable Commit (develop): `1ea1246`
+- PRs: #1 — MERGED | #2 — MERGED | **#3 — MERGED** | #4 — OPEN (docs close-phase)
+- Next Phase: 1B.3 (identity, sessions, RBAC — planning docs drafted)
 
 ## Active Agents
 
 | Agent | Role |
 |-------|------|
 | Orquestador | Phase coordination |
-| Arquitectura | DB foundation & conventions |
-| Base de datos | Migration, seed, SQL tests |
-| Backend | Supabase client/server boundaries |
-| QA | 29 tests (10 existing + 19 new) |
-| Seguridad | Client/server separation, no secrets, schema locked |
-| Documentación | State, decisions, changelog, handoff updated |
+| Arquitectura | Organization model, decisions matrix |
+| Base de datos | Migration 002, seed, SQL tests |
+| Backend | Organization domain, application, infrastructure |
+| Frontend/UX | Admin organization overview |
+| QA | 81 tests (36 existing baseline + 45 org) |
+| Seguridad | Service role isolation review, no secrets |
+| Documentación | Matrix, worklog, report, handoff draft |
 
 ## Phase 1A Summary
 
@@ -52,17 +53,64 @@
 **Cross-reviews completed:** Architecture ✅ | Security ✅ | QA ✅
 **All gates pass:** lint ✅ typecheck ✅ 29 tests ✅ build ✅ db:verify ✅
 
+## Phase 1B.2 Summary (31 Jul 2026 — no commits)
+
+- Migration `00000000000002_organization_structure.sql`: organizations, branches, warehouses, branch_warehouse_relations; FK compuestas, unicidades, CHECKs, triggers, revokes mínimos (PG15-safe)
+- Seed idempotente: PGM / Nogalera (store) / CEDIS Saltillo (distribution_center) / NOG-01 / SAL-01 / relación supply
+- `src/types/database.ts` escrito manualmente (contrato tipado de migración 002; será reemplazado por `db:types`)
+- Dominio `src/features/organization/domain` + aplicación (`getOrganizationStructure`, `listBranches`) + infraestructura (mappers + `SupabaseOrganizationRepository`, anon server)
+- UI `/admin/organization`: overview de organización, tarjetas de sucursal, almacenes, estados seguros
+- Pruebas: 45 nuevas (79/79 total) + pgTAP `plan(66)` + sección 1B.2 en `ci_verify.sql`
+- Seguridad: repositorio normal sin service role; guard de configuración; feature sin secretos
+- Docs: F1B2_DECISION_MATRIX, F1B2_SERVICE_ROLE_REVIEW, F1B3_DISCOVERY, F1B3_DATA_MODEL_PROPOSAL, F1B3_TEST_PLAN, NIGHT_WORKLOG_F1B2, REPORT_F1B2_NIGHT_SESSION, HANDOFF_F1B2_DRAFT
+- Todos los cambios sin staging; cero commits sobre develop
+
+## Phase 1B.2 Turno V2 Summary (31 Jul 2026 — uso amplio de documentación, no commits)
+
+- Contrato V2 (`PGadm_Turno_Nocturno_Uso_Amplio_Documentacion_F1B2_V2.md`) ejecutado: inventario automatizado de **1264 `.md`** (1186 packs, 66 orchestration, 12 raíz)
+- Fase documental completada en ~25 min (límite 90): F1B2_DOCUMENT_USAGE_INDEX, F1B2_AGENT_FINDINGS, F1B2_ORCHESTRATION_CONTENT_MAP, F1B2_DECISION_MATRIX re-validada — exploración general CERRADA
+- Anomalía confirmada: 11/11 workflows en `docs/orchestration/workflows/` con nombre ≠ contenido (rotación); registrada, NO corregida
+- Corrección §14: `select("*")` → selección explícita de columnas en `supabase-organization-repository.ts` (4 const arrays + `.join(", ")`)
+- Corrección §16: etiqueta "Fuente de datos" (external source o seed demo) en `organization-overview.tsx` (+2 tests)
+- Gates verdes: lint ✅ typecheck ✅ **81/81 tests** ✅ build ✅ audit (3 high prod, sin cambio) ✅ sin secretos ✅
+- Preparación 1B.3 completa: `F1B3_RBAC_MATRIX_DRAFT.md` creado
+- Docs V2: NIGHT_WORKLOG_F1B2_V2, REPORT_F1B2_NIGHT_SESSION_V2, HANDOFF_F1B2_DRAFT_V2
+
+## Phase 1B.2 Fix Session Summary (1 Aug 2026 — no commits)
+
+- **Config Supabase local reparada** (`supabase/config.toml` para CLI v2.111.0): `project_id = "organization-foundation"` top-level; `[api] schemas = ["public","storage"]`, `extra_search_path`, `max_rows = 1000`; eliminados `[project]`, `[analytics.vector]`, `[auth.email]`. PostgREST ya no intenta cargar `pg_graphql`.
+- **pgTAP corregido** (`test_organization_structure.sql`, pgTAP 1.2.0): `col_is_not_null` → `col_not_null` (5), `index_is_unique` 5-arg (boolean) → 4-arg (7), `throws_ok` texto → `'23514'::character(5), NULL` (8) para validar SQLSTATE real. **66/66 green**.
+- **`ci_verify.sql` convertido a pgTAP** (plan 41 = 30 estructurales + 11 behavioral): antes emitía SQL plano y pg_prove reportaba "No plan found" (exit 1). Ahora cada check es aserción real (ok/lives_ok/throws_ok con guards de fixtures y dollar-quoting). Checks que antes eran texto "PASS/FAIL" no bloqueante ahora se validan activamente.
+- **`scripts/verify-db.mjs` reescrito**: 10 checks — Docker, compose, migraciones, seed, config, supabase status, `db reset` y `db test` reales (stdio inherit), tipos generados vs committed (normalización BOM/CRLF/whitespace). Exit ≠ 0 ante fallo. Lint sin warnings.
+- **`src/types/database.ts` regenerado** con `db:types` (494 líneas) y alineado con repo (línea final limpia).
+- **Gates verdes**: lint ✅ typecheck ✅ 81/81 tests TS ✅ build ✅ audit (3 high prod, sin cambio) ✅ `db:test` 119/119 ✅ `db:verify` ALL PASS ✅ sin secretos ✅ `git diff --check` limpio ✅
+- **Incidente de datos**: `test_organization_structure.sql` (untracked) quedó vacío por un `-replace` con regex inválida en PowerShell; se reconstruyó íntegro (66 aserciones, behavioral verbatim) y validó contra la BD real.
+- Todos los cambios sin staging; cero commits.
+
+## Phase 1B.2 READY FOR PR (1 Aug 2026)
+
+- Fase 1B.2 lista para PR hacia `develop` (sin merge). Rama: `feature/f1b-PG-ORG-002-organization-branches-warehouses`.
+- Validación local DB PASSED: `db:test` 119/119 (66 org + 41 ci + 12 base), `db:verify` ALL CHECKS PASSED.
+- Docker/WSL OPERATIONAL: contenedores db/kong/studio/pg_meta/realtime healthy; `db:reset`/`db:status` reales.
+- SQL tests 119/119 PASSED; Application tests 81/81 PASSED (lint/typecheck/build verdes; audit 3 high prod baseline sin cambio).
+- Review final independiente completada sin cambios al código; `git diff --check` limpio; sin secretos; staging vacío.
+- **8 commits + push + PR #5 hacia develop**: `1feaf20`, `05f51ce`, `7e36b48`, `beed6bd`, `c8ba689`, `8905489`, `a837d92`, `ad532b1`.
+- **CI PASS** en PR #5: `validate` PASS y `db-validate` PASS (119 pgTAP reales sobre servicio PostgreSQL 15 con extensión pgtap; fix `ad532b1` — antes `ci_verify.sql` pgTAP fallaba en CI por `function plan(integer) does not exist`).
+- Pendiente: revisiones (Arquitectura, BD, Backend, Frontend, Seguridad, QA) y merge manual del PR.
+
 ## Blockers
 
 | Blocker | Detail |
 |---------|--------|
-| Docker Desktop not installed | `npm run db:start`, `db:stop`, `db:status`, `db:reset`, `db:test`, `db:types` require Docker. CI db-validate will run on GitHub Actions. |
+| ~~Docker Desktop not installed~~ | Resuelto: Docker Desktop disponible en el entorno; Supabase local corre y `db:reset`/`db:test`/`db:verify` se ejecutan de verdad |
+| ~~psql/pg_ctl/initdb ausentes en Windows~~ | Resuelto: validación SQL local vía contenedor `pg_prove` de Supabase (pgTAP 1.2.0) |
+| `[inbucket]` deprecado (backlog) | Migrar a `[local_smtp]` en un cambio de configuración separado (no mezclar con la corrección PostgREST) |
 
 ## Next Action
 
-Merge PR #3 toward develop (merge commit, no squash/rebase) once authorized.
+Esperar revisiones del PR #5 (Arquitectura, BD, Backend, Frontend, Seguridad, QA) y corregir hallazgos con commits nuevos; merge manual a `develop` tras aprobación.
 
 ## Status
 
-Fase 1B.1: READY FOR MERGE
-PR #3: OPEN — CHECKS PASSED
+Fase 1B.2: READY FOR PR — CI PASS, esperando revisiones (sin COMPLETED/INTEGRATED/MERGED)
+PR #3: MERGED (develop `1ea1246`) | PR #4: OPEN (docs close-phase) | **PR #5: OPEN (Fase 1B.2, CI green)**
