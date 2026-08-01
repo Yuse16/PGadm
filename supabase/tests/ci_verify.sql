@@ -79,8 +79,8 @@ select ok(
 );
 
 select ok(
-  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('users', 'roles', 'permissions', 'user_profiles', 'customers', 'products', 'inventory_items')),
-  'No prohibited tables in F1B2 scope'
+  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('users', 'user_profiles', 'customers', 'products', 'inventory_items')),
+  'No F1B2-prohibited tables beyond the F1B3 identity scope'
 );
 
 -- Primary keys

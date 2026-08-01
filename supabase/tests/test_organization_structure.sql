@@ -6,7 +6,7 @@
 -- Compatibility: pgTAP 1.2.0 (no boolean overloads for index_is_unique).
 
 begin;
-select plan(66);
+select plan(65);
 
 -- ============================================================
 -- 1. Table existence (F1B2 scope)
@@ -18,9 +18,9 @@ select has_table('public', 'branch_warehouse_relations', 'branch_warehouse_relat
 
 -- ============================================================
 -- 2. Scope exclusions: no auth tables in F1B2
+-- (profiles/roles/permissions moved to F1B3; see migration 003)
 -- ============================================================
 select hasnt_table('public', 'users', 'users table must not exist in F1B2 scope');
-select hasnt_table('public', 'profiles', 'profiles table must not exist in F1B2 scope');
 
 -- ============================================================
 -- 3. organizations: columns
