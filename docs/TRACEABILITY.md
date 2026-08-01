@@ -22,11 +22,12 @@ Maps each requirement rule → source pack → responsible agent → history fil
 
 ## Phase 1B.2 Implementation
 
+- **Status**: **COMPLETED AND INTEGRATED** — merged into `develop` via PR #5 (merge commit `05872c9`); closed by `docs/f1b-PG-ORG-002-close-phase` (PR #6).
 - **Scope**: Organization structure (branches and warehouses) — Phase 1B.2 feature branch `feature/f1b-PG-ORG-002-organization-branches-warehouses`.
-- **History**: `docs/orchestration/handoffs/` (F1B2_DECISION_MATRIX.md, NIGHT_WORKLOG_F1B2*.md, REPORT_F1B2_*.md, HANDOFF_F1B2_DRAFT_V2.md) and root `DECISION_LOG.md` (D021–D030).
-- **Code**: `src/features/organization/` (domain/application/infrastructure) + `src/app/admin/organization/`.
-- **Tests**: `supabase/tests/test_organization_structure.sql` (66), `supabase/tests/ci_verify.sql` (41) + `src/tests/features/organization/` (TS/React).
-- **Data model**: `supabase/migrations/00000000000002_organization_structure.sql`.
+- **History**: `docs/orchestration/handoffs/` (F1B2_DECISION_MATRIX.md, NIGHT_WORKLOG_F1B2*.md, REPORT_F1B2_*.md, HANDOFF_F1B2_DRAFT_V2.md, HANDOFF_003_F1B_PG_ORG_002...) and root `DECISION_LOG.md` (D021–D033).
+- **Code**: `src/features/organization/` (domain/application/infrastructure) + `src/app/admin/organization/`. Data source: `DemoOrganizationRepository` (default, `ORGANIZATION_DATA_SOURCE=demo`) + `SupabaseOrganizationRepository` (anon, reserved for Phase 1B.3).
+- **Tests**: `supabase/tests/test_organization_structure.sql` (66), `supabase/tests/ci_verify.sql` (41) + `src/tests/features/organization/` (TS/React) → **119/119 SQL, 111/111 app**.
+- **Data model**: `supabase/migrations/00000000000002_organization_structure.sql` (priority semantics: 1 = highest, ascending).
 - Rule-to-code mapping will be completed as requirement rules are stabilized (see Implementation Notes below).
 
 ## Implementation Notes

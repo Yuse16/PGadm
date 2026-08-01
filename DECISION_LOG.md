@@ -32,3 +32,6 @@
 | 028 | Repository uses normal anon client, no `service_role` | Principle of least privilege; service-role isolation review completed (F1B2_SERVICE_ROLE_REVIEW.md) | 2026-08-01 |
 | 029 | `/admin/organization` server component with `force-dynamic` | Reads seed/demo data safely, empty/error states, no client secrets | 2026-08-01 |
 | 030 | No auth, roles, permissions, functional RLS, or inventory in Phase 1B.2 | Out of scope; deferred to Phase 1B.3 (identity, sessions, RBAC — drafts ready) | 2026-08-01 |
+| 031 | `DemoOrganizationRepository` explícito + `ORGANIZATION_DATA_SOURCE=demo` (default) | Anon no puede leer tablas owner-only hasta 1B.3 (auth+grants+RLS); selección determinista explícita, nunca fallback silencioso tras un fallo | 2026-08-01 |
+| 032 | Semántica de `priority`: 1 = mayor prioridad, orden `ascending` | Unifica comentario SQL, repositorio, dominio y fixtures; 1 evaluado antes que 2; cubierto por `priority-semantics.test.ts` | 2026-08-01 |
+| 033 | PR #5 merged vía merge commit `05872c9`; Fase 1B.2 COMPLETED AND INTEGRATED | Merge commit (no squash/rebase/force); 12 commits integrados en develop; cierre documental en PR #6 | 2026-08-01 |
