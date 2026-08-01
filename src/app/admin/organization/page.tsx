@@ -3,7 +3,10 @@ import type { ReactNode } from "react";
 import { getOrganizationStructure } from "@/features/organization/application";
 import type { OrganizationStructureResult } from "@/features/organization/application";
 import { OrganizationOverview } from "@/features/organization/components/organization-overview";
-import { SupabaseOrganizationRepository } from "@/features/organization/infrastructure";
+import {
+  createOrganizationRepository,
+  getOrganizationDataSource,
+} from "@/features/organization/infrastructure";
 import {
   OrganizationError,
   OrganizationNotFoundError,
@@ -15,7 +18,8 @@ export const dynamic = "force-dynamic";
 const DEMO_ORGANIZATION_CODE = "PGM";
 
 export default async function OrganizationPage() {
-  const repository = new SupabaseOrganizationRepository();
+  const dataSource = getOrganizationDataSource();
+  const repository = createOrganizationRepository(dataSource);
 
   let structure: OrganizationStructureResult | null = null;
   let errorMessage: ReactNode = null;
@@ -32,7 +36,7 @@ export default async function OrganizationPage() {
       errorMessage = (
         <EmptyState
           title="Base de datos no configurada"
-          message="Este entorno no tiene credenciales de Supabase. Conecta la base de datos para ver la estructura de la organización."
+          message={error.message}
         />
       );
     } else if (error instanceof OrganizationNotFoundError) {
@@ -77,7 +81,11 @@ export default async function OrganizationPage() {
           Sucursales y almacenes · Fase 1B.2
         </p>
       </header>
-      {structure ? <OrganizationOverview structure={structure} /> : errorMessage}
+      {structure ? (
+        <OrganizationOverview structure={structure} dataSource={dataSource} />
+      ) : (
+        errorMessage
+      )}
     </div>
   );
 }

@@ -27,9 +27,10 @@ export class OrganizationDataError extends OrganizationError {
 }
 
 export class RepositoryConfigurationError extends OrganizationError {
-  constructor() {
+  constructor(message?: string) {
     super(
-      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to query a database."
+      message ??
+        "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to query a database."
     );
     this.name = "RepositoryConfigurationError";
   }

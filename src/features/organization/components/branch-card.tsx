@@ -42,6 +42,11 @@ export function BranchCard({
           <p className="text-sm text-gray-500">
             {branch.code} · {BRANCH_TYPE_LABELS[branch.branchType]}
           </p>
+          {branch.externalSource && branch.externalId ? (
+            <p className="mt-0.5 text-xs text-gray-400">
+              {branch.externalSource} · {branch.externalId}
+            </p>
+          ) : null}
         </div>
         <StatusBadge status={branch.status} />
       </div>

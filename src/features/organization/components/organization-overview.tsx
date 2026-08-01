@@ -1,12 +1,25 @@
 import type { OrganizationStructureResult } from "../application";
 import { BranchCard } from "./branch-card";
+import {
+  ORGANIZATION_DATA_SOURCE_LABELS,
+  type OrganizationDataSource,
+} from "../infrastructure";
 
 export function OrganizationOverview({
   structure,
+  dataSource,
 }: {
   structure: OrganizationStructureResult;
+  dataSource: OrganizationDataSource;
 }) {
   const { organization, branches } = structure;
+
+  const sourceLabel =
+    dataSource === "demo"
+      ? ORGANIZATION_DATA_SOURCE_LABELS.demo
+      : organization.externalSource && organization.externalId
+        ? `${organization.externalSource} (${organization.externalId})`
+        : "Base de datos (seed demo)";
 
   return (
     <div className="space-y-8">
@@ -21,10 +34,7 @@ export function OrganizationOverview({
               {organization.code} · {organization.id}
             </p>
             <p className="mt-1 text-xs text-gray-400">
-              Fuente de datos:{" "}
-              {organization.externalSource && organization.externalId
-                ? `${organization.externalSource} (${organization.externalId})`
-                : "Base de datos (seed demo)"}
+              Fuente de datos: {sourceLabel}
             </p>
           </div>
           <StatusPill status={organization.status} />
