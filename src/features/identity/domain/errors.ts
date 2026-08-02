@@ -18,3 +18,9 @@ export class ForbiddenError extends IdentityError {
     this.name = 'ForbiddenError';
   }
 }
+
+/** Typed error payload for session/authorization UI states. */
+export interface SessionError {
+  readonly code: string;
+  readonly message: string;
+}
