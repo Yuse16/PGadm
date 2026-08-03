@@ -59,8 +59,17 @@ select col_not_null('public', 'organization_memberships', 'organization_id', 'or
 select col_not_null('public', 'organization_memberships', 'user_id', 'organization_memberships.user_id should be NOT NULL');
 
 -- 9. organization_memberships: composite primary key (D04)
-select col_is_pk('public', 'organization_memberships', array['organization_id', 'user_id'],
-  'organization_memberships should have composite PK (organization_id, user_id) (D04)');
+select is(
+  (select array(
+    select a.attname::text
+    from pg_index i
+    join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey)
+    where i.indrelid = 'public.organization_memberships'::regclass and i.indisprimary
+    order by a.attnum
+  )),
+  array['organization_id', 'user_id']::text[],
+  'organization_memberships PK should be exactly (organization_id, user_id) (D04)'
+);
 
 -- ============================================================
 -- 10. roles: columns
