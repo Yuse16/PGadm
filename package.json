@@ -18,7 +18,8 @@
     "db:lint": "npx supabase db lint",
     "db:test": "npx supabase db test",
     "db:types": "npx supabase gen types typescript --local > src/types/database.ts",
-    "db:verify": "node scripts/verify-db.mjs"
+    "db:verify": "node scripts/verify-db.mjs",
+    "e2e:auth": "node scripts/e2e-auth.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

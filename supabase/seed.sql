@@ -113,8 +113,13 @@ on conflict (branch_id, warehouse_id, relationship_type) do nothing;
 -- with the full local stack (decision D22).
 -- Idempotent: ON CONFLICT (no target) for tables with partial indexes.
 -- Order matters: Org B is created before roles/memberships that
--- reference it (FK dependencies).
+-- reference it (FK dependencies). The whole identity section runs in ONE
+-- transaction: with the deferred profiles_auth_user_fk (migration 005) every
+-- profile must have a matching auth.users row at COMMIT, so the fixture auth
+-- users are created here before the commit (1B.3D-1, decision D22).
 -- ============================================================
+
+begin;
 
 -- Second organization for isolation tests (Org B)
 insert into public.organizations (id, code, name, status, timezone, currency, language)
@@ -193,6 +198,33 @@ values
   ('30000000-0000-0000-0000-000000000006', 'Admin PGM', 'admin@pgm.local', 'active')
 on conflict (id) do nothing;
 
+-- Auth users for the structural profiles (1B.3D-1, decision D22). Must come
+-- AFTER the profiles insert: the AFTER INSERT trigger _core.sync_profile()
+-- fires on every auth.users insert and its ON CONFLICT DO NOTHING preserves the
+-- richer profile row (full_name/status) loaded above, inside this transaction.
+-- Dummy emails only (RFC 2606 *.local) and NO real credentials: encrypted_password
+-- stays NULL — these are structural identities for JWT/RLS tests, not login
+-- accounts. Guarded: no auth schema on plain-PG CI (migrations 003/005 no-op).
+do $$
+begin
+  if exists (select 1 from pg_namespace where nspname = 'auth') then
+    insert into auth.users (
+      id, instance_id, aud, role, email, email_confirmed_at,
+      raw_app_meta_data, raw_user_meta_data, is_sso_user, is_anonymous,
+      created_at, updated_at
+    )
+    values
+      ('30000000-0000-0000-0000-000000000001', null, 'authenticated', 'authenticated', 'user.a@pgm.local',   now(), '{}', '{}', false, false, now(), now()),
+      ('30000000-0000-0000-0000-000000000002', null, 'authenticated', 'authenticated', 'user.b@pgm.local',   now(), '{}', '{}', false, false, now(), now()),
+      ('30000000-0000-0000-0000-000000000003', null, 'authenticated', 'authenticated', 'user.x@pgm.local',   now(), '{}', '{}', false, false, now(), now()),
+      ('30000000-0000-0000-0000-000000000004', null, 'authenticated', 'authenticated', 'user.in@pgm.local',  now(), '{}', '{}', false, false, now(), now()),
+      ('30000000-0000-0000-0000-000000000005', null, 'authenticated', 'authenticated', 'user.nom@pgm.local', now(), '{}', '{}', false, false, now(), now()),
+      ('30000000-0000-0000-0000-000000000006', null, 'authenticated', 'authenticated', 'admin@pgm.local',    now(), '{}', '{}', false, false, now(), now())
+    on conflict (id) do nothing;
+  end if;
+end
+$$;
+
 -- Memberships: user_A/user_X/user_IN/admin_PGM in PGM, user_B in Demo B.
 -- user_NOM intentionally has no membership (ACC-09).
 insert into public.organization_memberships (organization_id, user_id, status)
@@ -221,3 +253,5 @@ values
   ('10000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000004',
    '40000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002', 'active')
 on conflict do nothing;
+
+commit;
