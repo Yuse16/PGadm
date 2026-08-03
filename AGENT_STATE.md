@@ -3,11 +3,11 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.3 — IN PROGRESS** (turno de tarde: kickoff controlado)
+- Current Phase: **1B.3 — 1B.3C COMPLETED / 1B.3D PENDING** (turno nocturno)
 - Integration Branch: `develop`
 - Active Feature Branch: `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado — docs, modelo y migración 003 inicial; sin PR ni merge
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado; **1B.3A/1B.3B entregadas** (migración 003) y **1B.3C COMPLETED** (migración 004 + tests RLS, commit `4a3c553`); sin PR ni merge; **1B.3D PENDING**
 - Last Stable Commit (develop): `3c4b258` (merge PR #6, cierre documental 1B.2)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2)
 - Next Phase: 1B.3 en curso — identidad, sesiones, roles, permisos y RLS (subfases 1B.3A–D)
@@ -119,6 +119,15 @@
 - **9 commits en rama, push `-u origin` completado** (`2a2cb89`…`cb73a5b`). `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos.
 - **Continuidad:** turno nocturno → 1B.3C (RLS + `_access` helpers, ACC-01..12, 15, 17..21) y 1B.3D (FK profiles→auth.users + auth users reales, switch a `supabase` con decisión documentada).
 
+## Phase 1B.3C Night Summary (3 Aug 2026 — rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`)
+
+- **Migración `00000000000004_identity_rbac_rls.sql`:** 22 políticas allowlist (único rol objetivo `authenticated`), RLS en las 6 tablas de identidad (FORCE off, D20), helpers `_access` (current_user_id INVOKER; current_organization_ids / has_permission / role_in_own_orgs / role_belongs_to_organization DEFINER + `_core.sync_profile` DEFINER) con `SET search_path=''`, REVOKE ALL FROM PUBLIC, EXECUTE mínimo; grants mínimos (nunca GRANT ALL; profiles UPDATE solo full_name/phone/email); bootstrap NOLOGIN anon/authenticated/service_role solo si faltan (CI plain-PG15 determinista); identidad vía GUC `request.jwt.claim.sub` (CI-safe y Supabase-safe). Whitelist DEFINER exacta validada (ACC-18).
+- **Tests:** `test_identity_rbac_rls.sql` nuevo (ACC-01..12, 15, 17..21, **139 aserciones**) + `test_identity_rbac.sql` ajustado (`sync_profile` DEFINER esperado). `db:test` **336/336** PASS (5 archivos). Fixtures multi-org del seed (orgs PGM/PGM-DEMO-B, roles globales/de org, permisos, membresías inactivas, rol `legacy` test-only para ACC-07).
+- **CI plain-PG15 validado localmente:** contenedor `postgres:15` + pgTAP (sin schema `auth`, sin roles runtime) → migraciones + seed + **336/336** ok. Reproduce el job `db-validate` del PR.
+- **Gates:** lint ✅ typecheck ✅ **133/133** tests TS ✅ build ✅ `db:reset` ✅ `db:test` 336/336 ✅ `db:lint` sin errores ✅ `db:verify` ALL CHECKS PASSED ✅ `git diff --check` limpio ✅ sin secretos ✅. audit (4 high prod = baseline) sin cambio.
+- **Commit + push (sin PR):** `4a3c553` — migración 004, `test_identity_rbac_rls.sql`, ajuste `test_identity_rbac.sql`, `F1B3_RLS_POLICY_DESIGN.md` (§7 rollback manual documentado, sin `down/`).
+- **1B.3C COMPLETED / 1B.3D PENDING.** `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos; `src/tests/features/identity/feature-security.test.ts` sin modificar.
+
 ## Blockers
 
 | Blocker | Detail |
@@ -130,10 +139,10 @@
 
 ## Next Action
 
-Continuar Fase 1B.3 en el turno nocturno según `F1B3_AFTERNOON_HANDOFF.md`: implementar auth/sesiones (1B.3A), RBAC (1B.3B), grants y RLS (1B.3C) y validación end-to-end con cambio a `ORGANIZATION_DATA_SOURCE=supabase` (1B.3D).
+Iniciar **1B.3D** (validación end-to-end multi-usuario/multi-organización; `auth` habilitado para signup real, FK diferida profiles→auth.users, cambio a `ORGANIZATION_DATA_SOURCE=supabase` con decisión documentada) — desde la rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` (estado `4a3c553`).
 
 ## Status
 
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
-Fase 1B.3: **IN PROGRESS** — kickoff de tarde en `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` (sin PR, sin merge)
+Fase 1B.3: **IN PROGRESS** — 1B.3A/1B.3B entregadas (migración 003) · **1B.3C COMPLETED** (commit `4a3c553`, push sin PR) · **1B.3D PENDING**
 PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED**
