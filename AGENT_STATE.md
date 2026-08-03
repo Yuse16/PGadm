@@ -108,6 +108,17 @@
 - **Validación manual real**: `GET /admin/organization` → HTTP 200 con seed completo (PGM, NOG, SAL, NOG-01, SAL-01) y "Fuente de datos: Datos demo locales"; modo `supabase` verificado a fallo ruidoso sin fallback.
 - **Regresión post-merge (repositorio principal)**: `npm ci` ✅ · `db:reset` ✅ · `db:test` **119/119** ✅ · `db:types` ✅ · `db:verify` **ALL CHECKS PASSED** ✅ · lint ✅ · typecheck ✅ · `npm test` **111/111** ✅ · build ✅ · `git diff --check` limpio ✅ · sin secretos ✅.
 
+## Phase 1B.3 Afternoon Summary (1 Aug 2026 — rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`)
+
+- **Base:** develop `3c4b258` (PR #6 MERGED). **Sin PR, sin merge, sin tocar main/develop.**
+- **Docs:** `F1B3_KICKOFF_CONTRACT.md`, `F1B3_DECISION_MATRIX.md` (D01–D25 CERRADAS), `F1B3_THREAT_MODEL.md` (T01–T15), `F1B3_MIGRATION_PLAN.md` (layers 1B.3A–D, decisión 6.1: trigger `_access.enforce_role_organization`), `F1B3_ACCESS_TEST_MATRIX.md` (ACC-01..21), `F1B3_AFTERNOON_HANDOFF.md`.
+- **Migración `00000000000003_identity_rbac_foundation.sql`:** `profiles` (1:1 con auth.users, FK diferida a 1B.3D), `organization_memberships` (PK compuesta), `roles` (global vs org, unicidad parcial), `permissions` (catálogo), `role_permissions`, `user_role_assignments` (FK compuestas + trigger `_access`); helpers `security invoker` con search_path fijo (sin `SECURITY DEFINER`); sync `auth.users→profiles` condicional (plain-PG CI-safe); grants mínimos (patrón 002).
+- **Seed:** fixtures multi-org idempotentes (Org A PGM + Org B `PGM-DEMO-B`; permisos, roles `administrator` global / `manager` / `cashier` / `operator`, memberships y assignments; sin credenciales reales).
+- **Pruebas SQL:** `db:test` **197/197** PASS (79 nuevas en `test_identity_rbac.sql`; ajuste pgTAP 1.2.0: PK compuesta vía `is()`); `ci_verify.sql` y `test_organization_structure.sql` actualizados (removidas aserciones `hasnt_table` obsoletas por 003).
+- **Gates:** lint ✅ typecheck ✅ **133/133** tests TS ✅ build ✅ `git diff --check` limpio ✅ `db:verify` ALL CHECKS PASSED ✅ audit (4 high prod = baseline, `--force` prohibido) ✅ sin secretos ✅.
+- **9 commits en rama, push `-u origin` completado** (`2a2cb89`…`cb73a5b`). `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos.
+- **Continuidad:** turno nocturno → 1B.3C (RLS + `_access` helpers, ACC-01..12, 15, 17..21) y 1B.3D (FK profiles→auth.users + auth users reales, switch a `supabase` con decisión documentada).
+
 ## Blockers
 
 | Blocker | Detail |
