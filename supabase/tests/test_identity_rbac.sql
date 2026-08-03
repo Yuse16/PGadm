@@ -194,8 +194,8 @@ select ok(
 );
 select ok(
   exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = '_core' and p.proname = 'sync_profile' and not p.prosecdef),
-  'sync_profile must NOT be SECURITY DEFINER (D15)'
+    where n.nspname = '_core' and p.proname = 'sync_profile' and p.prosecdef),
+  'sync_profile must be SECURITY DEFINER (documented D15 exception, migration 004)'
 );
 
 -- ============================================================
