@@ -3,11 +3,11 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.3 — 1B.3C COMPLETED / 1B.3D PENDING** (turno nocturno)
+- Current Phase: **1B.3 — 1B.3D-1 COMPLETED / 1B.3D-2 PENDING** (turno nocturno)
 - Integration Branch: `develop`
 - Active Feature Branch: `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado; **1B.3A/1B.3B entregadas** (migración 003) y **1B.3C COMPLETED** (migración 004 + tests RLS, commit `4a3c553`); sin PR ni merge; **1B.3D PENDING**
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado; **1B.3A/1B.3B entregadas** (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS, commit `4a3c553`); **1B.3D-1 COMPLETED** (auth local + migración 005 FK + migración 006 fix current_user_id + seed auth fixtures + suite auth + E2E, commits `e3ba875`); sin PR ni merge; **1B.3D-2 PENDING**
 - Last Stable Commit (develop): `3c4b258` (merge PR #6, cierre documental 1B.2)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2)
 - Next Phase: 1B.3 en curso — identidad, sesiones, roles, permisos y RLS (subfases 1B.3A–D)
@@ -128,21 +128,33 @@
 - **Commit + push (sin PR):** `4a3c553` — migración 004, `test_identity_rbac_rls.sql`, ajuste `test_identity_rbac.sql`, `F1B3_RLS_POLICY_DESIGN.md` (§7 rollback manual documentado, sin `down/`).
 - **1B.3C COMPLETED / 1B.3D PENDING.** `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos; `src/tests/features/identity/feature-security.test.ts` sin modificar.
 
+## Phase 1B.3D-1 Summary (3 Aug 2026 — rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`, commit `e3ba875`)
+
+- **Auth local habilitado:** `supabase/config.toml` — `[auth] enabled=true` (site_url `http://127.0.0.1:3000`, jwt_expiry 3600, token rotation, enable_signup, minimum_password_length 6), `[auth.email] enable_confirmations=false` (autoconfirmación para E2E sin OTP), `[local_smtp]` puerto 54324, `[inbucket]` deprecado eliminado. Stack local: GoTrue v2.194.0 + mailpit v1.30.2, health OK, anon key publicada.
+- **Migración `00000000000005_profile_auth_user_fk.sql`:** FK `profiles.id → auth.users.id` `ON DELETE CASCADE` `DEFERRABLE INITIALLY DEFERRED` dentro de `DO $$` guardado por `pg_namespace`/`pg_class` (no-op en plain-PG15 CI). Permite que el seed cargue profiles antes que los auth.users dentro de `BEGIN;…COMMIT;`.
+- **Migración `00000000000006_access_current_user_id_json_claims.sql` (hallazgo + fix crítico):** el PostgREST moderno de Supabase (local `postgrest:14.15`) ya NO puebla el GUC plano `request.jwt.claim.sub` — solo `request.jwt.claims` (JSON). Con la 004 original, toda política RLS resolvía NULL vía API real (PostgREST devolvía HTTP 200 `[]` para el propio perfil; las pruebas pgTAP pasaban solo porque forjan el GUC plano). Fix: `CREATE OR REPLACE current_user_id()` lee `sub` de `request.jwt.claims` con fallback al GUC plano (tests y PostgREST antiguos intactos); mismo patrón D15/extensión que usa 004. No modifica 003/004.
+- **`seed.sql`:** sección identidad en `BEGIN;…COMMIT;` (requerido por FK diferido) + bloque `DO $$` tras los profiles que inserta 6 `auth.users` fixtures (`30000000-…-01..06`, emails `user.a|user.b|user.x|user.in|user.nom|admin @pgm.local` RFC 2606, `encrypted_password NULL`, guardado por `pg_namespace`, ON CONFLICT DO NOTHING).
+- **Suite `supabase/tests/test_auth_sync.sql`:** 19 aserciones en Supabase / 1 marker en plain-PG; usa psql `\gset` + `\if :has_auth` (pgTAP 1.3.4 no tiene skip_all/no_plan). Cubre FK (existencia/deferrable/initially deferred/cascade), trigger `sync_profile`, invariante seed 6↔6, sync 1:1, idempotencia, atomicidad blank-email.
+- **`scripts/e2e-auth.mjs` (`npm run e2e:auth`):** orquesta GoTrue + PostgREST + psql; JWT anon HMAC, signup real anon-key, autoconfirmación, 1 auth↔1 profile con email igual, sign-in con token, lectura `/rest/v1/profiles` con user JWT (RLS), duplicado 422, cleanup cascade. **14/14 PASS.** Sin `service_role` en llamadas de cliente; cleanup como `supabase_auth_admin` vía TCP (peer auth falla en contenedor).
+- **Gates:** lint ✅ typecheck ✅ **133/133** vitest ✅ build ✅ `db:test` **355/355** ✅ plain-PG (contenedor `postgres:15` + pgTAP, migraciones 001..006 + seed) **337/337** ✅ `db:lint` sin errores ✅ `db:verify` ALL CHECKS PASSED ✅ `git diff --check` limpio ✅ sin secretos ✅. audit (4 high prod = baseline) sin cambio.
+- **Commit + push (sin PR):** `e3ba875` — migraciones 005+006, seed, `test_auth_sync.sql`, `e2e-auth.mjs`, `package.json`, `config.toml`.
+- **1B.3D-1 COMPLETED / 1B.3D-2 PENDING.** `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos; `src/tests/features/identity/feature-security.test.ts` sin modificar.
+
 ## Blockers
 
 | Blocker | Detail |
 |---------|--------|
 | ~~Docker Desktop not installed~~ | Resuelto: Docker Desktop disponible en el entorno; Supabase local corre y `db:reset`/`db:test`/`db:verify` se ejecutan de verdad |
 | ~~psql/pg_ctl/initdb ausentes en Windows~~ | Resuelto: validación SQL local vía contenedor `pg_prove` de Supabase (pgTAP 1.2.0) |
-| `[inbucket]` deprecado (backlog) | Migrar a `[local_smtp]` en un cambio de configuración separado (no mezclar con la corrección PostgREST) |
+| ~~`[inbucket]` deprecado~~ | Resuelto en 1B.3D-1: migrado a `[local_smtp]` puerto 54324 (commit `e3ba875`) |
 | `public_repo`/token scope (histórico) | Token antiguo sin scope bloqueó edición/merge de PR; resuelto con token con scope `repo` (escritura) |
 
 ## Next Action
 
-Iniciar **1B.3D** (validación end-to-end multi-usuario/multi-organización; `auth` habilitado para signup real, FK diferida profiles→auth.users, cambio a `ORGANIZATION_DATA_SOURCE=supabase` con decisión documentada) — desde la rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` (estado `4a3c553`).
+Iniciar **1B.3D-2** (validación end-to-end multi-usuario/multi-organización sobre el stack real: perfiles de fixture vía JWT por usuario, membresías/roles/permisos por organización, checks RLS negativos a través de PostgREST; cambio a `ORGANIZATION_DATA_SOURCE=supabase` con decisión documentada) — desde la rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` (estado `e3ba875`).
 
 ## Status
 
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
-Fase 1B.3: **IN PROGRESS** — 1B.3A/1B.3B entregadas (migración 003) · **1B.3C COMPLETED** (commit `4a3c553`, push sin PR) · **1B.3D PENDING**
+Fase 1B.3: **IN PROGRESS** — 1B.3A/1B.3B entregadas (migración 003) · **1B.3C COMPLETED** (commit `4a3c553`, push sin PR) · **1B.3D-1 COMPLETED** (commit `e3ba875`, push sin PR) · **1B.3D-2 PENDING**
 PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED**
