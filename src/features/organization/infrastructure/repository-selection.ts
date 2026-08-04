@@ -12,14 +12,14 @@ export const ORGANIZATION_DATA_SOURCE_LABELS: Record<OrganizationDataSource, str
 };
 
 /**
- * Phase 1B.2 explicit decision: the organization screen reads in-code demo
- * fixtures. The anon-keyed Supabase client cannot read the owner-only tables
- * until Phase 1B.3 implements authentication, grants and RLS, so "supabase"
- * must be requested explicitly and will fail loudly until then.
+ * Phase 1B.3D-2 explicit decision (D20 / decision log): the default data source
+ * stays "demo" (in-code fixtures). "supabase" is now functional — migration
+ * 007 enables RLS on the organization tables and grants authenticated SELECT
+ * scoped to the session's active organizations — but flipping the default is an
+ * ops decision documented in AGENT_STATE/1B.3D-2.
  *
  * The selection is deterministic: `ORGANIZATION_DATA_SOURCE` env var, or the
- * documented Phase 1B.2 default. It is never a silent runtime fallback after
- * a failed read.
+ * documented default. It is never a silent runtime fallback after a failed read.
  */
 const DEFAULT_DATA_SOURCE: OrganizationDataSource = "demo";
 

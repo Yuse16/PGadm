@@ -1,14 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
-import { resolve, join, relative } from "node:path";
-import { execSync } from "node:child_process";
+import { resolve, join } from "node:path";
 
 const ROOT = process.cwd();
 const IDENTITY_DIR = "src/features/identity";
 const IDENTITY_APP_FILES = [
   "src/app/login/page.tsx",
+  "src/app/login/actions.ts",
   "src/app/unauthorized/page.tsx",
   "src/app/admin/identity-preview/page.tsx",
+  "src/app/admin/identity/page.tsx",
 ];
 
 function readSource(relativePath: string): string {
@@ -81,28 +82,21 @@ describe("identity feature security", () => {
     }
   });
 
-  it("does not modify SQL migration, seed or test files in this change set", () => {
-    const diff = execSync("git diff --name-only HEAD", {
-      cwd: ROOT,
-      encoding: "utf-8",
-    });
-    const untracked = execSync("git ls-files --others --exclude-standard", {
-      cwd: ROOT,
-      encoding: "utf-8",
-    });
-    const changed = `${diff}\n${untracked}`
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => relative(ROOT, resolve(ROOT, line)).replace(/\\/g, "/"));
-
-    const sqlTouched = changed.filter(
-      (file) =>
-        file.startsWith("supabase/migrations/") ||
-        file === "supabase/seed.sql" ||
-        file.startsWith("supabase/tests/")
-    );
-
-    expect(sqlTouched).toEqual([]);
+  it("identity code embeds no raw SQL and never touches the admin surface", () => {
+    for (const file of allIdentityFiles) {
+      const source = readSource(file);
+      expect(source, `${file} must not embed raw SQL`).not.toMatch(
+        /\b(insert into|delete from|create table|alter table|create function|drop table|grant |revoke |sql`)/i
+      );
+      expect(source, `${file} must not reference service_role`).not.toMatch(
+        /service_role/i
+      );
+      expect(source, `${file} must not import admin client`).not.toContain(
+        "createSupabaseAdminClient"
+      );
+      expect(source, `${file} must not import admin module`).not.toContain(
+        "lib/supabase/admin"
+      );
+    }
   });
 });

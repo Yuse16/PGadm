@@ -1,19 +1,29 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import IdentityPreviewPage from "@/app/admin/identity-preview/page";
 import LoginPage from "@/app/login/page";
 import UnauthorizedPage from "@/app/unauthorized/page";
 
+vi.mock("server-only", () => ({}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: vi.fn(() => {
+    throw new Error("should not be called in a route render test");
+  }),
+}));
+
 describe("identity routes", () => {
-  it("marks the login page as prepared without real auth", () => {
+  it("renders the login form wired to the real auth action", () => {
     render(<LoginPage />);
 
     expect(
-      screen.getByText(
-        "Interfaz preparada — autenticación real pendiente de integración"
-      )
+      screen.getByRole("heading", { name: "Iniciar sesión" })
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Correo")).toBeInTheDocument();
+    expect(screen.getByLabelText("Contraseña")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Iniciar sesión" })
+    ).toBeInTheDocument();
   });
 
   it("renders unauthorized visuals for forbidden, inactive and expired reasons", async () => {
