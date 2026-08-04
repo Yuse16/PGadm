@@ -12,12 +12,15 @@ import {
   OrganizationNotFoundError,
   RepositoryConfigurationError,
 } from "@/features/organization/domain";
+import { requirePermission } from "@/features/identity/application";
 
 export const dynamic = "force-dynamic";
 
 const DEMO_ORGANIZATION_CODE = "PGM";
 
 export default async function OrganizationPage() {
+  await requirePermission("organization.read");
+
   const dataSource = getOrganizationDataSource();
   const repository = createOrganizationRepository(dataSource);
 

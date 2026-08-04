@@ -25,6 +25,18 @@ export default function HomePage() {
           >
             Health Check
           </Link>
+          <Link
+            href="/admin/identity"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Identidad
+          </Link>
+          <Link
+            href="/admin/identity-preview"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Preview
+          </Link>
         </div>
       </div>
     </div>

@@ -9,6 +9,25 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
+vi.mock("@/features/identity/application", () => ({
+  requirePermission: vi.fn(async () => ({
+    user: {
+      id: "30000000-0000-0000-0000-000000000001",
+      email: "user.a@pgm.local",
+      fullName: "Usuario A",
+      status: "active",
+    },
+    organizationId: "10000000-0000-0000-0000-000000000001",
+    organizationName: "Plomería García",
+    branchId: null,
+    branchName: null,
+    roles: [],
+    permissions: [{ code: "organization.read", description: null }],
+    issuedAt: "2026-08-01T12:00:00.000Z",
+    expiresAt: null,
+  })),
+}));
+
 beforeEach(() => {
   vi.unstubAllEnvs();
   vi.resetModules();
