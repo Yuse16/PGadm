@@ -3,7 +3,7 @@
 
 **Fecha:** 2026-08-03 (turno nocturno 1B.3C)
 **Base:** rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`, HEAD `e584ef5`.
-**Estado:** Implementado en migración 004. Las subfases 1B.3A/1B.3B quedaron cerradas; **1B.3D permanece PENDING**.
+**Estado:** Implementado en migración 004. Las subfases 1B.3A/1B.3B quedaron cerradas; 1B.3C cerrada (migración 004, commit `4a3c553`); **1B.3D COMPLETED** (1B.3D-1 commit `e3ba875`; 1B.3D-2 sin commits: migración 007 extiende RLS a las tablas 1B.2 y añade `current_user_permissions()`, sesión real en la app).
 
 ---
 

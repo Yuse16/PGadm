@@ -45,3 +45,6 @@ supabase/.branches/
 tmp/
 temp/
 *.bak
+
+# Local agent configuration (never committed)
+.opencode/

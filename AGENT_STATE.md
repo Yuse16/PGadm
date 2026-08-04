@@ -3,11 +3,11 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.3 — 1B.3D-1 COMPLETED / 1B.3D-2 PENDING** (turno nocturno)
+- Current Phase: **1B.3 — 1B.3D-2 COMPLETED** (turno nocturno)
 - Integration Branch: `develop`
 - Active Feature Branch: `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado; **1B.3A/1B.3B entregadas** (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS, commit `4a3c553`); **1B.3D-1 COMPLETED** (auth local + migración 005 FK + migración 006 fix current_user_id + seed auth fixtures + suite auth + E2E, commits `e3ba875`); sin PR ni merge; **1B.3D-2 PENDING**
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado; **1B.3A/1B.3B entregadas** (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS, commit `4a3c553`); **1B.3D-1 COMPLETED** (auth local + migración 005 FK + migración 006 fix current_user_id + seed auth fixtures + suite auth + E2E, commits `e3ba875`); **1B.3D-2 COMPLETED** (sin commits — turno nocturno); sin PR ni merge
 - Last Stable Commit (develop): `3c4b258` (merge PR #6, cierre documental 1B.2)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2)
 - Next Phase: 1B.3 en curso — identidad, sesiones, roles, permisos y RLS (subfases 1B.3A–D)
@@ -140,6 +140,21 @@
 - **Commit + push (sin PR):** `e3ba875` — migraciones 005+006, seed, `test_auth_sync.sql`, `e2e-auth.mjs`, `package.json`, `config.toml`.
 - **1B.3D-1 COMPLETED / 1B.3D-2 PENDING.** `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos; `src/tests/features/identity/feature-security.test.ts` sin modificar.
 
+## Phase 1B.3D-2 Summary (3 Aug 2026 — rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`, sin commits)
+
+- **Migración `00000000000007_organization_rls_and_permissions_rpc.sql`:** RLS en `organizations/branches/warehouses/branch_warehouse_relations` (4 políticas allowlist `to authenticated` vía `_access.current_organization_ids()`), grants SELECT solo a `authenticated` (revokes a `public/anon/service_role`), función `public.current_user_permissions()` (SECURITY DEFINER D15, `search_path=''`, EXECUTE solo `authenticated`) que resuelve permisos efectivos vigentes (`p/m/a/r/perm.status='active'`). No toca 002 ni `ci_verify.sql` (solo aserta rol `public`). **434/434 pgTAP PASS** (7 files; `test_identity_rbac_rls.sql` plan 140, nuevo `test_organization_rls.sql` 78 tests multi-usuario RLS/RPC).
+- **App layer (@supabase/ssr 0.12.4):** `src/lib/supabase/server.ts` → `createServerClient` async con cookies de `next/headers` (`getAll`/`setAll` con try/catch); cookie de sesión `sb-127-auth-token` (PKCE, chunks `key`/`key.1`… 3180 chars, `base64-`+`stringToBase64URL`).
+- **Infraestructura identity:** `mappers.ts` (`mapProfile/mapOrganizationMembership/mapRole/mapPermission/mapUserRoleAssignment` con `assertStatus`), `supabase-identity-repository.ts` (cliente inyectado, `or()` roles globales+org, orden por código/fechas), `index.ts`.
+- **Aplicación identity:** `session.ts` (`resolveIdentitySession` → authenticated/unauthenticated/inactive/error; `getIdentitySession`; `decodeJwtTimes` base64url), `guards.ts` (`requireIdentity`→`/login`, `requirePermission(code)`→`/unauthorized?reason=forbidden`), `index.ts`.
+- **Login/logout real:** `src/app/login/actions.ts` (`loginAction` con guard config + mensaje, `logoutAction`), `page.tsx` conectado (submit real, errores inline).
+- **Página de sesión real:** `src/app/admin/identity/page.tsx` (`force-dynamic`, `requireIdentity()`, `SessionState`/`UserSummary`/`PermissionSummary`/`SessionStatus`, metadatos, form logout). Home enlaza a `/admin/identity` y `/admin/identity-preview`.
+- **Rutas protegidas:** `/admin/organization` ahora exige `requirePermission("organization.read")`; `/admin/identity` exige `requireIdentity()`. `/admin/identity-preview` permanece **público** (showcase visual con datos simulados, etiquetado "sin autenticación real" — decisión alineada con `ORGANIZATION_DATA_SOURCE=demo`).
+- **Decisión documentada:** `ORGANIZATION_DATA_SOURCE` sigue default `demo`; modo `supabase` funcional (migración 007) pero el flip es decisión de ops. `.env.example` y `repository-selection.ts` actualizados.
+- **Vitest 149/149** (26 files; nuevos `guards.test.ts`, `infrastructure-mappers.test.ts`, `session-compositor.test.ts`, `identity-session-page.test.tsx`; actualizados `identity-routes.test.tsx`, `organization-page.test.tsx`, `feature-security.test.ts`). Lint ✅ typecheck ✅ build ✅ (7 rutas).
+- **`scripts/e2e-identity.mjs` (`npm run e2e:identity`):** E2E multiusuario API-level (GoTrue + PostgREST, solo anon key): signup 5 fixtures, provisioning psql, sign-in, RPC `current_user_permissions` por rol, scoping RLS org/sucursal/almacén (manager/cashier/operator + inactive + sin membresía), INSERT cross-org bloqueado (403), logout revoca refresh (400), cleanup ordenado (assignments→memberships→auth.users por FK RESTRICT de `user_role_assignments_membership_fk`). **39/39 PASS.** RLS también deniega por perfil `inactive` (`current_organization_ids()` filtra `p.status='active'`).
+- **Gates:** lint ✅ typecheck ✅ **149/149** vitest ✅ build ✅ `db:reset` ✅ `db:test` **434/434** ✅ `db:lint` sin errores ✅ `db:verify` ALL CHECKS PASSED ✅ `git diff --check` limpio ✅ sin secretos ✅. audit (4 high prod = baseline) sin cambio.
+- **1B.3D-2 COMPLETED (sin commits).** `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos.
+
 ## Blockers
 
 | Blocker | Detail |
@@ -151,10 +166,10 @@
 
 ## Next Action
 
-Iniciar **1B.3D-2** (validación end-to-end multi-usuario/multi-organización sobre el stack real: perfiles de fixture vía JWT por usuario, membresías/roles/permisos por organización, checks RLS negativos a través de PostgREST; cambio a `ORGANIZATION_DATA_SOURCE=supabase` con decisión documentada) — desde la rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` (estado `e3ba875`).
+Preparar el cierre documental y PR de 1B.3D (rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`, commits pendientes: migración 007, sesión/guards, login/logout, página `/admin/identity`, protección de rutas, e2e-identity, tests) hacia `develop`; revisión cruzada (Arquitectura, BD, Backend, Frontend, Seguridad, QA); decidir en ops el flip `ORGANIZATION_DATA_SOURCE=supabase` (decisión documentada: default `demo`).
 
 ## Status
 
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
-Fase 1B.3: **IN PROGRESS** — 1B.3A/1B.3B entregadas (migración 003) · **1B.3C COMPLETED** (commit `4a3c553`, push sin PR) · **1B.3D-1 COMPLETED** (commit `e3ba875`, push sin PR) · **1B.3D-2 PENDING**
+Fase 1B.3: **IN PROGRESS** — 1B.3A/1B.3B entregadas (migración 003) · **1B.3C COMPLETED** (commit `4a3c553`, push sin PR) · **1B.3D-1 COMPLETED** (commit `e3ba875`, push sin PR) · **1B.3D-2 COMPLETED** (sin commits, turno nocturno)
 PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED**
