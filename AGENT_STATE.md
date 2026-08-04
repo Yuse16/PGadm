@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED, merge commit `a533bde`)
-- Integration Branch: `develop`
-- Active Feature Branch: none / pending next phase (`feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada tras el merge, ya no activa)
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED, merge commit `a533bde`); 1B.3A/1B.3B entregadas (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS); **1B.3D-1 COMPLETED** (auth local + migraciones 005/006 + seed auth + suite auth + E2E); **1B.3D-2 COMPLETED AND PUSHED** (migración 007 + sesión/guards/login + e2e-identity, commits `02c063e`…`73c55b4`)
-- Last Stable Commit (develop): `a533bde` (merge PR #7, Fase 1B.3)
-- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`)
-- Next Phase: por definir — la siguiente fase se preparará desde una rama nueva (número y alcance pendientes de decisión)
+- Current Phase: **1C DISCOVERY COMPLETED (catálogo maestro de productos) — SIN IMPLEMENTACIÓN**
+- Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
+- Active Feature Branch: `feature/f1c-PG-CATALOG-004-product-master`
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\catalog-product-master`
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C DISCOVERY COMPLETED** (8 documentos F1C, 1C discovery sin implementación, sin PR)
+- Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
+- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
+- Next Phase: **1C implementación** (slices 1C.1…1C.5 tras revisión humana; ver `F1C_DISCOVERY_HANDOFF.md`)
 
 ## Active Agents
 
@@ -163,6 +163,16 @@
 - **Rama feature conservada:** `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` permanece en `origin` (HEAD `816d0bc`), ya no es la rama activa.
 - **Cierre documental:** rama `docs/f1b3-post-merge-closeout` hacia `develop` — solo `AGENT_STATE.md`.
 
+## Phase 1C Discovery Summary (4 Aug 2026 — rama `feature/f1c-PG-CATALOG-004-product-master`, worktree `catalog-product-master`)
+
+- **Base:** develop `0674e9f` (merge PR #8, cierre documental 1B.3). Worktree creado desde `origin/develop` sin commits previos; rama previa `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada.
+- **Descubrimiento 1C (catálogo maestro de productos) — solo documentación, sin implementación, sin migración, sin UI.**
+- **8 entregables F1C:** `F1C_KICKOFF_CONTRACT.md` (D-C01…D-C17), `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md` (18 puntos), `F1C_DATA_MODEL_PROPOSAL.md` (7 tablas + diferidas), `F1C_RLS_PERMISSION_MATRIX.md` (permisos `catalog.*` + políticas), `F1C_TEST_PLAN.md` (CA-1…CA-25), `F1C_IMPLEMENTATION_SLICES.md` (1C.1…1C.5), `F1C_DISCOVERY_HANDOFF.md`.
+- **Decisiones clave:** modelo producto/variante separado (SKU y barcodes en la variante); catálogo org-scoped con FK compuestas; precios de referencia (dato, no regla); baja lógica por `status` sin DELETE; `external_id` Intelisis único por org; permisos `catalog.read/create/update/archive/manage`; RLS deny-by-default reutilizando `_access` (004) y patrón 007.
+- **Diferido:** impuestos, listas de precios, imágenes/Storage, sustitutos, visibilidad por sucursal, proveedores, sync Intelisis, UI.
+- **Gates:** solo documentación `.md`; `git diff --check` limpio ✅; sin secretos ✅; sin código funcional.
+- **Estado:** 1C discovery COMPLETED en rama `feature/f1c-PG-CATALOG-004-product-master` (sin PR). Pendiente: revisión humana (5 preguntas abiertas en `F1C_TEST_PLAN.md` §7) y ejecución de slices 1C.1…1C.5.
+
 ## Blockers
 
 | Blocker | Detail |
@@ -174,10 +184,11 @@
 
 ## Next Action
 
-Definir y preparar la siguiente fase desde una rama nueva (número y alcance pendientes de decisión). El flip `ORGANIZATION_DATA_SOURCE=supabase` (funcional tras la migración 007) sigue siendo decisión de ops, documentada con default `demo`.
+Revisión humana de los 8 documentos F1C (5 preguntas abiertas en `F1C_TEST_PLAN.md` §7); tras aprobación, registrar D-C01…D-C17 en `DECISION_LOG.md` y ejecutar slices 1C.1…1C.5 desde la rama `feature/f1c-PG-CATALOG-004-product-master`. El flip `ORGANIZATION_DATA_SOURCE=supabase` sigue siendo decisión de ops, documentada con default `demo`.
 
 ## Status
 
+Fase 1C (catálogo maestro de productos): **DISCOVERY COMPLETED — SIN IMPLEMENTACIÓN** (8 documentos F1C en `docs/orchestration/handoffs/`, rama `feature/f1c-PG-CATALOG-004-product-master`, worktree `catalog-product-master`, sin PR). Pendiente: revisión humana → `DECISION_LOG.md` → slices 1C.1…1C.5.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.
 PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3)
