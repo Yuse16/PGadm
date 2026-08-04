@@ -475,7 +475,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_user_permissions: {
+        Args: never
+        Returns: {
+          code: string
+          description: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

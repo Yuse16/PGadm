@@ -29,7 +29,7 @@ const RELATION_COLUMNS =
 
 export class SupabaseOrganizationRepository implements OrganizationRepository {
   async findOrganizationById(organizationId: string): Promise<Organization> {
-    const client = this.createClient();
+    const client = await this.createClient();
     const { data, error } = await client
       .from("organizations")
       .select(ORGANIZATION_COLUMNS)
@@ -48,7 +48,7 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
   }
 
   async findOrganizationByCode(code: string): Promise<Organization> {
-    const client = this.createClient();
+    const client = await this.createClient();
     const { data, error } = await client
       .from("organizations")
       .select(ORGANIZATION_COLUMNS)
@@ -67,7 +67,7 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
   }
 
   async listBranchesByOrganization(organizationId: string): Promise<Branch[]> {
-    const client = this.createClient();
+    const client = await this.createClient();
     const { data, error } = await client
       .from("branches")
       .select(BRANCH_COLUMNS)
@@ -82,7 +82,7 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
   }
 
   async listWarehousesByBranch(branchId: string): Promise<Warehouse[]> {
-    const client = this.createClient();
+    const client = await this.createClient();
     const { data, error } = await client
       .from("warehouses")
       .select(WAREHOUSE_COLUMNS)
@@ -100,7 +100,7 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
   async listBranchWarehouseRelations(
     organizationId: string
   ): Promise<BranchWarehouseRelation[]> {
-    const client = this.createClient();
+    const client = await this.createClient();
     const { data, error } = await client
       .from("branch_warehouse_relations")
       .select(RELATION_COLUMNS)
@@ -114,7 +114,7 @@ export class SupabaseOrganizationRepository implements OrganizationRepository {
     return data.map(mapBranchWarehouseRelation);
   }
 
-  private createClient() {
+  private async createClient() {
     if (!hasSupabaseConfig()) {
       throw new RepositoryConfigurationError();
     }

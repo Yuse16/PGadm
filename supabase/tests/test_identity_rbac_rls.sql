@@ -9,7 +9,7 @@
 -- anon/authenticated/service_role roles there; CI applies seed too).
 
 begin;
-select plan(139);
+select plan(140);
 
 -- ============================================================
 -- Test-only fixtures (seed already provides the base matrix)
@@ -136,7 +136,8 @@ select is((select count(*)::int from public.roles where organization_id = '20000
 select is((select count(*)::int from public.user_role_assignments), 2, 'user_A sees only own assignments (ACC-04/11)');
 select is((select count(*)::int from public.user_role_assignments where branch_id = '10000000-0000-0000-0000-000000000002'), 1, 'user_A sees own NOG-branch assignment (ACC-04)');
 select is((select count(*)::int from public.user_role_assignments where branch_id = '20000000-0000-0000-0000-000000000002'), 0, 'user_A sees no BSAL-branch assignment (ACC-04)');
-select throws_ok('select * from public.branches', '42501'::character(5), NULL, 'branch data has no authenticated grants yet (ACC-04)');
+select is((select count(*)::int from public.branches), 2, 'user_A reads branches of own org only (1B.3D-2 org reads)');
+select is((select count(*)::int from public.branches where organization_id = '20000000-0000-0000-0000-000000000001'), 0, 'user_A sees no org B branches (1B.3D-2 org reads)');
 select is((select count(*)::int from public.permissions), 0, 'user_A cannot read permission catalog (ACC-12)');
 select is((select count(*)::int from public.role_permissions), 0, 'user_A cannot read role_permissions (ACC-12, no recursion)');
 
