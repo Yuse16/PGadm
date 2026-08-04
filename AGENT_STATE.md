@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.3 — 1B.3D-2 COMPLETED AND PUSHED** (turno nocturno)
+- Current Phase: **1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED, merge commit `a533bde`)
 - Integration Branch: `develop`
-- Active Feature Branch: `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`
+- Active Feature Branch: none / pending next phase (`feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada tras el merge, ya no activa)
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); Fase 1B.3 iniciada con kickoff controlado; **1B.3A/1B.3B entregadas** (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS, commit `4a3c553`); **1B.3D-1 COMPLETED** (auth local + migración 005 FK + migración 006 fix current_user_id + seed auth fixtures + suite auth + E2E, commits `e3ba875`); **1B.3D-2 COMPLETED AND PUSHED** (commits `02c063e`, `15df869`, `6171149`, `73c55b4`); sin PR ni merge
-- Last Stable Commit (develop): `3c4b258` (merge PR #6, cierre documental 1B.2)
-- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2)
-- Next Phase: 1B.3 en curso — identidad, sesiones, roles, permisos y RLS (subfases 1B.3A–D)
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED, merge commit `a533bde`); 1B.3A/1B.3B entregadas (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS); **1B.3D-1 COMPLETED** (auth local + migraciones 005/006 + seed auth + suite auth + E2E); **1B.3D-2 COMPLETED AND PUSHED** (migración 007 + sesión/guards/login + e2e-identity, commits `02c063e`…`73c55b4`)
+- Last Stable Commit (develop): `a533bde` (merge PR #7, Fase 1B.3)
+- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`)
+- Next Phase: por definir — la siguiente fase se preparará desde una rama nueva (número y alcance pendientes de decisión)
 
 ## Active Agents
 
@@ -155,6 +155,14 @@
 - **Gates:** lint ✅ typecheck ✅ **149/149** vitest ✅ build ✅ `db:reset` ✅ `db:test` **434/434** ✅ `db:lint` sin errores ✅ `db:verify` ALL CHECKS PASSED ✅ `git diff --check` limpio ✅ sin secretos ✅. audit (4 high prod = baseline) sin cambio.
 - **1B.3D-2 COMPLETED AND PUSHED** (commits `02c063e`, `15df869`, `6171149`, `73c55b4`, HEAD `73c55b4`). `DemoOrganizationRepository` y `ORGANIZATION_DATA_SOURCE=demo` intactos.
 
+## Phase 1B.3 Post-Merge Regression (4 Aug 2026 — repositorio principal)
+
+- **Sync develop:** fast-forward `3c4b258` → `a533bde` (PR #7 MERGED, merge commit). HEAD verificado `a533bde76c020bf89ff007739919da9b1d1771e2`.
+- **`npm ci`** ✅ (461 paquetes; audit 4 high prod = baseline, sin `--force`).
+- **Gates post-merge:** lint ✅ · typecheck ✅ · **149/149** vitest ✅ · build ✅ (7 rutas) · `db:reset` ✅ · **434/434** pgTAP ✅ · `db:lint` sin errores ✅ · `db:verify` ALL CHECKS PASSED ✅ · **14/14** `e2e:auth` ✅ · **39/39** `e2e:identity` ✅ · `git diff --check` limpio ✅ · sin secretos ✅.
+- **Rama feature conservada:** `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` permanece en `origin` (HEAD `816d0bc`), ya no es la rama activa.
+- **Cierre documental:** rama `docs/f1b3-post-merge-closeout` hacia `develop` — solo `AGENT_STATE.md`.
+
 ## Blockers
 
 | Blocker | Detail |
@@ -166,10 +174,10 @@
 
 ## Next Action
 
-Preparar el PR de 1B.3D hacia `develop` (rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls`, HEAD `73c55b4`: migración 007, sesión/guards, login/logout, página `/admin/identity`, protección de rutas, e2e-identity, tests); revisión cruzada (Arquitectura, BD, Backend, Frontend, Seguridad, QA); decidir en ops el flip `ORGANIZATION_DATA_SOURCE=supabase` (decisión documentada: default `demo`).
+Definir y preparar la siguiente fase desde una rama nueva (número y alcance pendientes de decisión). El flip `ORGANIZATION_DATA_SOURCE=supabase` (funcional tras la migración 007) sigue siendo decisión de ops, documentada con default `demo`.
 
 ## Status
 
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
-Fase 1B.3: **IN PROGRESS** — 1B.3A/1B.3B entregadas (migración 003) · **1B.3C COMPLETED** (commit `4a3c553`, push sin PR) · **1B.3D-1 COMPLETED** (commit `e3ba875`, push sin PR) · **1B.3D-2 COMPLETED AND PUSHED** (commits `02c063e`–`73c55b4`)
-PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED**
+Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.
+PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3)
