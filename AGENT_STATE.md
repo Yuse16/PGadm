@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1C.1 ARCHITECTURE LOCKED (catálogo maestro) — SIN IMPLEMENTACIÓN / SIN MIGRACIÓN 008**
+- Current Phase: **1C.2 DATABASE FOUNDATION COMPLETED (catálogo maestro) — migración 008 + seed + tests; app layer SIN implementar**
 - Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
 - Active Feature Branch: `feature/f1c-PG-CATALOG-004-product-master`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\catalog-product-master`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C discovery + 1C.1 COMPLETED** (D-C01…D-C17 APPROVED 2026-08-04; solo `.md`; sin PR)
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C discovery + 1C.1 COMPLETED** (D-C01…D-C17 APPROVED 2026-08-04; solo `.md`; sin PR); **Fase 1C.2 COMPLETED AND PUSHED** (migración 008 + seed + 518/518 pgTAP + gates; 3 commits; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **1C.2** (migración `00000000000008_product_master.sql` + seed + verificación DB) — **no iniciada**; requiere instrucción expresa
+- Next Phase: **1C.3** (dominio/repositorios/casos de uso TypeScript del catálogo + UI básica) — **no iniciada**; requiere instrucción expresa
 
 ## Active Agents
 
@@ -191,6 +191,16 @@
 - **Actualizados:** `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md`, `F1C_DISCOVERY_HANDOFF.md`, `F1C_DATA_MODEL_PROPOSAL.md` (§7), `F1C_TEST_PLAN.md` (§8), `F1C_HUMAN_ARCHITECTURE_REVIEW.md` (§5).
 - **Sin migraciones ni código de Comercialización** (solo documentación `.md`).
 
+## Phase 1C.2 Database Foundation (5 Aug 2026 — misma rama/worktree)
+
+- **Migración `00000000000008_product_master.sql`** (con autorización expresa): esquema `_catalog` con 7 tablas (`product_categories`, `product_brands`, `units_of_measure`, `product_lines`, `products`, `product_variants`, `product_barcodes`), FK compuestas org-scoped, `UNIQUE(organization_id,id)` inline en `product_categories` (requerido por la FK autoreferenciada; reemplaza el índice único planeado), índices funcionales `upper(trim(...))`, CHECKs `trim() <> ''`, triggers `updated_at`, y 4 funciones `_catalog` (`enforce_category_tree`, `enforce_product_active_variant`, `enforce_last_active_variant`, `enforce_status_transition`) — SECURITY INVOKER con `search_path=''`.
+- **RLS y grants:** 21 políticas allowlist (3 por tabla) solo para `authenticated`; sin DELETE; FORCE RLS off (D20); revokes mínimos PG15-safe; `enforce_status_transition` (BEFORE UPDATE, guard `current_user='authenticated'`) aplica la máquina de estados D-C14/D-C16 incl. discontinue sin `catalog.manage`.
+- **Seed:** 5 permisos `catalog.*` (total 11); role_permissions administrator +5 / manager +3 / cashier +1 / operator +1 (total 23); fixtures demo catálogo PGM (6 UOM, 3 líneas, 2 marcas, 3 categorías ≤3 niveles, 2 productos activos, 3 variantes, 4 barcodes) y PGM-DEMO-B (mínimos); productos nacen `inactive` y se activan tras insertar variantes.
+- **Pruebas:** `test_product_master.sql` nuevo (78 aserciones); `test_identity_rbac_rls.sql` 6→11 permisos y 13→22 role_permissions; `test_organization_rls.sql` sets por rol actualizados (manager 7 / cashier 3 / operator 2) y admin 11; `ci_verify.sql` plan 47 + sección catálogo (se removió `products` de la lista de tablas prohibidas). `db:test` **518/518** (8 archivos).
+- **Gates:** lint ✅ · typecheck ✅ · **149/149** vitest ✅ · build ✅ · `db:reset` ✅ · **518/518** pgTAP ✅ · `db:lint` sin errores ✅ (incluye `_catalog`) · `db:verify` ALL CHECKS PASSED ✅ · `db:types` regenerado (+370 líneas) ✅ · **14/14** `e2e:auth` ✅ · `e2e:identity` ✅ (permisos `catalog.*` + scoping RLS `products`) · `git diff --check` limpio ✅ · sin secretos ✅ · `npm audit` baseline (sin `--force`) ✅.
+- **Hallazgo:** la FK autoreferenciada de categorías exige unique inline (error `SQLSTATE 42830` → fix en 008); el UPDATE/DELETE denegado por RLS aplica filtro silencioso (0 filas, sin 42501) — cashier y operador bloqueados por `USING`.
+- **3 commits + push a `feature/f1c-PG-CATALOG-004-product-master`; sin PR; sin merge; 1C.3 no iniciada.**
+
 ## Blockers
 
 | Blocker | Detail |
@@ -202,11 +212,12 @@
 
 ## Next Action
 
-Ejecutar **1C.2** (migración `00000000000008_product_master.sql` + seed + verificación DB) desde `feature/f1c-PG-CATALOG-004-product-master` **solo con instrucción expresa**. Modelo y permisos congelados en `F1C_DATA_MODEL_PROPOSAL.md` / `F1C_RLS_PERMISSION_MATRIX.md` / `F1C_HUMAN_ARCHITECTURE_REVIEW.md`. El flip `ORGANIZATION_DATA_SOURCE=supabase` / `CATALOG_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031).
+Fase **1C.2 COMPLETED AND PUSHED**. Siguiente fase pendiente: **1C.3** (dominio/repositorios/casos de uso TypeScript del catálogo + UI básica) — **no iniciada**; requiere instrucción expresa. Modelo y permisos congelados en `F1C_DATA_MODEL_PROPOSAL.md` / `F1C_RLS_PERMISSION_MATRIX.md` / `F1C_HUMAN_ARCHITECTURE_REVIEW.md`. El flip `ORGANIZATION_DATA_SOURCE=supabase` / `CATALOG_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031).
 
 ## Status
 
-Fase 1C: **1C.1 ARCHITECTURE LOCKED** — D-C01…D-C17 APPROVED (2026-08-04); solo documentación; migración 008 **no iniciada**; sin PR. Pendiente: **1C.2**.
+Fase 1C: **1C.2 COMPLETED AND PUSHED** — migración 008 + seed + 518/518 pgTAP + gates app/DB/E2E; 3 commits en `feature/f1c-PG-CATALOG-004-product-master`; sin PR; sin merge; **1C.3 no iniciada**.
+Fase 1C.1: **COMPLETED** — D-C01…D-C17 APPROVED (2026-08-04); acta `F1C_HUMAN_ARCHITECTURE_REVIEW.md`; solo documentación.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.
 PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3) | **PR #8: MERGED**
