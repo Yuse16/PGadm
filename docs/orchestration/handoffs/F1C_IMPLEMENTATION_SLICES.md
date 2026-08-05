@@ -1,21 +1,21 @@
 # F1C — Slices de Implementación (Catálogo Maestro de Productos)
-## Planificación — sin implementación funcional
+## Estado: 1C.1 COMPLETADO — decisiones bloqueadas; 1C.2 no iniciada
 
 **Fecha:** 2026-08-04
 **Rama:** `feature/f1c-PG-CATALOG-004-product-master`
 
-Propuesta de división de 1C en subfases entregables e incrementales.
-Esta fase (discovery) NO ejecuta ninguna de ellas; define el camino para que la
-revisión humana la apruebe.
+División de 1C en subfases entregables e incrementales. La subfase 1C.1 (cierre y
+bloqueo de decisiones arquitectónicas) está **COMPLETADA**; 1C.2 (migración) **no
+se ha iniciado**.
 
 ---
 
 ## Visión general
 
 ```
-1C.1  Diseño final (contrato humano)
+1C.1  Cierre y bloqueo de decisiones arquitectónicas  ← COMPLETADA
   ↓
-1C.2  Migración SQL + seed + verificación DB   ← modelos de datos y RLS del discovery
+1C.2  Migración SQL + seed + verificación DB   ← PENDIENTE (no iniciada)
   ↓
 1C.3  Dominio y casos de uso (sin UI)
   ↓
@@ -27,29 +27,43 @@ revisión humana la apruebe.
 Cada slice: definición de terminado clara, sin UI hasta 1C.6 (diferido, si aplica),
 repositorios demo + supabase **sin fallback silencioso** (D031).
 
-## 1C.1 — Diseño final del contrato (revisión humana)
+## 1C.1 — Cierre y bloqueo de decisiones arquitectónicas (COMPLETADA)
 
-- Revisar y aprobar los 8 documentos F1C (este paquete).
-- Cerrar las 5 preguntas abiertas de `F1C_TEST_PLAN.md` sección 7.
-- Congelar nombres de tablas/columnas y permisos `catalog.*`.
-- **Definición de terminado:** decisión humana registrada en `DECISION_LOG.md`.
+- Revisión humana de los entregables F1C; las 5 preguntas abiertas resueltas.
+- Decisiones D-C01…D-C17 registradas como **APPROVED** en `DECISION_LOG.md`.
+- Modelo final congelado en `F1C_DATA_MODEL_PROPOSAL.md`; permisos/RLS en
+  `F1C_RLS_PERMISSION_MATRIX.md`; plan de pruebas ajustado en `F1C_TEST_PLAN.md`.
+- **Correcciones estructurales aprobadas:** `UNIQUE(organization_id, id)` en tablas
+  padre; índices funcionales `upper(trim(...))`; `CHECK trim()<>''`; normalización
+  de `external_id`; FK compuestas; RLS deny-by-default; trigger `_catalog.enforce_status_transition`
+  para que `catalog.update` no ejecute `archive`.
+- **Anexo operativo:** `F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md` (evidencia
+  comercial agosto 2026; promociones/precios temporales fuera de 1C).
+- **Definición de terminado:** decisión humana registrada; documentos actualizados;
+  solo cambios `.md`; `git diff --check` limpio.
 
-## 1C.2 — Migración `00000000000008_product_master.sql` + seed
+## 1C.2 — Migración `00000000000008_product_master.sql` + seed (PENDIENTE)
 
-- Crear las 7 tablas con RLS deny-by-default y políticas (sección 3 de
-  `F1C_RLS_PERMISSION_MATRIX.md`).
-- Índices únicos funcionales (`upper(sku)`, `upper(barcode)`, `lower(external_id)`),
-  FK compuestas org-scoped, triggers `_core.updated_at()`.
-- Cargar permisos `catalog.*` y `role_permissions` en `seed.sql`.
-- Insertar datos de prueba (sección 6 de `F1C_TEST_PLAN.md`).
+- Crear esquema `_catalog` y las 7 tablas con RLS deny-by-default y políticas
+  (sección 4 de `F1C_RLS_PERMISSION_MATRIX.md`).
+- Índices únicos funcionales `upper(trim(...))`, `UNIQUE(organization_id, id)`,
+  FK compuestas org-scoped, `CHECK trim()<>''`, triggers `_core.updated_at()`.
+- Triggers `_catalog`: `enforce_category_tree`, `enforce_product_active_variant`,
+  `enforce_last_active_variant`, `enforce_status_transition` (SECURITY INVOKER,
+  `search_path=''`).
+- Cargar permisos `catalog.*` y `role_permissions` (matriz de roles aprobada) en
+  `seed.sql` + datos de prueba (sección 6 de `F1C_TEST_PLAN.md`).
 - **Definición de terminado:** `npm run db:lint`, `npm run db:test`, `npm run db:verify`
   en verde; `npm run db:types` regenera `src/types/database.ts`.
+- **No iniciada** hasta instrucción expresa.
 
 ## 1C.3 — Dominio y casos de uso (sin UI)
 
 - `src/features/catalog/domain/**`: entidades (Product, Variant, Category, Brand,
-  Unit, Line), reglas (≥1 variante activa, profundidad ≤3, baja lógica).
-- `src/features/catalog/application/**`: use cases (create/update/archive/query).
+  Unit, Line), reglas (producto nace `inactive`, ≥1 variante activa para activar,
+  última variante activa protegida, baja lógica, `reference_price` único por
+  `sale_unit_id`).
+- `src/features/catalog/application/**`: use cases (create/update/archive/restore/query).
 - Repositorios demo (`in-memory`) + contrato de interfaz.
 - **Definición de terminado:** tests unit de dominio/use cases (patrón
   `src/tests/features/catalog/**`); `npm run test` en verde.
@@ -60,7 +74,7 @@ repositorios demo + supabase **sin fallback silencioso** (D031).
   entorno `CATALOG_DATA_SOURCE` con default `"demo"` y **error explícito** si la
   fuente falla (sin fallback silencioso; patrón `organization/repository-selection`).
 - Registro de permisos `catalog.*` con `current_user_permissions()`.
-- Tests: CA-15…CA-21 (aislamiento por org, deny-by-default), `admin-separation` y
+- Tests: CA-31…CA-39 (aislamiento por org, deny-by-default), `admin-separation` y
   `feature-security` de catálogo.
 - **Definición de terminado:** suite de seguridad 1C en verde + `npm run lint`/`typecheck`.
 
@@ -73,8 +87,9 @@ repositorios demo + supabase **sin fallback silencioso** (D031).
 
 ## Notas de secuenciación
 
-- **1C.6 UI** (páginas de catálogo) no está en 1C; se propone como fase posterior
-  a ventas/inventario si la UI de navegación global lo requiere.
-- Los `documentos → Storage` (D-C17) y `visibilidad por sucursal` (D-C15) quedan
-  fuera de 1C incluso al cierre, como deciden D-C01…D-C17.
+- **1C.6 UI** (páginas de catálogo) no está en 1C; se propone como fase posterior.
+- `documentos → Storage` (D-C17), `visibilidad por sucursal` (D-C15) y las entidades
+  de **Comercialización** (campañas/promociones/outlet/incentivos — ver
+  `F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md`) quedan fuera de 1C incluso al cierre.
 - Ninguna subfase introduce `service_role` en cliente.
+- No se modifica `seed.sql` hasta 1C.2 (prohibido en 1C.1).

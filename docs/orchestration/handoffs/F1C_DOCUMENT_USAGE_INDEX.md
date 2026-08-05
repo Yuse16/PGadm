@@ -93,7 +93,17 @@ No se leyeron los 1,000+ documentos del repositorio de forma indiscriminada.
 | `orchestration/handoffs/F1B3_RLS_POLICY_DESIGN.md` | Formato de referencia para diseño RLS |
 | `orchestration/handoffs/F1B3_TEST_PLAN.md` | Formato de referencia para planes de prueba |
 
-## 10. Implementación actual (referencia de patrones)
+## 10. Fuente operativa externa (anexo comercial — evidencia, no regla permanente)
+
+| Archivo | Uso |
+|---------|-----|
+| `C:\Users\GVTASNOG\Desktop\COMERCIALIZACION AGOSTO 2026.pdf` (30.6 MB, 24 pág.) | Evidencia de la operación comercial vigente de agosto 2026: colores de etiquetas (naranja/amarilla/roja/azul/dorada), precios por formato, paquete ahorres, 6.ª caja gratis (Perdura Stone/Stein), novedades PG, zona Outlet (remate tienda/CEDIS), descuentos por familia/marca, material de exhibición (posters/destellos) e incentivos internos de venta. Analizado en `F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md`. Texto extraído vía `pypdf` (el PDF es mayormente imagen; algunas listas son descargas externas vinculadas, no incrustadas). |
+
+> Nota: el PDF es una **fuente operativa de contexto** para confirmar que las
+> promociones/precios temporales no se modelan en 1C; no es documentación del
+> repositorio.
+
+## 11. Implementación actual (referencia de patrones)
 
 | Archivo | Uso |
 |---------|-----|

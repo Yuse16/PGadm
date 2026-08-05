@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1C DISCOVERY COMPLETED (catálogo maestro de productos) — SIN IMPLEMENTACIÓN**
+- Current Phase: **1C.1 ARCHITECTURE LOCKED (catálogo maestro) — SIN IMPLEMENTACIÓN / SIN MIGRACIÓN 008**
 - Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
 - Active Feature Branch: `feature/f1c-PG-CATALOG-004-product-master`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\catalog-product-master`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C DISCOVERY COMPLETED** (8 documentos F1C, 1C discovery sin implementación, sin PR)
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C discovery + 1C.1 COMPLETED** (D-C01…D-C17 APPROVED 2026-08-04; solo `.md`; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **1C implementación** (slices 1C.1…1C.5 tras revisión humana; ver `F1C_DISCOVERY_HANDOFF.md`)
+- Next Phase: **1C.2** (migración `00000000000008_product_master.sql` + seed + verificación DB) — **no iniciada**; requiere instrucción expresa
 
 ## Active Agents
 
@@ -167,11 +167,29 @@
 
 - **Base:** develop `0674e9f` (merge PR #8, cierre documental 1B.3). Worktree creado desde `origin/develop` sin commits previos; rama previa `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada.
 - **Descubrimiento 1C (catálogo maestro de productos) — solo documentación, sin implementación, sin migración, sin UI.**
-- **8 entregables F1C:** `F1C_KICKOFF_CONTRACT.md` (D-C01…D-C17), `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md` (18 puntos), `F1C_DATA_MODEL_PROPOSAL.md` (7 tablas + diferidas), `F1C_RLS_PERMISSION_MATRIX.md` (permisos `catalog.*` + políticas), `F1C_TEST_PLAN.md` (CA-1…CA-25), `F1C_IMPLEMENTATION_SLICES.md` (1C.1…1C.5), `F1C_DISCOVERY_HANDOFF.md`.
+- **8 entregables F1C iniciales** + acta humana 1C.1: `F1C_KICKOFF_CONTRACT.md`, `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md`, `F1C_DATA_MODEL_PROPOSAL.md`, `F1C_RLS_PERMISSION_MATRIX.md`, `F1C_TEST_PLAN.md`, `F1C_IMPLEMENTATION_SLICES.md`, `F1C_DISCOVERY_HANDOFF.md`, **`F1C_HUMAN_ARCHITECTURE_REVIEW.md`**, **`F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md`** (anexo).
 - **Decisiones clave:** modelo producto/variante separado (SKU y barcodes en la variante); catálogo org-scoped con FK compuestas; precios de referencia (dato, no regla); baja lógica por `status` sin DELETE; `external_id` Intelisis único por org; permisos `catalog.read/create/update/archive/manage`; RLS deny-by-default reutilizando `_access` (004) y patrón 007.
 - **Diferido:** impuestos, listas de precios, imágenes/Storage, sustitutos, visibilidad por sucursal, proveedores, sync Intelisis, UI.
 - **Gates:** solo documentación `.md`; `git diff --check` limpio ✅; sin secretos ✅; sin código funcional.
-- **Estado:** 1C discovery COMPLETED en rama `feature/f1c-PG-CATALOG-004-product-master` (sin PR). Pendiente: revisión humana (5 preguntas abiertas en `F1C_TEST_PLAN.md` §7) y ejecución de slices 1C.1…1C.5.
+- **Estado discovery:** COMPLETED (`a4236f7`). Continuó en 1C.1 (abajo).
+
+## Phase 1C.1 Architecture Lock (4 Aug 2026 — misma rama/worktree)
+
+- **Revisión humana aprobada** (5 preguntas cerradas). Acta: `F1C_HUMAN_ARCHITECTURE_REVIEW.md`.
+- **D-C01…D-C17** registradas en `DECISION_LOG.md` con estado **APPROVED · 2026-08-04**.
+- **Ajustes congelados:** `_catalog.enforce_category_tree()`; `reference_price numeric(14,4)` único; `base_units_per_sale_unit`; UOM `kind` dimensional; ciclo de vida inactive/active/última variante; archive ≠ update; manage restore; `UNIQUE(organization_id,id)` en padres; índices `upper(trim(...))`; `CHECK trim() <> ''`.
+- **Roles:** administrator / manager / cashier / operator (matriz `catalog.*`).
+- **Plan de pruebas** ampliado (CA-3b/3c, CA-14b/c/d, CA-11b, CA-26/27, …).
+- **Restricciones respetadas:** solo `.md`; sin migración 008; sin `seed.sql`; sin TypeScript; sin UI; sin PR; sin merge.
+- **Siguiente:** 1C.2 (migración 008) solo con instrucción expresa.
+
+## Phase 1C.1 Anexo Comercial — Agosto 2026 (4 Aug 2026)
+
+- **Evidencia operativa analizada:** `C:\Users\GVTASNOG\Desktop\COMERCIALIZACION AGOSTO 2026.pdf` (24 pág.; texto extraído con `pypdf`; PDF mayormente imagen, listas externas no incrustadas).
+- **Entregable:** `F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md` — resumen, matriz de requisitos (R-01…R-12), soporte 1C, diferidos a Comercialización/Inventario/Precios/Incentivos, entidades futuras propuestas (`commercial_campaigns`, `promotion_rules`, `campaign_products`, `promotion_bundles`, `campaign_labels`, `store_merchandising_tasks`, `outlet_rules`, `sales_incentives`) y riesgos.
+- **Principio confirmado:** promociones, colores de etiquetas (naranja/amarilla/roja/azul/dorada), incentivos, precios mensuales y reglas de Outlet **NO** son columnas de `products`/`product_variants`; 1C solo aporta referencias maestras.
+- **Actualizados:** `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md`, `F1C_DISCOVERY_HANDOFF.md`, `F1C_DATA_MODEL_PROPOSAL.md` (§7), `F1C_TEST_PLAN.md` (§8), `F1C_HUMAN_ARCHITECTURE_REVIEW.md` (§5).
+- **Sin migraciones ni código de Comercialización** (solo documentación `.md`).
 
 ## Blockers
 
@@ -184,11 +202,11 @@
 
 ## Next Action
 
-Revisión humana de los 8 documentos F1C (5 preguntas abiertas en `F1C_TEST_PLAN.md` §7); tras aprobación, registrar D-C01…D-C17 en `DECISION_LOG.md` y ejecutar slices 1C.1…1C.5 desde la rama `feature/f1c-PG-CATALOG-004-product-master`. El flip `ORGANIZATION_DATA_SOURCE=supabase` sigue siendo decisión de ops, documentada con default `demo`.
+Ejecutar **1C.2** (migración `00000000000008_product_master.sql` + seed + verificación DB) desde `feature/f1c-PG-CATALOG-004-product-master` **solo con instrucción expresa**. Modelo y permisos congelados en `F1C_DATA_MODEL_PROPOSAL.md` / `F1C_RLS_PERMISSION_MATRIX.md` / `F1C_HUMAN_ARCHITECTURE_REVIEW.md`. El flip `ORGANIZATION_DATA_SOURCE=supabase` / `CATALOG_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031).
 
 ## Status
 
-Fase 1C (catálogo maestro de productos): **DISCOVERY COMPLETED — SIN IMPLEMENTACIÓN** (8 documentos F1C en `docs/orchestration/handoffs/`, rama `feature/f1c-PG-CATALOG-004-product-master`, worktree `catalog-product-master`, sin PR). Pendiente: revisión humana → `DECISION_LOG.md` → slices 1C.1…1C.5.
+Fase 1C: **1C.1 ARCHITECTURE LOCKED** — D-C01…D-C17 APPROVED (2026-08-04); solo documentación; migración 008 **no iniciada**; sin PR. Pendiente: **1C.2**.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.
-PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3)
+PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3) | **PR #8: MERGED**
