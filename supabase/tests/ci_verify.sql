@@ -3,7 +3,7 @@
 -- PostgreSQL database. Runs inside a transaction that is rolled back.
 
 begin;
-select plan(41);
+select plan(47);
 
 -- ============================================================
 -- Base foundation (migration 00000000000001)
@@ -79,8 +79,8 @@ select ok(
 );
 
 select ok(
-  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('users', 'user_profiles', 'customers', 'products', 'inventory_items')),
-  'No F1B2-prohibited tables beyond the F1B3 identity scope'
+  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('users', 'user_profiles', 'customers', 'inventory_items')),
+  'No F1B2-prohibited tables beyond the F1B3 identity and F1C catalog scopes'
 );
 
 -- Primary keys
@@ -325,6 +325,58 @@ select throws_ok($sql$
       VALUES (v_org2, 'B2', 'Bad Type', 'warehouse');
   END $$;
 $sql$, '23514'::character(5), NULL, 'invalid branch_type must raise check_violation');
+
+-- ============================================================
+-- Product master catalog (migration 00000000000008)
+-- ============================================================
+
+select ok(
+  exists (select 1 from pg_namespace where nspname = '_catalog'),
+  'Schema _catalog should exist'
+);
+
+select ok(
+  (select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relname in (
+     'product_categories', 'product_brands', 'units_of_measure', 'product_lines',
+     'products', 'product_variants', 'product_barcodes') and c.relkind = 'r') = 7,
+  'All 7 F1C catalog tables should exist'
+);
+
+select ok(
+  (select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relname in (
+     'product_categories', 'product_brands', 'units_of_measure', 'product_lines',
+     'products', 'product_variants', 'product_barcodes') and c.relkind = 'r'
+     and c.relrowsecurity) = 7,
+  'All 7 F1C catalog tables should have RLS enabled'
+);
+
+select ok(
+  (select count(*)::int from pg_trigger t
+   join pg_class c on c.oid = t.tgrelid
+   join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relname in (
+     'product_categories', 'product_brands', 'units_of_measure', 'product_lines',
+     'products', 'product_variants', 'product_barcodes')
+     and not t.tgisinternal and t.tgname like '%_updated_at') = 7,
+  'All 7 F1C catalog tables should have an updated_at trigger'
+);
+
+select ok(
+  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where n.nspname = 'public' and c.relname in (
+     'product_categories', 'product_brands', 'units_of_measure', 'product_lines',
+     'products', 'product_variants', 'product_barcodes') and c.relkind = 'r'
+     and has_table_privilege('authenticated', c.oid, 'delete')),
+  'authenticated should have no DELETE privilege on any F1C catalog table (D-C14)'
+);
+
+select ok(
+  exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+   where n.nspname = '_catalog' and p.proname = 'enforce_status_transition'),
+  'Function _catalog.enforce_status_transition should exist'
+);
 
 select * from finish();
 rollback;

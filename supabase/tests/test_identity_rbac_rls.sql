@@ -190,8 +190,8 @@ select lives_ok('delete from public.user_role_assignments where organization_id 
 select is((select count(*)::int from public.user_role_assignments where organization_id = '10000000-0000-0000-0000-000000000001' and user_id = '30000000-0000-0000-0000-000000000005'), 0, 'admin removes an assignment in own org (ACC-16)');
 select lives_ok('delete from public.organization_memberships where organization_id = ''10000000-0000-0000-0000-000000000001'' and user_id = ''30000000-0000-0000-0000-000000000005''', 'admin removes the member again');
 select is((select count(*)::int from public.organization_memberships where organization_id = '10000000-0000-0000-0000-000000000001' and user_id = '30000000-0000-0000-0000-000000000005'), 0, 'admin removes a member in own org (ACC-16)');
-select is((select count(*)::int from public.permissions), 6, 'admin reads the permission catalog (ACC-16)');
-select is((select count(*)::int from public.role_permissions), 13, 'admin reads role_permissions of own orgs (no recursion)');
+select is((select count(*)::int from public.permissions), 11, 'admin reads the permission catalog incl. catalog.* (ACC-16)');
+select is((select count(*)::int from public.role_permissions), 22, 'admin reads role_permissions of own orgs (no recursion)');
 select lives_ok('insert into public.permissions (code, description) values (''audit.read'', ''Audit read'')', 'admin creates a permission');
 select is((select count(*)::int from public.permissions where code = 'audit.read'), 1, 'admin creates a permission (ACC-16)');
 select is((select count(*)::int from public.profiles where id = '30000000-0000-0000-0000-000000000006'), 1, 'admin reads own profile');
