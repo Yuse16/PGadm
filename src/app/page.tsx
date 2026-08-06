@@ -20,8 +20,14 @@ export default function HomePage() {
 
         <div className="flex justify-center gap-4 pt-4">
           <Link
+            href="/admin/catalog"
+            className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
+          >
+            Catálogo
+          </Link>
+          <Link
             href="/health"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             Health Check
           </Link>
