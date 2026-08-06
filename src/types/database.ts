@@ -7,6 +7,55 @@ export type Json =
   | Json[]
 
 export type Database = {
+  _audit: {
+    Tables: {
+      catalog_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          detail: string
+          entity_id: string
+          entity_type: string
+          id: string
+          occurred_at: string
+          organization_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          detail?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          detail?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       branch_warehouse_relations: {
@@ -1101,6 +1150,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  _audit: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

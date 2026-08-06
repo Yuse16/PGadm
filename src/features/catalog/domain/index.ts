@@ -62,5 +62,6 @@ export type {
   CatalogAuditEntityType,
   CatalogAuditEvent,
   CatalogAuditEventInput,
+  CatalogAuditEventFilter,
   CatalogAuditRepository,
 } from "./audit";

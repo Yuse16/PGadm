@@ -23,6 +23,7 @@ import {
   SupabaseProductRepository,
   SupabaseUnitRepository,
 } from "./supabase-catalog-repository";
+import { SupabaseCatalogAuditRepository } from "./supabase-catalog-audit-repository";
 
 export const CATALOG_DATA_SOURCES = ["demo", "supabase"] as const;
 export type CatalogDataSource = (typeof CATALOG_DATA_SOURCES)[number];
@@ -90,7 +91,7 @@ export function createCatalogRepositories(
     brandRepository: new SupabaseBrandRepository(),
     productLineRepository: new SupabaseProductLineRepository(),
     unitRepository: new SupabaseUnitRepository(),
-    auditRepository: new NoopCatalogAuditRepository(),
+    auditRepository: new SupabaseCatalogAuditRepository(),
   };
 }
 

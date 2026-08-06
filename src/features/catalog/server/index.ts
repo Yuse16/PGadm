@@ -14,3 +14,5 @@ export type {
   ProductTableRow,
   VariantTableRow,
 } from "./catalog-data";
+export { getProductHistory } from "./history";
+export type { ProductHistoryEntry } from "./history";

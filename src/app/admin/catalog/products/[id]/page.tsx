@@ -13,12 +13,14 @@ import {
 } from "@/features/catalog/server/actions";
 import {
   flattenCategoriesWithDepth,
+  getProductHistory,
   requireCatalogSession,
 } from "@/features/catalog/server";
 import { PageHeader } from "@/features/catalog/components/page-header";
 import { ProductForm } from "@/features/catalog/components/product-form";
 import { StatusBadge } from "@/features/catalog/components/status-badge";
 import { VariantTable } from "@/features/catalog/components/variant-table";
+import { HistoryTimeline } from "@/features/catalog/components/history-timeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/features/catalog/components/ui/card";
 import { EmptyState } from "@/features/catalog/components/ui/empty-state";
 
@@ -77,6 +79,13 @@ export default async function ProductDetailPage({
 
   const isDiscontinued = product.status === "discontinued";
   const canEdit = access.permissions.canUpdate && !isDiscontinued;
+
+  const history = await getProductHistory(
+    access.context,
+    access.organizationId,
+    product,
+    variants.map((item) => item.variant)
+  );
 
   return (
     <div className="space-y-8">
@@ -182,6 +191,8 @@ export default async function ProductDetailPage({
           }}
         />
       </section>
+
+      <HistoryTimeline entries={history} />
     </div>
   );
 }

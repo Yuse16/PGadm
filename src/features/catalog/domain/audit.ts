@@ -1,9 +1,9 @@
 /**
- * Application-level audit port (1C.3). The database persistence
- * (`_audit.catalog_events`, D-C10) is deferred to 1C.5; this phase wires the
- * contract and an in-memory implementation that records create/update/archive/
- * restore events with the acting user. 1C.5 swaps the implementation without
- * touching the use cases.
+ * Application-level audit port (1C.3, persistence wired in 1C.5). Records
+ * create/update/archive/restore events with the acting user and supports the
+ * per-entity history timeline shown on the product detail page. The 1C.5
+ * implementation persists to `_audit.catalog_events` without touching the use
+ * cases.
  */
 export type CatalogAuditAction = "create" | "update" | "archive" | "restore";
 export type CatalogAuditEntityType =
@@ -28,6 +28,14 @@ export interface CatalogAuditEvent {
 
 export type CatalogAuditEventInput = Omit<CatalogAuditEvent, "id" | "occurredAt">;
 
+export interface CatalogAuditEventFilter {
+  organizationId: string;
+  entityType: CatalogAuditEntityType;
+  entityId: string;
+  limit?: number;
+}
+
 export interface CatalogAuditRepository {
   record(event: CatalogAuditEventInput): Promise<CatalogAuditEvent>;
+  listEvents(filter: CatalogAuditEventFilter): Promise<CatalogAuditEvent[]>;
 }

@@ -1,15 +1,15 @@
 import type {
   CatalogAuditEvent,
+  CatalogAuditEventFilter,
   CatalogAuditEventInput,
   CatalogAuditRepository,
 } from "../domain";
 
 /**
- * Phase 1C.3 in-memory audit implementation. Persistence to
- * `_audit.catalog_events` is deferred to 1C.5 (D-C10); this implementation
- * records events in memory so use cases can be exercised without a database
- * while keeping the audit contract wired. Swap this out in 1C.5 without
- * touching the use cases.
+ * Phase 1C.3 in-memory audit implementation, kept for the demo data source and
+ * tests. The Supabase source uses `SupabaseCatalogAuditRepository`, which
+ * persists to `_audit.catalog_events` (1C.5, D-C10); the use cases are never
+ * touched by the swap.
  */
 export class NoopCatalogAuditRepository implements CatalogAuditRepository {
   readonly events: CatalogAuditEvent[] = [];
@@ -22,6 +22,22 @@ export class NoopCatalogAuditRepository implements CatalogAuditRepository {
     };
     this.events.push(event);
     return event;
+  }
+
+  async listEvents(
+    filter: CatalogAuditEventFilter
+  ): Promise<CatalogAuditEvent[]> {
+    const matches = this.events
+      .filter(
+        (event) =>
+          event.organizationId === filter.organizationId &&
+          event.entityType === filter.entityType &&
+          event.entityId === filter.entityId
+      )
+      .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+    return filter.limit === undefined
+      ? matches
+      : matches.slice(0, filter.limit);
   }
 
   clear(): void {
