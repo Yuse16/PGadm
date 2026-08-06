@@ -17,4 +17,12 @@ describe("HomePage", () => {
     render(<HomePage />);
     expect(screen.getByText("Health Check")).toBeInTheDocument();
   });
+
+  it("links to the catalog admin", () => {
+    render(<HomePage />);
+    expect(screen.getByRole("link", { name: "Catálogo" })).toHaveAttribute(
+      "href",
+      "/admin/catalog"
+    );
+  });
 });
