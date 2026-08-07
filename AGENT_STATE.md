@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1D.1 APROBADO (D-I01…D-I14) + 1D.2 COMPLETED + 1D.3 COMPLETED + 1D.4 COMPLETED (inventario: migración 010 + seed + 638/638 pgTAP + dominio/use cases/repositorios + seguridad + 368/368 vitest) — rama `feature/f1d-PG-INVENTORY-005-inventory`, HEAD `e2b812a`; sin PR; sin merge**
+- Current Phase: **1D.1 APROBADO (D-I01…D-I14) + 1D.2 COMPLETED + 1D.3 COMPLETED + 1D.4 COMPLETED + 1D.5 COMPLETED (inventario: migración 010 + seed + 638/638 pgTAP + dominio/use cases/repositorios + seguridad + integración port 1C.5 con stock real + alertas D-I13 + 388/388 vitest) — rama `feature/f1d-PG-INVENTORY-005-inventory`, HEAD `6427d23`; sin PR; sin merge**
 - Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
 - Active Feature Branch: `feature/f1d-PG-INVENTORY-005-inventory`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\inventory-snapshots`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR); **Fase 1D.1 APROBADO** (D-I01…D-I14 APPROVED 2026-08-06, commit `9bc1de3`) **+ 1D.2 COMPLETED** (migración 010 `inventory_snapshots`: 5 tablas + `_audit.inventory_events`; permisos `inventory.*` → 15 permisos / 35 role_permissions; fixtures `90000000-…`; **638/638 pgTAP** + **294/294 vitest** + gates; 3 commits, HEAD `5cb5332`)   **+ 1D.3 COMPLETED** (dominio/application/infrastructure de inventario: demo + Supabase repos, use cases approveImport/observaciones/plantillas/historial, guards, `INVENTORY_DATA_SOURCE`; **362/362 vitest** + gates; 2 commits, HEAD `bffb2d2`) **+ 1D.4 COMPLETED** (permisos `inventory.*` vía `current_user_permissions()` + suite de seguridad IA-23…IA-30/D-I12/D031; **368/368 vitest** + gates; 1 commit, HEAD `e2b812a`; sin PR)
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR); **Fase 1D.1 APROBADO** (D-I01…D-I14 APPROVED 2026-08-06, commit `9bc1de3`) **+ 1D.2 COMPLETED** (migración 010 `inventory_snapshots`: 5 tablas + `_audit.inventory_events`; permisos `inventory.*` → 15 permisos / 35 role_permissions; fixtures `90000000-…`; **638/638 pgTAP** + **294/294 vitest** + gates; 3 commits, HEAD `5cb5332`)   **+ 1D.3 COMPLETED** (dominio/application/infrastructure de inventario: demo + Supabase repos, use cases approveImport/observaciones/plantillas/historial, guards, `INVENTORY_DATA_SOURCE`; **362/362 vitest** + gates; 2 commits, HEAD `bffb2d2`) **+ 1D.4 COMPLETED** (permisos `inventory.*` vía `current_user_permissions()` + suite de seguridad IA-23…IA-30/D-I12/D031; **368/368 vitest** + gates; 1 commit, HEAD `e2b812a`) **+ 1D.5 COMPLETED** (port 1C.5 `CatalogIntegrationRepository` poblado con stock real `inventory.snapshots` + alertas D-I13 configurables + wiring en `products/[id]`; **388/388 vitest** + gates; 2 commits, HEAD `6427d23`; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **Fase 2 — Inventario (1D)**: 1D.1 APROBADO (D-I01…D-I14, 2026-08-06); **1D.2 COMPLETED** (migración 010 `inventory_snapshots` + seed + pgTAP 638/638 + gates, HEAD `5cb5332`); **1D.3 COMPLETED** (dominio/use cases/repositorios de inventario, HEAD `bffb2d2`); **1D.4 COMPLETED** (permisos/seguridad, HEAD `e2b812a`); **siguiente: 1D.5 integración port 1C.5 (stock real) + alertas + cierre**. Pendiente además: revisión humana de las ramas 1C + 1D, PR a `develop` y merge; flips `CATALOG_DATA_SOURCE`/`ORGANIZATION_DATA_SOURCE`/`INVENTORY_DATA_SOURCE` = decisión de ops (default `demo`, D031/D-C22/D-I12)
+- Next Phase: **Fase 2 — Inventario (1D)**: 1D.1 APROBADO (D-I01…D-I14, 2026-08-06); **1D.2 COMPLETED** (migración 010 `inventory_snapshots` + seed + pgTAP 638/638 + gates, HEAD `5cb5332`); **1D.3 COMPLETED** (dominio/use cases/repositorios de inventario, HEAD `bffb2d2`); **1D.4 COMPLETED** (permisos/seguridad, HEAD `e2b812a`); **1D.5 COMPLETED** (integración port 1C.5 con stock real + alertas D-I13 + cierre 1D, HEAD `6427d23`). Pendiente además: revisión humana de las ramas 1C + 1D, PR a `develop` y merge; flips `CATALOG_DATA_SOURCE`/`ORGANIZATION_DATA_SOURCE`/`INVENTORY_DATA_SOURCE` = decisión de ops (default `demo`, D031/D-C22/D-I12)
 
 ## Active Agents
 
@@ -383,6 +383,28 @@
 - **Pendiente:** subfase **1D.5** (integración port 1C.5 con stock real + alertas + cierre);
   revisión humana de ramas 1C + 1D, PR a `develop` y merge; flips de data source = ops.
 
+## Phase 1D.5 Inventory Integration & Closure (6 Aug 2026 — misma rama/worktree)
+
+- **Port 1C.5 poblado con stock real (D-I14):** `InventoryCatalogIntegrationRepository`
+  (inventory infra) agrega la existencia reportada del snapshot más reciente por almacén
+  (`latestSnapshotPerWarehouse`, determinista por `report_date`/`imported_at`/id);
+  `current_stock` real, `reserved_stock` null (ventas, D-I14), `available_stock = current_stock`,
+  mensaje `"Existencia reportada al {report_date}"` (D-I04); compras/pricing sin integración.
+  Reemplaza el Noop en el detalle de producto: `getProductIntegrationSummary(variantIds)`
+  (inventory server, `inventory.read` org-scoped) wiring en `src/app/admin/catalog/products/[id]/page.tsx`.
+- **Alertas (D-I13):** `computeInventoryAlerts` (application) — 5 tipos iniciales computables
+  desde cambios/items (`load_difference`, `absent_from_file` ausente ≠ stock cero D-I05,
+  `zeroed_stock`, `low_stock`, `high_new_stock`); umbrales configurables
+  (`InventoryAlertThresholds`: lowStock/highNewStock/difference, defaults conservadores);
+  orden determinista. Tienda/CEDIS, exhibido, comercialización y remate diferidos (D-I14).
+- **Gates:** lint ✅ · typecheck ✅ · **388/388 vitest** (48 archivos) ✅ · build ✅ ·
+  `git diff --check` limpio ✅ · sin secretos ✅ · pgTAP sin cambios (sin migración nueva).
+- **Commits (2):** `afced82` feat(inventory) + `6427d23` test(inventory).
+- **Cierre 1D:** Fase 1D completa (1D.1…1D.5). Pendiente: revisión humana de ramas 1C + 1D,
+  PR a `develop` y merge; handoff de la siguiente fase (ventas/layout/comercialización/CEDIS/IA,
+  D-I14); flips de data source = ops.
+
+
 ## Blockers
 
 | Blocker | Detail |
@@ -394,12 +416,12 @@
 
 ## Next Action
 
-Fase **1D.1 APROBADO + 1D.2 COMPLETED + 1D.3 COMPLETED + 1D.4 COMPLETED** (inventario; D-I01…D-I14 APPROVED `9bc1de3`; migración 010 + seed + **638/638 pgTAP**; dominio/use cases/repositorios + seguridad + **368/368 vitest** + gates, HEAD `e2b812a`; sin PR). Siguiente fase: **1D.5 integración port 1C.5 (stock real) + alertas + cierre** (aprobación ya obtenida). Pendiente además: revisión humana de las ramas 1C + 1D, PR a `develop` y merge. Flips `CATALOG_DATA_SOURCE` / `ORGANIZATION_DATA_SOURCE` / `INVENTORY_DATA_SOURCE` = decisión de ops (default `demo`, D031/D-C22/D-I12).
+Fase **1D COMPLETED** (inventario; D-I01…D-I14 APPROVED `9bc1de3`; migración 010 + seed + **638/638 pgTAP**; dominio/use cases/repositorios + seguridad + integración port 1C.5 con stock real + alertas D-I13 + **388/388 vitest** + gates, HEAD `6427d23`; sin PR). Fase 1D completa: **siguiente = revisión humana de las ramas 1C + 1D, PR a `develop` y merge**; handoff de la siguiente fase (ventas/layout/comercialización/CEDIS/IA, D-I14). Flips `CATALOG_DATA_SOURCE` / `ORGANIZATION_DATA_SOURCE` / `INVENTORY_DATA_SOURCE` = decisión de ops (default `demo`, D031/D-C22/D-I12).
 
 ## Status
 
 Fase 1C: **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits en `feature/f1c-PG-CATALOG-004-product-master`, HEAD `9a7b4b8`; migración 008 + seed + auditoría 009 + dominio/app/UI + permisos/seguridad; **550/550 pgTAP** + **294/294 vitest** + gates; sin PR; sin merge). Cierre documental: `HANDOFF_004_F1C_...`, D-C18…D-C22.
-Fase 1D: **1D.1 APROBADO (D-I01…D-I14, `9bc1de3`) + 1D.2 COMPLETED + 1D.3 COMPLETED + 1D.4 COMPLETED** (inventario; migración `00000000000010_inventory_snapshots.sql` + seed `inventory.*` + `test_inventory_stock.sql` plan(88); **638/638 pgTAP** + **368/368 vitest** + gates; commits `ce42a56`+`9e1bdf0` + `e28dfb5`+`bffb2d2` + `e2b812a`; sin PR; sin merge).
+Fase 1D: **1D COMPLETED** (inventario; D-I01…D-I14 APPROVED `9bc1de3`; migración `00000000000010_inventory_snapshots.sql` + seed `inventory.*` + `test_inventory_stock.sql` plan(88); **638/638 pgTAP** + **388/388 vitest** + gates; 1D.2 `ce42a56`+`9e1bdf0`, 1D.3 `e28dfb5`+`bffb2d2`, 1D.4 `e2b812a`, 1D.5 `afced82`+`6427d23`; sin PR; sin merge).
 Fase 1C.1: **COMPLETED** — D-C01…D-C17 APPROVED (2026-08-04); acta `F1C_HUMAN_ARCHITECTURE_REVIEW.md`; solo documentación.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.

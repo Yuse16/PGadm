@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.9.0 (2026-08-06) — Phase 1D.4 inventory permissions & security
+## 0.10.0 (2026-08-06) — Phase 1D.5 inventory integration (1C.5 port) & stock alerts
+
+- **Integración (D-I14):** el port de 1C.5 `CatalogIntegrationRepository` ya no es un Noop: `InventoryCatalogIntegrationRepository` (inventory infra) agrega la existencia reportada del snapshot más reciente por almacén (`latestSnapshotPerWarehouse`, determinista por `report_date`/`imported_at`/id); `current_stock` real, `reserved_stock` null (depende de ventas, D-I14), `available_stock = current_stock`; mensaje `"Existencia reportada al {report_date}"` (D-I04); compras/pricing siguen sin integración. Helper server `getProductIntegrationSummary(variantIds)` con `inventory.read` org-scoped; wiring en `src/app/admin/catalog/products/[id]/page.tsx` (el detalle de producto ahora muestra stock real del inventario).
+- **Alertas (D-I13):** `computeInventoryAlerts` (application) — 5 tipos iniciales computables desde cambios/items: `load_difference`, `absent_from_file` (ausente ≠ stock cero, D-I05), `zeroed_stock`, `low_stock`, `high_new_stock`; umbrales configurables (`InventoryAlertThresholds`: lowStock/highNewStock/difference, defaults conservadores), orden determinista. Tienda/CEDIS, exhibido, comercialización y remate diferidos (D-I14: dependen de layout/ventas).
+- **Tests:** 20 nuevos (alerts 11, integración 9) → **388/388 vitest** (48 archivos)
+- **Gates:** lint ✅ · typecheck ✅ · **388/388 vitest** (48 archivos) ✅ · build ✅ (16 rutas) · `git diff --check` limpio ✅ · sin secretos ✅ · pgTAP sin cambios (sin migración nueva)
+- **Commits:** `afced82` feat(inventory) + `6427d23` test(inventory); sin PR, sin merge
+- **Pendiente:** revisión humana de ramas 1C + 1D (1D completo), PR a `develop` y merge; flips data source = ops; fases siguientes (ventas/layout/comercialización/CEDIS/IA) consumen los snapshots/cambios/observaciones (D-I14)
+
 
 - **Permisos `inventory.*` registrados** en `permissions` (1D.2 seed, `current_user_permissions()`); sin registros nuevos en 1D.4 (15 permisos / 35 role_permissions ya verificados por `test_identity_rbac_rls.sql` plan 140)
 - **Seguridad:** suite vitest `feature-security.test.ts` (6 tests) — IA-29 (sin admin/`service_role` en feature, supabase usa cliente anon RLS-scoped), demo repos standalone (sin DB/env), `repository-selection` sin fallback silencioso (D-I12/D031), guards reutilizan `requirePermission` identity (IA-23/25/26), toda escritura pasa por `actor.requirePermission`; aislamiento por org/deny-by-default IA-23…IA-30 ya cubiertos en pgTAP `test_inventory_stock.sql`
