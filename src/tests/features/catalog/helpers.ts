@@ -17,6 +17,7 @@ import {
   DemoProductRepository,
   DemoUnitRepository,
   NoopCatalogAuditRepository,
+  NoopCatalogIntegrationRepository,
 } from "@/features/catalog/infrastructure";
 
 export const ORG_A = "10000000-0000-0000-0000-000000000001";
@@ -201,6 +202,7 @@ export function makeContext(
     productLineRepository,
     unitRepository,
     auditRepository,
+    integrationRepository: new NoopCatalogIntegrationRepository(),
   };
 }
 

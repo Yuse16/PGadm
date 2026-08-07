@@ -52,7 +52,11 @@ export class SupabaseCatalogAuditRepository implements CatalogAuditRepository {
     filter: CatalogAuditEventFilter
   ): Promise<CatalogAuditEvent[]> {
     const client = await this.createClient();
-    let query = client
+    const limit =
+      filter.limit === undefined
+        ? MAX_HISTORY_EVENTS
+        : Math.max(1, Math.min(filter.limit, MAX_HISTORY_EVENTS));
+    const { data, error } = await client
       .schema("_audit")
       .from("catalog_events")
       .select(AUDIT_COLUMNS)
@@ -61,12 +65,7 @@ export class SupabaseCatalogAuditRepository implements CatalogAuditRepository {
       .eq("entity_id", filter.entityId)
       .order("occurred_at", { ascending: false })
       .order("id", { ascending: false })
-      .limit(
-        filter.limit === undefined
-          ? MAX_HISTORY_EVENTS
-          : Math.max(1, Math.min(filter.limit, MAX_HISTORY_EVENTS))
-      );
-    const { data, error } = await query;
+      .limit(limit);
     if (error) {
       throw new Error(`Failed to list audit events: ${error.message}`);
     }

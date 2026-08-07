@@ -21,6 +21,7 @@ import { ProductForm } from "@/features/catalog/components/product-form";
 import { StatusBadge } from "@/features/catalog/components/status-badge";
 import { VariantTable } from "@/features/catalog/components/variant-table";
 import { HistoryTimeline } from "@/features/catalog/components/history-timeline";
+import { IntegrationSummaryCard } from "@/features/catalog/components/integration-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/features/catalog/components/ui/card";
 import { EmptyState } from "@/features/catalog/components/ui/empty-state";
 
@@ -86,6 +87,9 @@ export default async function ProductDetailPage({
     product,
     variants.map((item) => item.variant)
   );
+
+  const integrationSummary =
+    await access.context.integrationRepository.getIntegrationSummary();
 
   return (
     <div className="space-y-8">
@@ -191,6 +195,8 @@ export default async function ProductDetailPage({
           }}
         />
       </section>
+
+      <IntegrationSummaryCard summary={integrationSummary} />
 
       <HistoryTimeline entries={history} />
     </div>

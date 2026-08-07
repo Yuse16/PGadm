@@ -1,6 +1,7 @@
 import type {
   BrandRepository,
   CatalogAuditRepository,
+  CatalogIntegrationRepository,
   CategoryRepository,
   ProductLineRepository,
   ProductRepository,
@@ -16,6 +17,7 @@ import {
   DemoUnitRepository,
 } from "./demo-catalog-repository";
 import { NoopCatalogAuditRepository } from "./noop-catalog-audit-repository";
+import { NoopCatalogIntegrationRepository } from "./noop-catalog-integration-repository";
 import {
   SupabaseBrandRepository,
   SupabaseCategoryRepository,
@@ -66,6 +68,7 @@ export interface CatalogRepositories {
   productLineRepository: ProductLineRepository;
   unitRepository: UnitRepository;
   auditRepository: CatalogAuditRepository;
+  integrationRepository: CatalogIntegrationRepository;
 }
 
 /**
@@ -83,6 +86,7 @@ export function createCatalogRepositories(
       productLineRepository: new DemoProductLineRepository(),
       unitRepository: new DemoUnitRepository(),
       auditRepository: new NoopCatalogAuditRepository(),
+      integrationRepository: new NoopCatalogIntegrationRepository(),
     };
   }
   return {
@@ -92,6 +96,7 @@ export function createCatalogRepositories(
     productLineRepository: new SupabaseProductLineRepository(),
     unitRepository: new SupabaseUnitRepository(),
     auditRepository: new SupabaseCatalogAuditRepository(),
+    integrationRepository: new NoopCatalogIntegrationRepository(),
   };
 }
 

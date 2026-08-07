@@ -1,6 +1,7 @@
 import type {
   BrandRepository,
   CatalogAuditRepository,
+  CatalogIntegrationRepository,
   CategoryRepository,
   ProductLineRepository,
   ProductRepository,
@@ -20,4 +21,5 @@ export interface CatalogContext {
   productLineRepository: ProductLineRepository;
   unitRepository: UnitRepository;
   auditRepository: CatalogAuditRepository;
+  integrationRepository: CatalogIntegrationRepository;
 }

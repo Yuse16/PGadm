@@ -7,6 +7,7 @@ export {
   assertDemoNotNull,
 } from "./demo-catalog-repository";
 export { NoopCatalogAuditRepository } from "./noop-catalog-audit-repository";
+export { NoopCatalogIntegrationRepository } from "./noop-catalog-integration-repository";
 export { SupabaseCatalogAuditRepository } from "./supabase-catalog-audit-repository";
 export {
   SupabaseProductRepository,

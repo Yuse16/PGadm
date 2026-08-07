@@ -62,9 +62,18 @@ describe("catalog data source selection", () => {
     const { DemoProductRepository } = await import(
       "@/features/catalog/infrastructure/demo-catalog-repository"
     );
+    const { NoopCatalogAuditRepository } = await import(
+      "@/features/catalog/infrastructure/noop-catalog-audit-repository"
+    );
+    const { NoopCatalogIntegrationRepository } = await import(
+      "@/features/catalog/infrastructure/noop-catalog-integration-repository"
+    );
     const repos = createCatalogRepositories("demo");
     expect(repos.productRepository).toBeInstanceOf(DemoProductRepository);
-    expect(repos.auditRepository).toBeDefined();
+    expect(repos.auditRepository).toBeInstanceOf(NoopCatalogAuditRepository);
+    expect(repos.integrationRepository).toBeInstanceOf(
+      NoopCatalogIntegrationRepository
+    );
   });
 
   it("creates supabase repositories for the supabase source", async () => {
@@ -74,8 +83,43 @@ describe("catalog data source selection", () => {
     const { SupabaseProductRepository } = await import(
       "@/features/catalog/infrastructure/supabase-catalog-repository"
     );
+    const { SupabaseCatalogAuditRepository } = await import(
+      "@/features/catalog/infrastructure/supabase-catalog-audit-repository"
+    );
+    const { NoopCatalogIntegrationRepository } = await import(
+      "@/features/catalog/infrastructure/noop-catalog-integration-repository"
+    );
     const repos = createCatalogRepositories("supabase");
     expect(repos.productRepository).toBeInstanceOf(SupabaseProductRepository);
+    expect(repos.auditRepository).toBeInstanceOf(SupabaseCatalogAuditRepository);
+    expect(repos.integrationRepository).toBeInstanceOf(
+      NoopCatalogIntegrationRepository
+    );
+  });
+
+  it("throws a typed error when recording an audit event without supabase config", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    vi.stubEnv("CATALOG_DATA_SOURCE", "supabase");
+
+    const { createCatalogRepositories } = await import(
+      "@/features/catalog/infrastructure/repository-selection"
+    );
+    const { RepositoryConfigurationError } = await import(
+      "@/features/catalog/domain"
+    );
+
+    const repos = createCatalogRepositories("supabase");
+    await expect(
+      repos.auditRepository.record({
+        actorUserId: "actor-1",
+        organizationId: "org-1",
+        action: "create",
+        entityType: "product",
+        entityId: "product-1",
+        detail: "detail",
+      })
+    ).rejects.toThrow(RepositoryConfigurationError);
   });
 
   it("never falls back to demo after a supabase read failure", async () => {

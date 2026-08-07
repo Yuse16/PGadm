@@ -65,3 +65,11 @@ export type {
   CatalogAuditEventFilter,
   CatalogAuditRepository,
 } from "./audit";
+export type {
+  CatalogInventoryView,
+  CatalogPurchaseView,
+  CatalogPricingView,
+  CatalogIntegrationStatus,
+  CatalogIntegrationSummary,
+  CatalogIntegrationRepository,
+} from "./integrations";
