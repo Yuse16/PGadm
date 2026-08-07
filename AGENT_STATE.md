@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1C.3 BACKEND COMPLETED (catálogo maestro) — dominio + repositorios + casos de uso + guards + auditoría (port) + 117 tests; UI básica de 1C.3 PENDIENTE**
+- Current Phase: **1C.1–1C.5 COMPLETED AND PUSHED (catálogo maestro) — 17 commits, HEAD `9a7b4b8`; sin PR; sin merge**
 - Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
 - Active Feature Branch: `feature/f1c-PG-CATALOG-004-product-master`
 - Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\catalog-product-master`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C discovery + 1C.1 COMPLETED** (D-C01…D-C17 APPROVED 2026-08-04; solo `.md`; sin PR); **Fase 1C.2 COMPLETED AND PUSHED** (migración 008 + seed + 518/518 pgTAP + gates; 3 commits; sin PR); **Fase 1C.3 BACKEND COMPLETED AND PUSHED** (dominio + app + infra + 117 tests; 266/266 vitest + gates; 5 commits; sin PR)
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **1C.3 UI** (páginas/servers del catálogo usando los use cases ya implementados) — **no iniciada**; requiere instrucción expresa
+- Next Phase: **Fase "1D" NO definida en docs** — la DoD de 1C.5 pide "handoff de 1D" pero no existe doc de fase 1D; requiere definición y aprobación humana (inventario, ventas, compras o integración Intelisis). Pendiente: revisión humana de la rama 1C, PR a `develop` y merge
 
 ## Active Agents
 
@@ -211,6 +211,47 @@
 - **Gates:** lint ✅ · typecheck ✅ · **266/266 vitest** (antes 149) ✅ · build ✅ (7 rutas) · `git diff --check` limpio ✅ · sin secretos ✅.
 - **5 commits + push a `feature/f1c-PG-CATALOG-004-product-master`; sin PR; sin merge; UI de 1C.3 no iniciada.**
 
+## Phase 1C.4/1C.5 Summary (6 Aug 2026 — misma rama/worktree)
+
+- **1C.4 (permisos/seguridad):** permisos `catalog.*` verificados con
+  `current_user_permissions()`; CA-31…CA-39 cubiertos; `feature-security.test.ts`
+  confirma cero `service_role`/admin client en la feature.
+- **1C.5 (auditoría + cierre):** migración `00000000000009_catalog_audit.sql` —
+  `_audit.catalog_events` append-only (FK `public.profiles`/`public.organizations`,
+  CHECKs action/entity_type, índices por org+entidad y org+fecha, RLS allowlist
+  select/insert con `_access.current_organization_ids()` +
+  `_access.has_permission('catalog.*')`, grants select/insert solo `authenticated`,
+  revokes a `public`/`anon`/`service_role`). Esquema `_audit` expuesto en
+  `supabase/config.toml [api] schemas` (PostgREST, cliente anon RLS-scoped; nunca
+  service_role).
+- **SupabaseCatalogAuditRepository** (`AUDIT_COLUMNS`, `MAX_HISTORY_EVENTS=50`,
+  `record()`/`listEvents(filter)` con orden `occurred_at desc, id desc` y límite
+  clamp 1..50; `RepositoryConfigurationError` sin config).
+- **Poblado de auditoría:** 19 call-sites en 7 módulos de use cases (product,
+  variant, barcode, category, brand, product-line, unit) para
+  create/update/archive/restore.
+- **Timeline de historial (P6):** `getProductHistory` (máx. 30, fusiona
+  producto+variantes, orden desc) + `HistoryTimeline` (es-MX, badges
+  Creación/Actualización/Descontinuado/Restaurado, actor primeros 8 chars) en el
+  detalle de producto.
+- **Placeholders de integración (P2/P3/P4):** `CatalogIntegrationRepository`
+  (inventario current/reserved/available stock + average/last cost; compras
+  last supplier/purchase/cost; precios base/sugerido/venta/especial/lista) +
+  `NoopCatalogIntegrationRepository` (todo null, "Sin integración de inventario")
+  para demo y supabase; `IntegrationSummaryCard` en la página de producto. Sin
+  implementación de inventario/ventas/promociones (alcance 1C.5).
+- **Tests:** `test_catalog_audit.sql` (32 aserciones; fixture multi-org PGM/Demo-B,
+  RLS comportamiento real para manager/cashier/operator) + `integration-and-history
+  .test.ts` (6) + `repository-selection.test.ts` (9; incl. error tipado sin config).
+- **Gates:** lint ✅ · typecheck ✅ · **294/294 vitest** (39 archivos) ✅ · build ✅
+  (12 rutas) · `db:reset` ✅ · **550/550 pgTAP** (9 archivos) ✅ · `db:lint` sin
+  errores ✅ · `db:verify` ALL CHECKS PASSED ✅ · `git diff --check` limpio ✅ ·
+  sin secretos ✅ · audit baseline (4 high prod, sin `--force`) ✅.
+- **2 commits + push pendiente de 1C.5** (`aa7975a`, `9a7b4b8`; rama ahead de
+  origin por 2) + cierre documental (`HANDOFF_004_F1C_...`, D-C18…D-C22).
+- **1C COMPLETED / fase "1D" NO definida** (requiere decisión humana). Flip
+  `CATALOG_DATA_SOURCE=supabase` = decisión de ops (default `demo`, D031/D-C22).
+
 ## Blockers
 
 | Blocker | Detail |
@@ -222,11 +263,11 @@
 
 ## Next Action
 
-Fase **1C.2 COMPLETED AND PUSHED** · **1C.3 BACKEND COMPLETED AND PUSHED** (dominio + app + infra + 117 tests; 5 commits; sin PR). Siguiente fase pendiente: **1C.3 UI** (páginas/servers del catálogo) — **no iniciada**; requiere instrucción expresa. Modelo y permisos congelados en `F1C_DATA_MODEL_PROPOSAL.md` / `F1C_RLS_PERMISSION_MATRIX.md` / `F1C_HUMAN_ARCHITECTURE_REVIEW.md`. El flip `ORGANIZATION_DATA_SOURCE=supabase` / `CATALOG_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031).
+Fase **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits, HEAD `9a7b4b8`; 550/550 pgTAP + 294/294 vitest + gates; sin PR). Siguiente fase pendiente: **fase "1D" NO definida en docs** — requiere definición y aprobación humana (inventario, ventas, compras o integración Intelisis). Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge. Flip `CATALOG_DATA_SOURCE` / `ORGANIZATION_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031/D-C22).
 
 ## Status
 
-Fase 1C: **1C.2 COMPLETED AND PUSHED** (migración 008 + seed + 518/518 pgTAP + gates) · **1C.3 BACKEND COMPLETED AND PUSHED** (dominio + app + infra + 117 tests + 266/266 vitest + gates; 5 commits en `feature/f1c-PG-CATALOG-004-product-master`); sin PR; sin merge; **1C.3 UI no iniciada**.
+Fase 1C: **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits en `feature/f1c-PG-CATALOG-004-product-master`, HEAD `9a7b4b8`; migración 008 + seed + auditoría 009 + dominio/app/UI + permisos/seguridad; **550/550 pgTAP** + **294/294 vitest** + gates; sin PR; sin merge). Cierre documental: `HANDOFF_004_F1C_...`, D-C18…D-C22.
 Fase 1C.1: **COMPLETED** — D-C01…D-C17 APPROVED (2026-08-04); acta `F1C_HUMAN_ARCHITECTURE_REVIEW.md`; solo documentación.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.

@@ -52,3 +52,8 @@
 | D-C15 | Visibilidad por sucursal diferida | En 1C el catálogo es org-wide; `product_branch_visibility` en fase posterior | APPROVED · 2026-08-04 |
 | D-C16 | Sustitutos/relacionados diferidos | `product_relations` en fase comercial | APPROVED · 2026-08-04 |
 | D-C17 | Imágenes y fichas técnicas diferidas | Requiere Supabase Storage (deshabilitado) | APPROVED · 2026-08-04 |
+| D-C18 | Auditoría persistida en `_audit.catalog_events` (implementación de D-C10) | Append-only, actor `_access.current_user_id()`, FK a profiles/organizations, RLS allowlist select/insert solo `authenticated`, grants==políticas, revokes a public/anon/service_role | IMPLEMENTED · 2026-08-06 |
+| D-C19 | Esquema `_audit` expuesto en `supabase/config.toml [api] schemas` | PostgREST necesita el esquema en la API para que el cliente anon RLS-scoped del servidor lea/escriba `catalog_events`; acceso limitado por grants+RLS, nunca service_role | IMPLEMENTED · 2026-08-06 |
+| D-C20 | Port de auditoría = `record()` + `listEvents(filter)` | El timeline de historial (P6) requiere consulta filtrada por org/tipo/entidad con límite; Noop mantiene filtro/orden/límite para demo y tests | IMPLEMENTED · 2026-08-06 |
+| D-C21 | Puntos de integración con un solo `CatalogIntegrationRepository.getIntegrationSummary()` | Inventario/compras/precios fuera de alcance en 1C.5; contrato estable + `NoopCatalogIntegrationRepository` para ambas fuentes; UI muestra "Sin integración de inventario" | IMPLEMENTED · 2026-08-06 |
+| D-C22 | `CATALOG_DATA_SOURCE` extiende D031 a catálogo: `demo` default \| `supabase`; sin fallback silencioso | Selección determinista; error tipado `RepositoryConfigurationError` sin configuración; demo y supabase explícitos | IMPLEMENTED · 2026-08-06 |
