@@ -15,6 +15,12 @@ export { SupabaseInventoryAuditRepository } from "./supabase-inventory-audit-rep
 export { SupabaseInventoryReferenceCatalog } from "./supabase-inventory-reference-catalog";
 export { SupabaseInventoryRepository } from "./supabase-inventory-repository";
 export {
+  InventoryCatalogIntegrationRepository,
+  INTEGRATED_MESSAGE_PREFIX,
+  latestSnapshotPerWarehouse,
+} from "./inventory-catalog-integration";
+export type { InventoryCatalogIntegrationOptions } from "./inventory-catalog-integration";
+export {
   INVENTORY_DATA_SOURCES,
   INVENTORY_DATA_SOURCE_LABELS,
   resolveInventoryDataSource,

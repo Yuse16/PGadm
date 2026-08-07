@@ -58,3 +58,5 @@ export type {
   ListTemplatesInput,
   GetTemplateInput,
 } from "./template-use-cases";
+export { computeInventoryAlerts, DEFAULT_ALERT_THRESHOLDS, isInventoryAlertType } from "./alerts";
+export type { InventoryAlert, InventoryAlertThresholds, InventoryAlertType } from "./alerts";
