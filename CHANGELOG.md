@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.0 (2026-08-06) — Phase 1D.3 inventory domain, use cases & repositories
+
+- **Feat(backend):** `src/features/inventory/` completo (1D.3) — dominio, application e infrastructure:
+  - `domain/`: errores tipados (`InventoryError` → NotFound/Validation/Data/Permission + `RepositoryConfigurationError`), `InventoryActor` con `requirePermission` previo a escrituras, 4 permisos `inventory.*`, 5 entidades, puerto auditoría `_audit.inventory_events`, contrato `InventoryRepository` org-scoped (D-C07) y catálogo de referencias variante/almacén (D-C08); `column_mapping` `{required, optional}` igualando el jsonb del seed (D-I07)
+  - `application/`: guards desde `IdentitySession` (RLS-scoped), `approveImport` (línea base IA-12/13, duplicados IA-8, `computeChanges` 6 tipos IA-14/15/16/18), observaciones (IA-20/21/22), plantillas (sin DELETE), historial no destructivo (IA-17), auditoría append-only (IA-35)
+  - `infrastructure/`: demo repos sembrados con fixtures 1D.2 (+ `{seed:false}` para baseline), Supabase repos contra migración 010 (RLS-scoped, D09/T09), referencia Supabase reutiliza catálogo 1C + `warehouses`, `INVENTORY_DATA_SOURCE=demo` default (D-I12/D031, sin fallback)
+- **Tests:** 68 nuevos (import 23, observaciones 11, plantillas 14, historial/guards 7, demo repo 7, selección 6) → **362/362 vitest**
+- **Gates:** lint ✅ · typecheck ✅ · **362/362 vitest** (45 archivos) ✅ · build ✅ · `git diff --check` limpio ✅ · sin secretos ✅
+- **Commits:** `e28dfb5` feat(inventory) + `bffb2d2` test(inventory); sin PR, sin merge
+- **Pendiente:** 1D.4 (permisos/seguridad server + context/actions inventario); revisión humana 1C+1D, PR a `develop` y merge; flips data source = ops
+
 ## 0.7.0 (2026-08-06) — Phase 1D.2 inventory database
 
 - **D-I01…D-I14 APPROVED** (2026-08-06) tras revisión humana: 5 tablas con nombres plurales, item = `variant_id`, snapshot por `warehouse_id`, observaciones con `evidence_url` texto (D-C17), roles existentes, vínculo almacenes vía `external_source`+`external_id`; defaults de 6 preguntas abiertas confirmados (`9bc1de3`)
