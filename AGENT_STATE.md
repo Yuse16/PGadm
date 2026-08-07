@@ -10,7 +10,7 @@
 - Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **Fase "1D" NO definida en docs** — la DoD de 1C.5 pide "handoff de 1D" pero no existe doc de fase 1D; requiere definición y aprobación humana (inventario, ventas, compras o integración Intelisis). Pendiente: revisión humana de la rama 1C, PR a `develop` y merge
+- Next Phase: **Fase 2 — Inventario (1D) EN DEFINICIÓN** — kickoff contract propuesto (`docs/orchestration/handoffs/F1D_KICKOFF_CONTRACT.md`, D-I01…D-I14 PENDIENTES de aprobación humana); rama `feature/f1d-PG-INVENTORY-005-inventory` creada desde HEAD 1C `ee761b1`; sin migración, código ni UI hasta aprobación expresa. Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge
 
 ## Active Agents
 
@@ -251,6 +251,25 @@
   origin por 2) + cierre documental (`HANDOFF_004_F1C_...`, D-C18…D-C22).
 - **1C COMPLETED / fase "1D" NO definida** (requiere decisión humana). Flip
   `CATALOG_DATA_SOURCE=supabase` = decisión de ops (default `demo`, D031/D-C22).
+
+## Phase 1D Inventory Kickoff (6 Aug 2026 — rama `feature/f1d-PG-INVENTORY-005-inventory`, worktree `inventory-snapshots`)
+
+- **Kickoff contract** propuesto (`docs/orchestration/handoffs/F1D_KICKOFF_CONTRACT.md`):
+  Fase 2 — Productos e inventario (gate: "Archivo válido crea snapshot auditable").
+- **Decisión D-I01…D-I14 PROPUESTAS (PENDIENTES de revisión humana)**: modelo de 4
+  tablas (`inventory_snapshot`, `inventory_snapshot_item`, `inventory_change`,
+  `inventory_observation`), snapshot auditable + fecha exacta de fuente (D-I02),
+  solo cambios con historial no destructivo (D-I03), "existencia reportada" con fecha
+  tienda/CEDIS separados sin causa de movimiento (D-I04), ausente ≠ stock cero (D-I05),
+  observaciones sin mutar stock oficial (D-I06), mapeo de columnas por plantilla
+  (D-I07), vínculo almacenes detectados ↔ `warehouses` 1B.2 (D-I08), conversión de
+  unidades solo con factores confirmados (D-I09), permisos `inventory.*` (D-I10),
+  fuente inicial Excel→cubo con Intelisis oficial de referencia + adaptadores (D-I11),
+  `INVENTORY_DATA_SOURCE=demo` default sin fallback (D-I12), alertas iniciales (D-I13),
+  consumidores futuros (layout/ventas/comercialización/IA) diferidos (D-I14).
+- **Base:** `ee761b1` (HEAD 1C; inventario depende del catálogo, sin merge a develop).
+- **Docs-only:** 1 commit `5f41ded`; `git diff --check` limpio; sin código/DB/UI.
+- **Pendiente:** aprobación humana del kickoff antes de cualquier implementación.
 
 ## Blockers
 

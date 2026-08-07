@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 (2026-08-06) — Phase 1D inventory kickoff (propuesta)
+
+- Docs: `F1D_KICKOFF_CONTRACT.md` — kickoff contract de Fase 2 (Productos e inventario) en rama `feature/f1d-PG-INVENTORY-005-inventory` (base `ee761b1`, HEAD 1C)
+- Propone D-I01…D-I14 (modelo snapshots/cambios/observaciones, snapshot auditable con fecha de fuente, historial no destructivo, existencia reportada tienda/CEDIS, ausente ≠ stock cero, observaciones sin mutar stock oficial, mapeo por plantilla, vínculo a warehouses 1B.2, conversión solo con factores confirmados, permisos `inventory.*`, fuente Excel→cubo + adaptadores, `INVENTORY_DATA_SOURCE=demo` sin fallback, alertas, diferidos layout/ventas/comercialización/IA)
+- Estado: **PENDIENTE de revisión humana**; sin migración, código ni UI
+- Docs-only: 1 commit (`5f41ded`); AGENT_STATE actualizado; `git diff --check` limpio
+
 ## 0.5.0 (2026-08-06) — Phase 1C completed (Catálogo Maestro de Productos)
 
 - **Fase 1C.1–1C.5 COMPLETED AND PUSHED** en `feature/f1c-PG-CATALOG-004-product-master` (17 commits, HEAD `9a7b4b8`); sin PR, sin merge
