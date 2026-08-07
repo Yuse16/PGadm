@@ -6,7 +6,7 @@
 - **Alertas (D-I13):** `computeInventoryAlerts` (application) — 5 tipos iniciales computables desde cambios/items: `load_difference`, `absent_from_file` (ausente ≠ stock cero, D-I05), `zeroed_stock`, `low_stock`, `high_new_stock`; umbrales configurables (`InventoryAlertThresholds`: lowStock/highNewStock/difference, defaults conservadores), orden determinista. Tienda/CEDIS, exhibido, comercialización y remate diferidos (D-I14: dependen de layout/ventas).
 - **Tests:** 20 nuevos (alerts 11, integración 9) → **388/388 vitest** (48 archivos)
 - **Gates:** lint ✅ · typecheck ✅ · **388/388 vitest** (48 archivos) ✅ · build ✅ (16 rutas) · `git diff --check` limpio ✅ · sin secretos ✅ · pgTAP sin cambios (sin migración nueva)
-- **Commits:** `afced82` feat(inventory) + `6427d23` test(inventory); sin PR, sin merge
+- **Commits:** `afced82` feat(inventory) + `dd48992` test(inventory); sin PR, sin merge
 - **Pendiente:** revisión humana de ramas 1C + 1D (1D completo), PR a `develop` y merge; flips data source = ops; fases siguientes (ventas/layout/comercialización/CEDIS/IA) consumen los snapshots/cambios/observaciones (D-I14)
 
 

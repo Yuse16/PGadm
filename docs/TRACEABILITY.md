@@ -42,7 +42,7 @@ Maps each requirement rule → source pack → responsible agent → history fil
 
 ## Phase 1D Implementation
 
-- **Status**: **1D COMPLETED** (1D.1 APROBADO + 1D.2 + 1D.3 + 1D.4 + 1D.5) — feature branch `feature/f1d-PG-INVENTORY-005-inventory` (base `ee761b1` HEAD 1C; HEAD `6427d23`); sin PR, sin merge; pendiente revisión humana + integración a `develop`.
+- **Status**: **1D COMPLETED** (1D.1 APROBADO + 1D.2 + 1D.3 + 1D.4 + 1D.5) — feature branch `feature/f1d-PG-INVENTORY-005-inventory` (base `ee761b1` HEAD 1C; HEAD `dd48992`); sin PR, sin merge; pendiente revisión humana + integración a `develop`.
 - **Scope**: Productos e inventario (Fase 2) — kickoff D-I01…D-I14 APPROVED (2026-08-06, `9bc1de3`); 1D.2 migración/seed/verificación DB; 1D.3 dominio/use cases/repositorios; 1D.4 permisos/seguridad; 1D.5 integración port 1C.5 con stock real + alertas D-I13 + cierre 1D.
 - **History**: `docs/orchestration/handoffs/` (F1D_KICKOFF_CONTRACT, F1D_DATA_MODEL_PROPOSAL, F1D_RLS_PERMISSION_MATRIX, F1D_TEST_PLAN, F1D_IMPLEMENTATION_SLICES) y `DECISION_LOG.md` (D-I01…D-I14).
 - **Code**: `src/types/database.ts` regenerado con las 5 tablas + `_audit.inventory_events` (338 líneas); `src/features/inventory/` (domain/application/infrastructure/server). Port de integración de 1C.5 (`CatalogIntegrationRepository`) poblado con stock real en 1D.5 (`InventoryCatalogIntegrationRepository` + `getProductIntegrationSummary`), wiring en `src/app/admin/catalog/products/[id]/page.tsx`; alertas `computeInventoryAlerts` (D-I13).
