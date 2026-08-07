@@ -1,5 +1,5 @@
 # F1D — Kickoff Contract: Inventario (Fase 2 — Productos e inventario)
-## Estado: PROPUESTA para revisión humana — decisiones PENDIENTES de aprobación
+## Estado: APROBADO por revisión humana — D-I01…D-I14 registradas en DECISION_LOG (2026-08-06)
 
 **Fecha:** 2026-08-06
 **Fase:** Fase 2 — Productos e inventario (`docs/orchestration/phases/05_PHASE_5.md`)

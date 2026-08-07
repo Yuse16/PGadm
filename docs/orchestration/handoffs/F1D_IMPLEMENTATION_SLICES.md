@@ -1,5 +1,5 @@
 # F1D — Slices de Implementación (Inventario — Fase 2)
-## Estado: PROPUESTA — pendiente de revisión humana (D-I01…D-I14); 1D.1 completada
+## Estado: APROBADO — D-I01…D-I14 aprobados por revisión humana (2026-08-06); 1D.1 completada, 1D.2 en curso
 
 **Fecha:** 2026-08-06
 **Rama:** `feature/f1d-PG-INVENTORY-005-inventory`

@@ -1,5 +1,5 @@
-# F1D — Matriz de Permisos y RLS PROPUESTA (Inventario — Fase 2)
-## Estado: PROPUESTA — pendiente de revisión humana (D-I01…D-I14)
+# F1D — Matriz de Permisos y RLS APROBADA (Inventario — Fase 2)
+## Estado: APROBADO — D-I01…D-I14 aprobados por revisión humana (2026-08-06)
 
 **Fecha:** 2026-08-06
 **Rama:** `feature/f1d-PG-INVENTORY-005-inventory`
