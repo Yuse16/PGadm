@@ -11,7 +11,6 @@ import {
   latestSnapshotPerWarehouse,
   DEMO_ORG_PGM,
   DEMO_VARIANT_051,
-  DEMO_VARIANT_052,
   DEMO_VARIANT_053,
   DEMO_WAREHOUSE_NOG_01,
 } from "@/features/inventory/infrastructure";
