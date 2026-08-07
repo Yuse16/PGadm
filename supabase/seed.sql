@@ -9,6 +9,11 @@
 -- categories/products/variants/barcodes for PGM and PGM-DEMO-B only. No
 -- Intelisis sync data, no price lists.
 --
+-- Phase 1D.2: inventory.demo fixtures (D-I01..D-I14). 4 inventory.* permissions
+-- (total 15), role_permissions per the approved matrix, 2 snapshots (baseline +
+-- subsequent) for NOG-01, items, changes (increase/zeroed/missing_product),
+-- observations and an import template for PGM only. See F1D_TEST_PLAN §8.
+--
 -- Idempotent: ON CONFLICT on the unique code/indexes.
 
 insert into public.organizations (id, code, name, status, timezone, currency, language)
@@ -163,7 +168,11 @@ values
   ('50000000-0000-0000-0000-000000000008', 'catalog.create', 'Create products, variants and barcodes'),
   ('50000000-0000-0000-0000-000000000009', 'catalog.update', 'Edit catalog data and active/inactive transitions'),
   ('50000000-0000-0000-0000-000000000010', 'catalog.archive', 'Discontinue products/variants'),
-  ('50000000-0000-0000-0000-000000000011', 'catalog.manage', 'Manage catalog structure and restore discontinued records')
+  ('50000000-0000-0000-0000-000000000011', 'catalog.manage', 'Manage catalog structure and restore discontinued records'),
+  ('50000000-0000-0000-0000-000000000012', 'inventory.read', 'Read inventory stock, history and observations'),
+  ('50000000-0000-0000-0000-000000000013', 'inventory.import', 'Import and validate inventory files'),
+  ('50000000-0000-0000-0000-000000000014', 'inventory.approve', 'Approve inventory loads and create snapshots and changes'),
+  ('50000000-0000-0000-0000-000000000015', 'inventory.observe', 'Register manual inventory observations')
 on conflict do nothing;
 
 -- Roles: one global (administrator), organization-scoped for PGM and Demo B
@@ -183,17 +192,21 @@ join public.permissions p on (
   r.id = '40000000-0000-0000-0000-000000000001' and p.code in (
     'organization.read', 'organization.write', 'branch.read', 'warehouse.read',
     'role.manage', 'user.assign', 'catalog.read', 'catalog.create',
-    'catalog.update', 'catalog.archive', 'catalog.manage'
+    'catalog.update', 'catalog.archive', 'catalog.manage',
+    'inventory.read', 'inventory.import', 'inventory.approve', 'inventory.observe'
   )
   or r.id = '40000000-0000-0000-0000-000000000002' and p.code in (
     'organization.read', 'organization.write', 'branch.read', 'warehouse.read',
-    'catalog.read', 'catalog.create', 'catalog.update'
+    'catalog.read', 'catalog.create', 'catalog.update',
+    'inventory.read', 'inventory.import', 'inventory.approve', 'inventory.observe'
   )
   or r.id = '40000000-0000-0000-0000-000000000003' and p.code in (
-    'organization.read', 'branch.read', 'catalog.read'
+    'organization.read', 'branch.read', 'catalog.read',
+    'inventory.read', 'inventory.observe'
   )
   or r.id = '40000000-0000-0000-0000-000000000004' and p.code in (
-    'organization.read', 'catalog.read'
+    'organization.read', 'catalog.read',
+    'inventory.read', 'inventory.observe'
   )
 )
 on conflict do nothing;
@@ -462,5 +475,119 @@ where id in (
   '70000000-0000-0000-0000-000000000042',
   '80000000-0000-0000-0000-000000000041'
 );
+
+commit;
+
+-- ============================================================
+-- F1D.2 inventory demo fixtures (Phase 1D.2)
+-- Org-scoped for PGM only (D-I01..D-I14): 2 snapshots of warehouse NOG-01
+-- (baseline + subsequent), snapshot items with reported existences, changes
+-- (increase/zeroed/missing_product), observations that never mutate official
+-- stock, and one import template. Fixed UUIDs in the 90000000-... range keep
+-- the fixtures deterministic and idempotent (ON CONFLICT (id) DO NOTHING).
+-- Writes run as the owner (postgres), so RLS deny-by-default is bypassed as
+-- in the catalog section.
+-- ============================================================
+
+begin;
+
+-- Snapshots: baseline (is_baseline, excluded from the load-unique partial
+-- index) + subsequent load of the same warehouse (D-I02/D-I08).
+insert into public.inventory_snapshots (
+  id, organization_id, warehouse_id, source, source_file,
+  report_date, imported_at, imported_by, is_baseline
+)
+values
+  (
+    '90000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000003',
+    'excel',
+    'inventario_nogalera_20260803.xlsx',
+    '2026-08-03 09:00:00+00',
+    now(),
+    '30000000-0000-0000-0000-000000000006',
+    true
+  ),
+  (
+    '90000000-0000-0000-0000-000000000002',
+    '10000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000003',
+    'excel',
+    'inventario_nogalera_20260806.xlsx',
+    '2026-08-06 09:00:00+00',
+    now(),
+    '30000000-0000-0000-0000-000000000006',
+    false
+  )
+on conflict (id) do nothing;
+
+-- Snapshot items: reported existences (D-I04). Variant 053 is intentionally
+-- absent from the second snapshot (missing_product, D-I05).
+insert into public.inventory_snapshot_items (
+  id, organization_id, snapshot_id, variant_id, quantity
+)
+values
+  ('90000000-0000-0000-0000-000000000011', '10000000-0000-0000-0000-000000000001',
+   '90000000-0000-0000-0000-000000000001', '70000000-0000-0000-0000-000000000051', 100),
+  ('90000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000001',
+   '90000000-0000-0000-0000-000000000001', '70000000-0000-0000-0000-000000000052', 4),
+  ('90000000-0000-0000-0000-000000000013', '10000000-0000-0000-0000-000000000001',
+   '90000000-0000-0000-0000-000000000001', '70000000-0000-0000-0000-000000000053', 12),
+  ('90000000-0000-0000-0000-000000000014', '10000000-0000-0000-0000-000000000001',
+   '90000000-0000-0000-0000-000000000002', '70000000-0000-0000-0000-000000000051', 130),
+  ('90000000-0000-0000-0000-000000000015', '10000000-0000-0000-0000-000000000001',
+   '90000000-0000-0000-0000-000000000002', '70000000-0000-0000-0000-000000000052', 0)
+on conflict (id) do nothing;
+
+-- Changes: only-changes history between snapshots (D-I03/D-I05, IA-14..IA-18).
+-- difference is STORED GENERATED; previous_quantity/new_quantity seed it.
+insert into public.inventory_changes (
+  id, organization_id, variant_id, warehouse_id,
+  previous_quantity, new_quantity, change_type, source_snapshot_id
+)
+values
+  ('90000000-0000-0000-0000-000000000021', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000051', '10000000-0000-0000-0000-000000000003',
+   100, 130, 'increase', '90000000-0000-0000-0000-000000000002'),
+  ('90000000-0000-0000-0000-000000000022', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000052', '10000000-0000-0000-0000-000000000003',
+   4, 0, 'zeroed', '90000000-0000-0000-0000-000000000002'),
+  ('90000000-0000-0000-0000-000000000023', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000053', '10000000-0000-0000-0000-000000000003',
+   12, 0, 'missing_product', '90000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+-- Observations: never mutate official stock (D-I06); actor + date + evidence.
+insert into public.inventory_observations (
+  id, organization_id, variant_id, warehouse_id, observation_type,
+  observed_quantity, note, evidence_url, created_by
+)
+values
+  ('90000000-0000-0000-0000-000000000031', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000051', '10000000-0000-0000-0000-000000000003',
+   'physical_count', 128, 'Conteo físico: 128 piezas en bodega',
+   'https://storage.pgm.local/evidencia/nogalera-20260806.jpg',
+   '30000000-0000-0000-0000-000000000006'),
+  ('90000000-0000-0000-0000-000000000032', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000052', '10000000-0000-0000-0000-000000000003',
+   'damaged', null, '3 piezas dañadas en anaquel', null,
+   '30000000-0000-0000-0000-000000000001')
+on conflict (id) do nothing;
+
+-- Import template: column mapping per file type (D-I07).
+insert into public.import_templates (
+  id, organization_id, name, sheet_name, column_mapping, warehouse_rules, status
+)
+values (
+  '90000000-0000-0000-0000-000000000041',
+  '10000000-0000-0000-0000-000000000001',
+  'Plantilla estándar Excel',
+  'Inventario',
+  '{"required": ["codigo", "descripcion", "almacen", "existencia"], "optional": ["cajas", "metros_cuadrados"]}'::jsonb,
+  '{"external_source": "intelisis"}'::jsonb,
+  'active'
+)
+on conflict (id) do nothing;
 
 commit;
