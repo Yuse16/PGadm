@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 (2026-08-06) — Phase 1D.2 inventory database
+
+- **D-I01…D-I14 APPROVED** (2026-08-06) tras revisión humana: 5 tablas con nombres plurales, item = `variant_id`, snapshot por `warehouse_id`, observaciones con `evidence_url` texto (D-C17), roles existentes, vínculo almacenes vía `external_source`+`external_id`; defaults de 6 preguntas abiertas confirmados (`9bc1de3`)
+- **Feat(db):** migración `00000000000010_inventory_snapshots.sql` — `inventory_snapshots` (por warehouse, `report_date` de fuente, `is_baseline`, `source`), `inventory_snapshot_items` (variant_id, ≥0), `inventory_changes` (STORED `difference`, 6 `change_type`), `inventory_observations` (6 tipos, evidence_url, created_by), `import_templates` (jsonb column_mapping/warehouse_rules); `_audit.inventory_events` append-only; FK compuestas org-scoped; `UNIQUE(organization_id,id)`; 13 políticas RLS + 2 eventos, authenticated only, sin DELETE, revokes public/anon/service_role
+- **Seed:** permisos `inventory.read/import/approve/observe` (15 total) + role_permissions (35; admin +4, manager +4, cashier +2, operator +2) + fixtures PGM `90000000-…` (2 snapshots, 5 items con variante 053 ausente, 3 changes, 2 observaciones, 1 plantilla)
+- **Tests:** `test_inventory_stock.sql` pgTAP plan(88); `test_identity_rbac_rls.sql` y `test_organization_rls.sql` ajustados a 15/35; `e2e-identity.mjs` con permisos `inventory.*`
+- **Gates:** `db:lint` ✅ · **638/638 pgTAP** (10 archivos) ✅ · `db:verify` ALL CHECKS PASSED ✅ · `db:types` regenerado ✅ · lint/typecheck/**294/294 vitest**/build ✅ · `e2e:auth` 14/14 ✅ · `e2e:identity` 39/39 ✅ · `git diff --check` limpio ✅ · sin secretos ✅
+- **Commits:** `ce42a56` feat(inventory) + `9e1bdf0` test(inventory) + docs (cierre); sin PR, sin merge
+- **Pendiente:** 1D.3 (dominio/use cases/repositorios inventario, port 1C.5); revisión humana 1C+1D, PR a `develop` y merge; flips data source = ops
+
 ## 0.6.0 (2026-08-06) — Phase 1D inventory kickoff (propuesta)
 
 - Docs: `F1D_KICKOFF_CONTRACT.md` — kickoff contract de Fase 2 (Productos e inventario) en rama `feature/f1d-PG-INVENTORY-005-inventory` (base `ee761b1`, HEAD 1C)

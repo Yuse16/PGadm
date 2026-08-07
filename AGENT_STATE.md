@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1C.1–1C.5 COMPLETED AND PUSHED (catálogo maestro) — 17 commits, HEAD `9a7b4b8`; sin PR; sin merge**
+- Current Phase: **1D.1 APROBADO (D-I01…D-I14) + 1D.2 COMPLETED (inventario: migración 010 + seed + 638/638 pgTAP) — rama `feature/f1d-PG-INVENTORY-005-inventory`, HEAD `9e1bdf0`; sin PR; sin merge**
 - Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
-- Active Feature Branch: `feature/f1c-PG-CATALOG-004-product-master`
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\catalog-product-master`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR)
+- Active Feature Branch: `feature/f1d-PG-INVENTORY-005-inventory`
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\inventory-snapshots`
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR); **Fase 1D.1 APROBADO** (D-I01…D-I14 APPROVED 2026-08-06, commit `9bc1de3`) **+ 1D.2 COMPLETED** (migración 010 `inventory_snapshots`: 5 tablas + `_audit.inventory_events`; permisos `inventory.*` → 15 permisos / 35 role_permissions; fixtures `90000000-…`; **638/638 pgTAP** + **294/294 vitest** + gates; 3 commits, HEAD `9e1bdf0`; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **Fase 2 — Inventario (1D) EN DEFINICIÓN** — kickoff contract propuesto (`docs/orchestration/handoffs/F1D_KICKOFF_CONTRACT.md`, D-I01…D-I14 PENDIENTES de aprobación humana); rama `feature/f1d-PG-INVENTORY-005-inventory` creada desde HEAD 1C `ee761b1`; paquete documental 1D.1 (modelo/RLS/test plan/slices) completado, sin aprobación; sin migración, código ni UI hasta aprobación expresa. Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge
+- Next Phase: **Fase 2 — Inventario (1D)**: 1D.1 APROBADO (D-I01…D-I14, 2026-08-06); **1D.2 COMPLETED** (migración 010 `inventory_snapshots` + seed + pgTAP 638/638 + gates, HEAD `9e1bdf0`); **siguiente: 1D.3 dominio/use cases/repositorios de inventario** (aprobación ya obtenida). Pendiente además: revisión humana de las ramas 1C + 1D, PR a `develop` y merge; flips `CATALOG_DATA_SOURCE`/`ORGANIZATION_DATA_SOURCE`/`INVENTORY_DATA_SOURCE` = decisión de ops (default `demo`, D031/D-C22/D-I12)
 
 ## Active Agents
 
@@ -256,7 +256,7 @@
 
 - **Kickoff contract** propuesto (`docs/orchestration/handoffs/F1D_KICKOFF_CONTRACT.md`):
   Fase 2 — Productos e inventario (gate: "Archivo válido crea snapshot auditable").
-- **Decisión D-I01…D-I14 PROPUESTAS (PENDIENTES de revisión humana)**: modelo de 4
+- **Decisión D-I01…D-I14 APROBADAS (2026-08-06, commit `9bc1de3`)**: modelo de 4
   tablas (`inventory_snapshot`, `inventory_snapshot_item`, `inventory_change`,
   `inventory_observation`), snapshot auditable + fecha exacta de fuente (D-I02),
   solo cambios con historial no destructivo (D-I03), "existencia reportada" con fecha
@@ -269,7 +269,7 @@
   consumidores futuros (layout/ventas/comercialización/IA) diferidos (D-I14).
 - **Base:** `ee761b1` (HEAD 1C; inventario depende del catálogo, sin merge a develop).
 - **Docs-only:** 1 commit `5f41ded`; `git diff --check` limpio; sin código/DB/UI.
-- **Pendiente:** aprobación humana del kickoff antes de cualquier implementación.
+- **Aprobación kickoff:** D-I01…D-I14 APPROVED (2026-08-06, commit `9bc1de3`); documentos F1D con estado APROBADO.
 
 ## Phase 1D Documentation Pack (6 Aug 2026 — misma rama/worktree)
 
@@ -287,8 +287,46 @@
   - `F1D_IMPLEMENTATION_SLICES.md` — subfases 1D.1…1D.5; 1D.1 completada; 1D.2–1D.5
     no iniciadas (requieren aprobación + instrucción expresa).
 - **Docs-only:** commit `b6cbbf7`; `git diff --check` limpio; sin código/DB/UI.
-- **Pendiente:** aprobación humana de D-I01…D-I14 y de las preguntas abiertas antes de
-  la migración 1D.2.
+- **Aprobación:** D-I01…D-I14 y defaults de preguntas abiertas APPROVED (2026-08-06,
+  commit `9bc1de3`); habilitó la subfase 1D.2.
+
+## Phase 1D.2 Inventory Database (6 Aug 2026 — misma rama/worktree)
+
+- **Migración `00000000000010_inventory_snapshots.sql`** (5 tablas públicas + auditoría):
+  - `inventory_snapshots` (por `warehouse_id`, `report_date` NOT NULL conserva fecha de
+    fuente D-I02/D-I04, `is_baseline`, `source` excel|cube|manual|intelisis, imported_by
+    →profiles), `inventory_snapshot_items` (`variant_id` D-I04, quantity/boxes/
+    square_meters ≥ 0), `inventory_changes` (STORED GENERATED `difference = new - previous`,
+    `change_type` increase|decrease|zeroed|recovered|new_product|missing_product D-I05),
+    `inventory_observations` (type physical_count|damaged|reserved|wrong_location|
+    missing_label|difference D-I06, `evidence_url` text D-C17, created_by), `import_templates`
+    (jsonb `column_mapping` con code/description/warehouse/existence D-I07, `warehouse_rules`
+    D-I08).
+  - `_audit.inventory_events` append-only (approve_import|create_observation|
+    confirm_observation); FK compuestas org-scoped a `warehouses`/`product_variants`;
+    `UNIQUE(organization_id, id)` en las 5 tablas; partial unique
+    `inventory_snapshots_load_unique` WHERE NOT is_baseline; `_core.set_updated_at_column()`
+    solo en las 3 tablas mutables; RLS allowlist deny-by-default (13 políticas + 2 eventos,
+    authenticated only D17/D18, grants == políticas, sin DELETE, revokes public/anon/
+    service_role, `reset all`).
+- **Seed (1D.2):** permisos `inventory.read/import/approve/observe` (IDs `50000000-…-012…015`,
+  total 15) + role_permissions (admin +4, manager +4, cashier +2, operator +2, total 35) +
+  fixtures PGM `90000000-…`: 2 snapshots (baseline 2026-08-03 + 2026-08-06, NOG-01), 5 items
+  (variante 053 ausente en el 2º), 3 changes (increase 100→130, zeroed 4→0, missing_product
+  12→0), 2 observaciones, 1 plantilla — `ON CONFLICT (id) DO NOTHING`.
+- **Tests:** `test_inventory_stock.sql` pgTAP **plan(88)** (fases A estructura/políticas/grants,
+  C fixtures, D RLS authenticated manager/cashier/operator + audit append, B integridad/FK/
+  uniques/CHECK); suites previas ajustadas a 15 permisos / 35 role_permissions
+  (`test_identity_rbac_rls.sql` 140, `test_organization_rls.sql` 78) + `e2e-identity.mjs`
+  con permisos `inventory.*`.
+- **Gates:** `db:lint` ✅ · `db:reset` ✅ · **638/638 pgTAP** (10 archivos) ✅ · `db:verify`
+  ALL CHECKS PASSED ✅ · `db:types` regenerado (338 líneas nuevas) ✅ · lint ✅ · typecheck ✅ ·
+  **294/294 vitest** ✅ · build ✅ (16 rutas) · `e2e:auth` 14/14 ✅ · `e2e:identity` 39/39 ✅ ·
+  `git diff --check` limpio ✅ · sin secretos ✅.
+- **Commits (3):** `ce42a56` feat(inventory) migración+seed+types · `9e1bdf0` test(inventory)
+  pgTAP+suites+e2e · docs (este cierre documental).
+- **Pendiente:** subfase **1D.3** (dominio/use cases/repositorios de inventario, port 1C.5);
+  revisión humana de ramas 1C + 1D, PR a `develop` y merge; flips de data source = ops.
 
 ## Blockers
 
@@ -301,11 +339,12 @@
 
 ## Next Action
 
-Fase **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits, HEAD `9a7b4b8`; 550/550 pgTAP + 294/294 vitest + gates; sin PR). Siguiente fase pendiente: **fase "1D" NO definida en docs** — requiere definición y aprobación humana (inventario, ventas, compras o integración Intelisis). Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge. Flip `CATALOG_DATA_SOURCE` / `ORGANIZATION_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031/D-C22).
+Fase **1D.1 APROBADO + 1D.2 COMPLETED** (inventario; D-I01…D-I14 APPROVED `9bc1de3`; migración 010 + seed + **638/638 pgTAP** + **294/294 vitest** + gates, HEAD `9e1bdf0`; sin PR). Siguiente fase: **1D.3 dominio/use cases/repositorios de inventario** (aprobación ya obtenida). Pendiente además: revisión humana de las ramas 1C + 1D, PR a `develop` y merge. Flips `CATALOG_DATA_SOURCE` / `ORGANIZATION_DATA_SOURCE` / `INVENTORY_DATA_SOURCE` = decisión de ops (default `demo`, D031/D-C22/D-I12).
 
 ## Status
 
 Fase 1C: **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits en `feature/f1c-PG-CATALOG-004-product-master`, HEAD `9a7b4b8`; migración 008 + seed + auditoría 009 + dominio/app/UI + permisos/seguridad; **550/550 pgTAP** + **294/294 vitest** + gates; sin PR; sin merge). Cierre documental: `HANDOFF_004_F1C_...`, D-C18…D-C22.
+Fase 1D: **1D.1 APROBADO (D-I01…D-I14, `9bc1de3`) + 1D.2 COMPLETED** (inventario; migración `00000000000010_inventory_snapshots.sql` + seed `inventory.*` + `test_inventory_stock.sql` plan(88); **638/638 pgTAP** + **294/294 vitest** + gates; commits `ce42a56`+`9e1bdf0`; sin PR; sin merge).
 Fase 1C.1: **COMPLETED** — D-C01…D-C17 APPROVED (2026-08-04); acta `F1C_HUMAN_ARCHITECTURE_REVIEW.md`; solo documentación.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.
