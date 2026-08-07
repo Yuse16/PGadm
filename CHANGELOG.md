@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 (2026-08-06) — Phase 1D.4 inventory permissions & security
+
+- **Permisos `inventory.*` registrados** en `permissions` (1D.2 seed, `current_user_permissions()`); sin registros nuevos en 1D.4 (15 permisos / 35 role_permissions ya verificados por `test_identity_rbac_rls.sql` plan 140)
+- **Seguridad:** suite vitest `feature-security.test.ts` (6 tests) — IA-29 (sin admin/`service_role` en feature, supabase usa cliente anon RLS-scoped), demo repos standalone (sin DB/env), `repository-selection` sin fallback silencioso (D-I12/D031), guards reutilizan `requirePermission` identity (IA-23/25/26), toda escritura pasa por `actor.requirePermission`; aislamiento por org/deny-by-default IA-23…IA-30 ya cubiertos en pgTAP `test_inventory_stock.sql`
+- **Gates:** lint ✅ · typecheck ✅ · **368/368 vitest** (46 archivos) ✅ · build ✅ · `git diff --check` limpio ✅ · sin secretos ✅
+- **Commits:** `e2b812a` test(inventory) feature-security; sin PR, sin merge
+- **Pendiente:** 1D.5 (integración port 1C.5 con stock real + alertas + cierre); revisión humana 1C+1D, PR a `develop` y merge; flips data source = ops
+
 ## 0.8.0 (2026-08-06) — Phase 1D.3 inventory domain, use cases & repositories
 
 - **Feat(backend):** `src/features/inventory/` completo (1D.3) — dominio, application e infrastructure:
