@@ -10,7 +10,7 @@
 - Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR)
 - Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
 - PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
-- Next Phase: **Fase 2 — Inventario (1D) EN DEFINICIÓN** — kickoff contract propuesto (`docs/orchestration/handoffs/F1D_KICKOFF_CONTRACT.md`, D-I01…D-I14 PENDIENTES de aprobación humana); rama `feature/f1d-PG-INVENTORY-005-inventory` creada desde HEAD 1C `ee761b1`; sin migración, código ni UI hasta aprobación expresa. Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge
+- Next Phase: **Fase 2 — Inventario (1D) EN DEFINICIÓN** — kickoff contract propuesto (`docs/orchestration/handoffs/F1D_KICKOFF_CONTRACT.md`, D-I01…D-I14 PENDIENTES de aprobación humana); rama `feature/f1d-PG-INVENTORY-005-inventory` creada desde HEAD 1C `ee761b1`; paquete documental 1D.1 (modelo/RLS/test plan/slices) completado, sin aprobación; sin migración, código ni UI hasta aprobación expresa. Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge
 
 ## Active Agents
 
@@ -270,6 +270,25 @@
 - **Base:** `ee761b1` (HEAD 1C; inventario depende del catálogo, sin merge a develop).
 - **Docs-only:** 1 commit `5f41ded`; `git diff --check` limpio; sin código/DB/UI.
 - **Pendiente:** aprobación humana del kickoff antes de cualquier implementación.
+
+## Phase 1D Documentation Pack (6 Aug 2026 — misma rama/worktree)
+
+- **Paquete documental 1D.1 COMPLETADO** (propuesta, sin aprobación aún):
+  - `F1D_DATA_MODEL_PROPOSAL.md` — candidato de 5 tablas (`inventory_snapshot`,
+    `inventory_snapshot_item`, `inventory_change`, `inventory_observation`,
+    `import_template`) con FK compuestas a `product_variants` (1C) y `warehouses`
+    (1B.2); 6 preguntas abiertas (nombres singular/plural, `variant_id` vs
+    `product_id`, snapshot por almacén vs tienda+CEDIS, `evidence_url`, roles
+    operativos, vínculo almacenes detectados ↔ warehouses).
+  - `F1D_RLS_PERMISSION_MATRIX.md` — permisos `inventory.read/import/approve/observe`,
+    matriz de roles (D-I10) y políticas RLS allowlist deny-by-default.
+  - `F1D_TEST_PLAN.md` — casos IA-1…IA-37 (importación, snapshot/línea base, cambios,
+    observaciones, RLS, consistencia) + no-regresión + seed.
+  - `F1D_IMPLEMENTATION_SLICES.md` — subfases 1D.1…1D.5; 1D.1 completada; 1D.2–1D.5
+    no iniciadas (requieren aprobación + instrucción expresa).
+- **Docs-only:** commit `b6cbbf7`; `git diff --check` limpio; sin código/DB/UI.
+- **Pendiente:** aprobación humana de D-I01…D-I14 y de las preguntas abiertas antes de
+  la migración 1D.2.
 
 ## Blockers
 

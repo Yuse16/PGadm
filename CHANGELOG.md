@@ -6,6 +6,7 @@
 - Propone D-I01…D-I14 (modelo snapshots/cambios/observaciones, snapshot auditable con fecha de fuente, historial no destructivo, existencia reportada tienda/CEDIS, ausente ≠ stock cero, observaciones sin mutar stock oficial, mapeo por plantilla, vínculo a warehouses 1B.2, conversión solo con factores confirmados, permisos `inventory.*`, fuente Excel→cubo + adaptadores, `INVENTORY_DATA_SOURCE=demo` sin fallback, alertas, diferidos layout/ventas/comercialización/IA)
 - Estado: **PENDIENTE de revisión humana**; sin migración, código ni UI
 - Docs-only: 1 commit (`5f41ded`); AGENT_STATE actualizado; `git diff --check` limpio
+- Paquete documental 1D.1: `F1D_DATA_MODEL_PROPOSAL.md` (5 tablas candidatas + 6 preguntas abiertas), `F1D_RLS_PERMISSION_MATRIX.md` (`inventory.read/import/approve/observe`), `F1D_TEST_PLAN.md` (IA-1…IA-37), `F1D_IMPLEMENTATION_SLICES.md` (1D.1…1D.5) — commit `b6cbbf7`
 
 ## 0.5.0 (2026-08-06) — Phase 1C completed (Catálogo Maestro de Productos)
 
