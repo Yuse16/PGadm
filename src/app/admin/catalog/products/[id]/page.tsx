@@ -24,6 +24,7 @@ import { HistoryTimeline } from "@/features/catalog/components/history-timeline"
 import { IntegrationSummaryCard } from "@/features/catalog/components/integration-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/features/catalog/components/ui/card";
 import { EmptyState } from "@/features/catalog/components/ui/empty-state";
+import { getProductIntegrationSummary } from "@/features/inventory/server";
 
 export const dynamic = "force-dynamic";
 
@@ -88,8 +89,9 @@ export default async function ProductDetailPage({
     variants.map((item) => item.variant)
   );
 
-  const integrationSummary =
-    await access.context.integrationRepository.getIntegrationSummary();
+  const integrationSummary = await getProductIntegrationSummary(
+    variants.map((item) => item.variant.id)
+  );
 
   return (
     <div className="space-y-8">

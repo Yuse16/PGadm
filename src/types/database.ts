@@ -42,6 +42,39 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          detail: string
+          entity_id: string
+          entity_type: string
+          id: string
+          occurred_at: string
+          organization_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          detail?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          detail?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -180,6 +213,311 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_templates: {
+        Row: {
+          column_mapping: Json
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          sheet_name: string | null
+          status: string
+          updated_at: string
+          warehouse_rules: Json | null
+        }
+        Insert: {
+          column_mapping: Json
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          sheet_name?: string | null
+          status?: string
+          updated_at?: string
+          warehouse_rules?: Json | null
+        }
+        Update: {
+          column_mapping?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          sheet_name?: string | null
+          status?: string
+          updated_at?: string
+          warehouse_rules?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_templates_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_changes: {
+        Row: {
+          change_type: string
+          created_at: string
+          detected_at: string
+          difference: number
+          id: string
+          new_quantity: number
+          organization_id: string
+          previous_quantity: number
+          source_snapshot_id: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Insert: {
+          change_type: string
+          created_at?: string
+          detected_at?: string
+          difference?: number
+          id?: string
+          new_quantity: number
+          organization_id: string
+          previous_quantity: number
+          source_snapshot_id: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Update: {
+          change_type?: string
+          created_at?: string
+          detected_at?: string
+          difference?: number
+          id?: string
+          new_quantity?: number
+          organization_id?: string
+          previous_quantity?: number
+          source_snapshot_id?: string
+          variant_id?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_changes_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_changes_snapshot_organization_fk"
+            columns: ["organization_id", "source_snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_snapshots"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_changes_variant_organization_fk"
+            columns: ["organization_id", "variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_changes_warehouse_organization_fk"
+            columns: ["organization_id", "warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      inventory_observations: {
+        Row: {
+          created_at: string
+          created_by: string
+          evidence_url: string | null
+          id: string
+          note: string | null
+          observation_type: string
+          observed_quantity: number | null
+          organization_id: string
+          updated_at: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          evidence_url?: string | null
+          id?: string
+          note?: string | null
+          observation_type: string
+          observed_quantity?: number | null
+          organization_id: string
+          updated_at?: string
+          variant_id: string
+          warehouse_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          evidence_url?: string | null
+          id?: string
+          note?: string | null
+          observation_type?: string
+          observed_quantity?: number | null
+          organization_id?: string
+          updated_at?: string
+          variant_id?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_observations_created_by_fk"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_observations_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_observations_variant_organization_fk"
+            columns: ["organization_id", "variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_observations_warehouse_organization_fk"
+            columns: ["organization_id", "warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      inventory_snapshot_items: {
+        Row: {
+          boxes: number | null
+          created_at: string
+          id: string
+          organization_id: string
+          quantity: number
+          snapshot_id: string
+          square_meters: number | null
+          variant_id: string
+        }
+        Insert: {
+          boxes?: number | null
+          created_at?: string
+          id?: string
+          organization_id: string
+          quantity: number
+          snapshot_id: string
+          square_meters?: number | null
+          variant_id: string
+        }
+        Update: {
+          boxes?: number | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          quantity?: number
+          snapshot_id?: string
+          square_meters?: number | null
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_snapshot_items_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_snapshot_items_snapshot_organization_fk"
+            columns: ["organization_id", "snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_snapshots"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "inventory_snapshot_items_variant_organization_fk"
+            columns: ["organization_id", "variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      inventory_snapshots: {
+        Row: {
+          created_at: string
+          id: string
+          imported_at: string
+          imported_by: string | null
+          is_baseline: boolean
+          organization_id: string
+          report_date: string
+          source: string
+          source_file: string | null
+          updated_at: string
+          warehouse_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          is_baseline?: boolean
+          organization_id: string
+          report_date: string
+          source: string
+          source_file?: string | null
+          updated_at?: string
+          warehouse_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          is_baseline?: boolean
+          organization_id?: string
+          report_date?: string
+          source?: string
+          source_file?: string | null
+          updated_at?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_snapshots_imported_by_fk"
+            columns: ["imported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_snapshots_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_snapshots_warehouse_organization_fk"
+            columns: ["organization_id", "warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "warehouses"
+            referencedColumns: ["organization_id", "id"]
           },
         ]
       }

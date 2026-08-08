@@ -1,0 +1,1 @@
+export { getProductIntegrationSummary } from "./integration";
