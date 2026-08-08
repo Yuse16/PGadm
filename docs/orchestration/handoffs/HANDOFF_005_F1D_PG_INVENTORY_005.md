@@ -1,6 +1,6 @@
 # Handoff — Inventario (Fase 1D.1–1D.5)
 
-**Status: COMPLETED** (17 commits en rama; sin PR, sin merge; HEAD `4aee75b`)
+**Status: COMPLETED AND INTEGRATED** (19 commits; **PR #10 MERGED** merge commit `719f5ac` → `develop` `719f5ac`)
 
 ## Feature
 `feature/f1d-PG-INVENTORY-005-inventory`
@@ -121,10 +121,7 @@ git diff --check: clean · sin secretos
 | Alerta tienda-en-cero-con-CEDIS y exhibido/comercialización/remate | Requieren tipo de almacén/layout/ventas; documentadas como diferidas (D-I13/D-I14) |
 
 ## Open Items / Next Phase
-1. **Revisión humana + PR a `develop` + merge**: los 17 commits de 1D están en la rama (sin
-   push, sin PR, sin merge por metodología). La rama 1C (`9a7b4b8`) también está pendiente de
-   revisión/merge; al fusionar conviene hacerlo en orden 1C → 1D (1D depende del port 1C.5 y de
-   migración 010 sobre 008/009).
+1. **Resuelto**: PR #9 (1C) y PR #10 (1D) MERGED en orden 1C → 1D (`183b9b4` → `719f5ac`).
 2. **Handoff de la siguiente fase**: Fase 3 — Layout (roadmap `17-roadmap/02_PROJECT_PHASES.md`):
    plano estructurado, editor, muebles, posiciones, M1, stock en layout. La fase consume los
    snapshots/cambios/observaciones que 1D expone (D-I14). Debe definirse con kickoff contract y

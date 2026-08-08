@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.11.0 (2026-08-08) — Phase 1C + 1D integrated to `develop`
+
+- **PR #9 MERGED** (`183b9b4`) — Fase 1C: Catálogo Maestro de Productos (1C.1 decisiones D-C01…D-C22 → 1C.2 migración 008 + seed → 1C.3 dominio/use cases/UI → 1C.4 permisos/seguridad → 1C.5 auditoría `_audit.catalog_events` + placeholders de integración). 18 commits; **550/550 pgTAP** + **294/294 vitest** + gates; CI `validate` + `db-validate` PASS.
+- **PR #10 MERGED** (`719f5ac`) — Fase 1D: Inventario (1D.1 D-I01…D-I14 APPROVED → 1D.2 migración 010 + seed → 1D.3 dominio/use cases/repositorios → 1D.4 permisos/seguridad → 1D.5 integración del port 1C.5 con stock real + alertas D-I13 + cierre). 19 commits; **638/638 pgTAP** + **388/388 vitest** + e2e **14/14 + 44/44** + gates; CI `validate` + `db-validate` PASS.
+- **Cierre documental:** `HANDOFF_004_F1C_PG_CATALOG_004_PRODUCT_MASTER.md` y `HANDOFF_005_F1D_PG_INVENTORY_005.md` actualizados a estado integrado; AGENT_STATE/TRACEABILITY al día.
+- **`develop` HEAD `719f5ac`.** Pendiente: Fase 3 — Layout (kickoff + aprobación humana); flips `ORGANIZATION_DATA_SOURCE`/`CATALOG_DATA_SOURCE`/`INVENTORY_DATA_SOURCE` = decisión de ops.
+
 ## 0.10.0 (2026-08-06) — Phase 1D.5 inventory integration (1C.5 port) & stock alerts
 
 - **Integración (D-I14):** el port de 1C.5 `CatalogIntegrationRepository` ya no es un Noop: `InventoryCatalogIntegrationRepository` (inventory infra) agrega la existencia reportada del snapshot más reciente por almacén (`latestSnapshotPerWarehouse`, determinista por `report_date`/`imported_at`/id); `current_stock` real, `reserved_stock` null (depende de ventas, D-I14), `available_stock = current_stock`; mensaje `"Existencia reportada al {report_date}"` (D-I04); compras/pricing siguen sin integración. Helper server `getProductIntegrationSummary(variantIds)` con `inventory.read` org-scoped; wiring en `src/app/admin/catalog/products/[id]/page.tsx` (el detalle de producto ahora muestra stock real del inventario).
