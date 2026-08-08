@@ -94,6 +94,7 @@ db:lint: sin errores de schema
 db:verify: ALL CHECKS PASSED (reset + migraciones 001–010 + seed + types en sync)
 npm test: 48 archivos, 388/388 PASS
 npm run lint: PASS · npm run typecheck: PASS · npm run build: PASS (16 rutas)
+npm run e2e:auth: PASS (14/14) · npm run e2e:identity: PASS (44/44, medido en esta corrida)
 git diff --check: clean · sin secretos
 ```
 
