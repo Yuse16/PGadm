@@ -1,6 +1,6 @@
 # Handoff — Catálogo Maestro de Productos (Fase 1C.1–1C.5)
 
-**Status: COMPLETED AND PUSHED** (17 commits en rama; sin PR, sin merge; `9a7b4b8`)
+**Status: COMPLETED AND INTEGRATED** (18 commits; **PR #9 MERGED** merge commit `183b9b4` → `develop` `719f5ac`)
 
 ## Feature
 `feature/f1c-PG-CATALOG-004-product-master`
@@ -112,14 +112,9 @@ npm audit: 4 high prod = baseline (sin --force, sin cambios)
 | `npm audit` 4 high prod (postcss/sharp via next) | Requiere upgrade mayor; baseline de fase de seguridad (igual que 1B) |
 
 ## Open Items / Next Phase
-1. **Fase "1D" NO definida en la documentación**: la DoD de 1C.5
-   (`F1C_IMPLEMENTATION_SLICES.md`) pide "handoff de 1D" pero no existe doc de
-   fase 1D en `docs/orchestration/phases/`. La siguiente fase (inventario,
-   ventas, compras o integración Intelisis) debe ser definida y aprobada por el
-   humano antes de iniciarse; NO se crea en este cierre (metodología: no inventar
-   fases).
-2. **Flip de fuente de datos**: `ORGANIZATION_DATA_SOURCE`/`CATALOG_DATA_SOURCE`
-   siguen default `demo`; el cambio a `supabase` es decisión de ops.
-3. **Merge/PR**: los 17 commits están en la rama (ahead de origin por 2 commits de
-   1C.5). Pendiente: revisión humana, PR a `develop` y merge (no realizado por
-   restricción de metodología).
+1. **Resuelto**: la fase de inventario (1D) fue definida y aprobada por el humano
+   (`F1D_KICKOFF_CONTRACT`, D-I01…D-I14 APPROVED 2026-08-06) y **integrada vía PR #10**
+   (`719f5ac`); handoff `HANDOFF_005_F1D_PG_INVENTORY_005.md`.
+2. **Flip de fuente de datos**: `ORGANIZATION_DATA_SOURCE`/`CATALOG_DATA_SOURCE`/
+   `INVENTORY_DATA_SOURCE` siguen default `demo`; el cambio a `supabase` es decisión de ops.
+3. **Resuelto**: PR #9 MERGED `183b9b4` (revisión humana completada).
