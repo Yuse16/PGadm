@@ -3,14 +3,14 @@
 ## General
 
 - Project: PGadm
-- Current Phase: **1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED, merge commit `a533bde`)
-- Integration Branch: `develop`
-- Active Feature Branch: none / pending next phase (`feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada tras el merge, ya no activa)
-- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\identity-rbac-rls`
-- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED, merge commit `a533bde`); 1B.3A/1B.3B entregadas (migración 003); **1B.3C COMPLETED** (migración 004 + tests RLS); **1B.3D-1 COMPLETED** (auth local + migraciones 005/006 + seed auth + suite auth + E2E); **1B.3D-2 COMPLETED AND PUSHED** (migración 007 + sesión/guards/login + e2e-identity, commits `02c063e`…`73c55b4`)
-- Last Stable Commit (develop): `a533bde` (merge PR #7, Fase 1B.3)
-- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`)
-- Next Phase: por definir — la siguiente fase se preparará desde una rama nueva (número y alcance pendientes de decisión)
+- Current Phase: **1C.1–1C.5 COMPLETED AND PUSHED (catálogo maestro) — 17 commits, HEAD `9a7b4b8`; sin PR; sin merge**
+- Integration Branch: `develop` (HEAD `0674e9f`, merge PR #8 cierre documental 1B.3)
+- Active Feature Branch: `feature/f1c-PG-CATALOG-004-product-master`
+- Worktree: `C:\Users\GVTASNOG\Documents\PGadm-worktrees\catalog-product-master`
+- Status: Fase 1B.2 COMPLETED AND INTEGRATED (PR #5 MERGED `05872c9`); **Fase 1B.3 COMPLETED AND INTEGRATED** (PR #7 MERGED `a533bde`; 1B.3A-D completadas); **Fase 1C COMPLETED AND PUSHED** (discovery + 1C.1 decisiones bloqueadas; 1C.2 migración 008; 1C.3 dominio/use cases/UI; 1C.4 permisos/seguridad; 1C.5 auditoría `_audit.catalog_events` + timeline + placeholders de integración; 550/550 pgTAP + 294/294 vitest + gates; 17 commits, HEAD `9a7b4b8`; sin PR)
+- Last Stable Commit (develop): `0674e9f` (merge PR #8, cierre documental Fase 1B.3)
+- PRs: #1 — MERGED | #2 — MERGED | #3 — MERGED | #4 — CLOSED (reemplazado) | #5 — MERGED | **#6 — MERGED** (cierre documental 1B.2) | **#7 — MERGED** (Fase 1B.3, merge commit `a533bde`) | **#8 — MERGED** (cierre documental 1B.3, merge commit `0674e9f`)
+- Next Phase: **Fase "1D" NO definida en docs** — la DoD de 1C.5 pide "handoff de 1D" pero no existe doc de fase 1D; requiere definición y aprobación humana (inventario, ventas, compras o integración Intelisis). Pendiente: revisión humana de la rama 1C, PR a `develop` y merge
 
 ## Active Agents
 
@@ -163,6 +163,95 @@
 - **Rama feature conservada:** `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` permanece en `origin` (HEAD `816d0bc`), ya no es la rama activa.
 - **Cierre documental:** rama `docs/f1b3-post-merge-closeout` hacia `develop` — solo `AGENT_STATE.md`.
 
+## Phase 1C Discovery Summary (4 Aug 2026 — rama `feature/f1c-PG-CATALOG-004-product-master`, worktree `catalog-product-master`)
+
+- **Base:** develop `0674e9f` (merge PR #8, cierre documental 1B.3). Worktree creado desde `origin/develop` sin commits previos; rama previa `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada.
+- **Descubrimiento 1C (catálogo maestro de productos) — solo documentación, sin implementación, sin migración, sin UI.**
+- **8 entregables F1C iniciales** + acta humana 1C.1: `F1C_KICKOFF_CONTRACT.md`, `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md`, `F1C_DATA_MODEL_PROPOSAL.md`, `F1C_RLS_PERMISSION_MATRIX.md`, `F1C_TEST_PLAN.md`, `F1C_IMPLEMENTATION_SLICES.md`, `F1C_DISCOVERY_HANDOFF.md`, **`F1C_HUMAN_ARCHITECTURE_REVIEW.md`**, **`F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md`** (anexo).
+- **Decisiones clave:** modelo producto/variante separado (SKU y barcodes en la variante); catálogo org-scoped con FK compuestas; precios de referencia (dato, no regla); baja lógica por `status` sin DELETE; `external_id` Intelisis único por org; permisos `catalog.read/create/update/archive/manage`; RLS deny-by-default reutilizando `_access` (004) y patrón 007.
+- **Diferido:** impuestos, listas de precios, imágenes/Storage, sustitutos, visibilidad por sucursal, proveedores, sync Intelisis, UI.
+- **Gates:** solo documentación `.md`; `git diff --check` limpio ✅; sin secretos ✅; sin código funcional.
+- **Estado discovery:** COMPLETED (`a4236f7`). Continuó en 1C.1 (abajo).
+
+## Phase 1C.1 Architecture Lock (4 Aug 2026 — misma rama/worktree)
+
+- **Revisión humana aprobada** (5 preguntas cerradas). Acta: `F1C_HUMAN_ARCHITECTURE_REVIEW.md`.
+- **D-C01…D-C17** registradas en `DECISION_LOG.md` con estado **APPROVED · 2026-08-04**.
+- **Ajustes congelados:** `_catalog.enforce_category_tree()`; `reference_price numeric(14,4)` único; `base_units_per_sale_unit`; UOM `kind` dimensional; ciclo de vida inactive/active/última variante; archive ≠ update; manage restore; `UNIQUE(organization_id,id)` en padres; índices `upper(trim(...))`; `CHECK trim() <> ''`.
+- **Roles:** administrator / manager / cashier / operator (matriz `catalog.*`).
+- **Plan de pruebas** ampliado (CA-3b/3c, CA-14b/c/d, CA-11b, CA-26/27, …).
+- **Restricciones respetadas:** solo `.md`; sin migración 008; sin `seed.sql`; sin TypeScript; sin UI; sin PR; sin merge.
+- **Siguiente:** 1C.2 (migración 008) solo con instrucción expresa.
+
+## Phase 1C.1 Anexo Comercial — Agosto 2026 (4 Aug 2026)
+
+- **Evidencia operativa analizada:** `C:\Users\GVTASNOG\Desktop\COMERCIALIZACION AGOSTO 2026.pdf` (24 pág.; texto extraído con `pypdf`; PDF mayormente imagen, listas externas no incrustadas).
+- **Entregable:** `F1C_COMMERCIALIZATION_INPUT_AUGUST_2026.md` — resumen, matriz de requisitos (R-01…R-12), soporte 1C, diferidos a Comercialización/Inventario/Precios/Incentivos, entidades futuras propuestas (`commercial_campaigns`, `promotion_rules`, `campaign_products`, `promotion_bundles`, `campaign_labels`, `store_merchandising_tasks`, `outlet_rules`, `sales_incentives`) y riesgos.
+- **Principio confirmado:** promociones, colores de etiquetas (naranja/amarilla/roja/azul/dorada), incentivos, precios mensuales y reglas de Outlet **NO** son columnas de `products`/`product_variants`; 1C solo aporta referencias maestras.
+- **Actualizados:** `F1C_DOCUMENT_USAGE_INDEX.md`, `F1C_SCOPE_MATRIX.md`, `F1C_DISCOVERY_HANDOFF.md`, `F1C_DATA_MODEL_PROPOSAL.md` (§7), `F1C_TEST_PLAN.md` (§8), `F1C_HUMAN_ARCHITECTURE_REVIEW.md` (§5).
+- **Sin migraciones ni código de Comercialización** (solo documentación `.md`).
+
+## Phase 1C.2 Database Foundation (5 Aug 2026 — misma rama/worktree)
+
+- **Migración `00000000000008_product_master.sql`** (con autorización expresa): esquema `_catalog` con 7 tablas (`product_categories`, `product_brands`, `units_of_measure`, `product_lines`, `products`, `product_variants`, `product_barcodes`), FK compuestas org-scoped, `UNIQUE(organization_id,id)` inline en `product_categories` (requerido por la FK autoreferenciada; reemplaza el índice único planeado), índices funcionales `upper(trim(...))`, CHECKs `trim() <> ''`, triggers `updated_at`, y 4 funciones `_catalog` (`enforce_category_tree`, `enforce_product_active_variant`, `enforce_last_active_variant`, `enforce_status_transition`) — SECURITY INVOKER con `search_path=''`.
+- **RLS y grants:** 21 políticas allowlist (3 por tabla) solo para `authenticated`; sin DELETE; FORCE RLS off (D20); revokes mínimos PG15-safe; `enforce_status_transition` (BEFORE UPDATE, guard `current_user='authenticated'`) aplica la máquina de estados D-C14/D-C16 incl. discontinue sin `catalog.manage`.
+- **Seed:** 5 permisos `catalog.*` (total 11); role_permissions administrator +5 / manager +3 / cashier +1 / operator +1 (total 23); fixtures demo catálogo PGM (6 UOM, 3 líneas, 2 marcas, 3 categorías ≤3 niveles, 2 productos activos, 3 variantes, 4 barcodes) y PGM-DEMO-B (mínimos); productos nacen `inactive` y se activan tras insertar variantes.
+- **Pruebas:** `test_product_master.sql` nuevo (78 aserciones); `test_identity_rbac_rls.sql` 6→11 permisos y 13→22 role_permissions; `test_organization_rls.sql` sets por rol actualizados (manager 7 / cashier 3 / operator 2) y admin 11; `ci_verify.sql` plan 47 + sección catálogo (se removió `products` de la lista de tablas prohibidas). `db:test` **518/518** (8 archivos).
+- **Gates:** lint ✅ · typecheck ✅ · **149/149** vitest ✅ · build ✅ · `db:reset` ✅ · **518/518** pgTAP ✅ · `db:lint` sin errores ✅ (incluye `_catalog`) · `db:verify` ALL CHECKS PASSED ✅ · `db:types` regenerado (+370 líneas) ✅ · **14/14** `e2e:auth` ✅ · `e2e:identity` ✅ (permisos `catalog.*` + scoping RLS `products`) · `git diff --check` limpio ✅ · sin secretos ✅ · `npm audit` baseline (sin `--force`) ✅.
+- **Hallazgo:** la FK autoreferenciada de categorías exige unique inline (error `SQLSTATE 42830` → fix en 008); el UPDATE/DELETE denegado por RLS aplica filtro silencioso (0 filas, sin 42501) — cashier y operador bloqueados por `USING`.
+- **3 commits + push a `feature/f1c-PG-CATALOG-004-product-master`; sin PR; sin merge; 1C.3 no iniciada.**
+
+## Phase 1C.3 Backend Summary (5 Aug 2026 — misma rama/worktree)
+
+- **Backend TS del catálogo completo, sin UI, sin migraciones nuevas.** Estructura espejo del patrón `organization`: `domain/` + `application/` + `infrastructure/`, errores tipados, interfaces de repositorio, guards reusando `requirePermission` de identity.
+- **Domain (`src/features/catalog/domain/`):** `catalog-errors.ts`, `catalog-permissions.ts` (read/create/update/archive/manage), `actor.ts` (`CatalogActor` + `requirePermission` + `permissionsOf`), `status.ts` (statuses product/reference + validadores/normalizadores; `normalizeOptionalText("") → null`), entidades product/variant/barcode/category (árbol ≤3 niveles, `CATEGORY_MAX_DEPTH=3`)/brand/product-line/unit, `catalog-repository.ts` (interfaces, incl. `findVariantById`, `findVariantBySku`, `findBarcodeByValue`), `audit.ts` (port `CatalogAuditRepository`), `index.ts`.
+- **Application:** `guards.ts` (`requireCatalogRead/Create/Update/Archive/Manage`, `actorFromIdentitySession`, `assertActorOrganization`), `catalog-context.ts`, `shared.ts` (drafts normalizados + `referenceStatusAction` → audit archive/restore/update), `product-use-cases.ts` (create/update/archive/restore/get/list/search; activación solo con variante activa), `variant-use-cases.ts` (SKU único cross-product, último activo protegido, `requireVariantEditable`), `barcode-use-cases.ts` (Add/ChangePrimary; **Remove rechazado** con `CatalogUnsupportedOperationError`, D-C14), `category-use-cases.ts` (integridad de árbol: self-parent, ciclos, profundidad), `brand-use-cases.ts`, `product-line-use-cases.ts`, `unit-use-cases.ts`, `index.ts`.
+- **Infrastructure:** `mappers.ts` (rows DB → dominio con `assert*`), `supabase-catalog-repository.ts` (5 repos org-scoped, `.maybeSingle()`, `escapeLike`, columna RLS respetada), `demo-catalog-repository.ts` (fakes in-memory org-scoped), `noop-catalog-audit-repository.ts` (port; expone `events[]`; swap a `_audit.catalog_events` en 1C.5 D-C10), `repository-selection.ts` (**`CATALOG_DATA_SOURCE` = `demo` default | `supabase`**, determinístico sin fallback D031), `index.ts`.
+- **Tests (`src/tests/features/catalog/`):** 11 archivos + `helpers.ts` (factories, `standardReferences`, `makeContext` tipado con audit repo) — use cases producto (24) / variante (13) / barcode (9) / referencias (17), validations (15), permissions+guards (8), demo repos (10), selección de fuente (8), mappers (8), feature-security (5: sin admin client, sin fallback catch). 117 nuevos.
+- **Gates:** lint ✅ · typecheck ✅ · **266/266 vitest** (antes 149) ✅ · build ✅ (7 rutas) · `git diff --check` limpio ✅ · sin secretos ✅.
+- **5 commits + push a `feature/f1c-PG-CATALOG-004-product-master`; sin PR; sin merge; UI de 1C.3 no iniciada.**
+
+## Phase 1C.4/1C.5 Summary (6 Aug 2026 — misma rama/worktree)
+
+- **1C.4 (permisos/seguridad):** permisos `catalog.*` verificados con
+  `current_user_permissions()`; CA-31…CA-39 cubiertos; `feature-security.test.ts`
+  confirma cero `service_role`/admin client en la feature.
+- **1C.5 (auditoría + cierre):** migración `00000000000009_catalog_audit.sql` —
+  `_audit.catalog_events` append-only (FK `public.profiles`/`public.organizations`,
+  CHECKs action/entity_type, índices por org+entidad y org+fecha, RLS allowlist
+  select/insert con `_access.current_organization_ids()` +
+  `_access.has_permission('catalog.*')`, grants select/insert solo `authenticated`,
+  revokes a `public`/`anon`/`service_role`). Esquema `_audit` expuesto en
+  `supabase/config.toml [api] schemas` (PostgREST, cliente anon RLS-scoped; nunca
+  service_role).
+- **SupabaseCatalogAuditRepository** (`AUDIT_COLUMNS`, `MAX_HISTORY_EVENTS=50`,
+  `record()`/`listEvents(filter)` con orden `occurred_at desc, id desc` y límite
+  clamp 1..50; `RepositoryConfigurationError` sin config).
+- **Poblado de auditoría:** 19 call-sites en 7 módulos de use cases (product,
+  variant, barcode, category, brand, product-line, unit) para
+  create/update/archive/restore.
+- **Timeline de historial (P6):** `getProductHistory` (máx. 30, fusiona
+  producto+variantes, orden desc) + `HistoryTimeline` (es-MX, badges
+  Creación/Actualización/Descontinuado/Restaurado, actor primeros 8 chars) en el
+  detalle de producto.
+- **Placeholders de integración (P2/P3/P4):** `CatalogIntegrationRepository`
+  (inventario current/reserved/available stock + average/last cost; compras
+  last supplier/purchase/cost; precios base/sugerido/venta/especial/lista) +
+  `NoopCatalogIntegrationRepository` (todo null, "Sin integración de inventario")
+  para demo y supabase; `IntegrationSummaryCard` en la página de producto. Sin
+  implementación de inventario/ventas/promociones (alcance 1C.5).
+- **Tests:** `test_catalog_audit.sql` (32 aserciones; fixture multi-org PGM/Demo-B,
+  RLS comportamiento real para manager/cashier/operator) + `integration-and-history
+  .test.ts` (6) + `repository-selection.test.ts` (9; incl. error tipado sin config).
+- **Gates:** lint ✅ · typecheck ✅ · **294/294 vitest** (39 archivos) ✅ · build ✅
+  (12 rutas) · `db:reset` ✅ · **550/550 pgTAP** (9 archivos) ✅ · `db:lint` sin
+  errores ✅ · `db:verify` ALL CHECKS PASSED ✅ · `git diff --check` limpio ✅ ·
+  sin secretos ✅ · audit baseline (4 high prod, sin `--force`) ✅.
+- **2 commits + push pendiente de 1C.5** (`aa7975a`, `9a7b4b8`; rama ahead de
+  origin por 2) + cierre documental (`HANDOFF_004_F1C_...`, D-C18…D-C22).
+- **1C COMPLETED / fase "1D" NO definida** (requiere decisión humana). Flip
+  `CATALOG_DATA_SOURCE=supabase` = decisión de ops (default `demo`, D031/D-C22).
+
 ## Blockers
 
 | Blocker | Detail |
@@ -174,10 +263,12 @@
 
 ## Next Action
 
-Definir y preparar la siguiente fase desde una rama nueva (número y alcance pendientes de decisión). El flip `ORGANIZATION_DATA_SOURCE=supabase` (funcional tras la migración 007) sigue siendo decisión de ops, documentada con default `demo`.
+Fase **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits, HEAD `9a7b4b8`; 550/550 pgTAP + 294/294 vitest + gates; sin PR). Siguiente fase pendiente: **fase "1D" NO definida en docs** — requiere definición y aprobación humana (inventario, ventas, compras o integración Intelisis). Pendiente además: revisión humana de la rama 1C, PR a `develop` y merge. Flip `CATALOG_DATA_SOURCE` / `ORGANIZATION_DATA_SOURCE` sigue siendo decisión de ops (default `demo`, D031/D-C22).
 
 ## Status
 
+Fase 1C: **1C.1–1C.5 COMPLETED AND PUSHED** (catálogo maestro; 17 commits en `feature/f1c-PG-CATALOG-004-product-master`, HEAD `9a7b4b8`; migración 008 + seed + auditoría 009 + dominio/app/UI + permisos/seguridad; **550/550 pgTAP** + **294/294 vitest** + gates; sin PR; sin merge). Cierre documental: `HANDOFF_004_F1C_...`, D-C18…D-C22.
+Fase 1C.1: **COMPLETED** — D-C01…D-C17 APPROVED (2026-08-04); acta `F1C_HUMAN_ARCHITECTURE_REVIEW.md`; solo documentación.
 Fase 1B.2: **COMPLETED AND INTEGRATED** — PR #5 MERGED (`05872c9`) · PR #6 MERGED (`3c4b258`)
 Fase 1B.3: **COMPLETED AND INTEGRATED** — PR #7 MERGED (`a533bde`, merge commit). Rama `feature/f1b-PG-IDENTITY-003-auth-rbac-rls` conservada, ya no activa.
-PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3)
+PR #4: CLOSED (sin merge, reemplazado) | **PR #5: MERGED** | **PR #6: MERGED** | **PR #7: MERGED** (Fase 1B.3) | **PR #8: MERGED**

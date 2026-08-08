@@ -64,9 +64,9 @@ const ROLE_MANAGER = "40000000-0000-0000-0000-000000000002";
 const ROLE_CASHIER = "40000000-0000-0000-0000-000000000003";
 const ROLE_OPERATOR = "40000000-0000-0000-0000-000000000004";
 
-const MANAGER_PERMS = ["branch.read", "organization.read", "organization.write", "warehouse.read"];
-const CASHIER_PERMS = ["branch.read", "organization.read"];
-const OPERATOR_PERMS = ["organization.read"];
+const MANAGER_PERMS = ["branch.read", "catalog.create", "catalog.read", "catalog.update", "organization.read", "organization.write", "warehouse.read"];
+const CASHIER_PERMS = ["branch.read", "catalog.read", "organization.read"];
+const OPERATOR_PERMS = ["catalog.read", "organization.read"];
 
 // Per-user scenario: what to provision, what effective permissions are expected,
 // and what RLS should expose. RLS is enforced at the membership + profile-status
@@ -78,30 +78,35 @@ const SCENARIOS = [
     orgId: ORG_PGM, branchId: BRANCH_NOG, roleId: ROLE_MANAGER,
     perms: MANAGER_PERMS,
     orgs: ["PGM"], branches: ["NOG", "SAL"], warehouses: ["NOG-01", "SAL-01"],
+    products: ["TUB-PVC-100", "VAL-GLOBO-050"],
   },
   {
     key: "cashier_PGM", fullName: "E2E Cashier",
     orgId: ORG_PGM, branchId: BRANCH_NOG, roleId: ROLE_CASHIER,
     perms: CASHIER_PERMS,
     orgs: ["PGM"], branches: ["NOG", "SAL"], warehouses: ["NOG-01", "SAL-01"],
+    products: ["TUB-PVC-100", "VAL-GLOBO-050"],
   },
   {
     key: "operator_DEMO_B", fullName: "E2E Operator",
     orgId: ORG_DEMO_B, branchId: BRANCH_BSAL, roleId: ROLE_OPERATOR,
     perms: OPERATOR_PERMS,
     orgs: ["PGM-DEMO-B"], branches: ["BSAL"], warehouses: [],
+    products: ["P-DEMO-B"],
   },
   {
     key: "inactive_PGM", fullName: "E2E Inactive",
     orgId: ORG_PGM, branchId: BRANCH_NOG, roleId: ROLE_CASHIER, inactive: true,
     perms: [],
     orgs: [], branches: [], warehouses: [],
+    products: [],
   },
   {
     key: "no_membership", fullName: "E2E No Membership",
     orgId: null, branchId: null, roleId: null,
     perms: [],
     orgs: [], branches: [], warehouses: [],
+    products: [],
   },
 ];
 
@@ -226,6 +231,10 @@ try {
 
     const warehouseCodes = sortedCodes(await userSelect(token, "warehouses", "select=code&order=code"));
     check(`[${scenario.key}] RLS warehouses scoped`, JSON.stringify(warehouseCodes) === JSON.stringify(scenario.warehouses), JSON.stringify(warehouseCodes));
+
+    const productRows = await userSelect(token, "products", "select=external_id&order=external_id");
+    const productExternals = (productRows ?? []).map((r) => r.external_id).sort();
+    check(`[${scenario.key}] RLS products scoped`, JSON.stringify(productExternals) === JSON.stringify(scenario.products), JSON.stringify(productExternals));
 
     // ---- 6. Negative cross-org: INSERT into a foreign org is blocked ------
     if (scenario.orgId) {

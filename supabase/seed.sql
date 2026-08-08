@@ -5,6 +5,10 @@
 -- Codes 116NOG-PGM and 106SAL-PGM are "pending validation" per docs
 -- (24-master-index/08) and are stored as external identifiers.
 --
+-- Phase 1C.2: catalog.demo fixtures (D-C01..D-C17). Demo units/brands/lines/
+-- categories/products/variants/barcodes for PGM and PGM-DEMO-B only. No
+-- Intelisis sync data, no price lists.
+--
 -- Idempotent: ON CONFLICT on the unique code/indexes.
 
 insert into public.organizations (id, code, name, status, timezone, currency, language)
@@ -154,7 +158,12 @@ values
   ('50000000-0000-0000-0000-000000000003', 'branch.read', 'Read branches of own organization'),
   ('50000000-0000-0000-0000-000000000004', 'warehouse.read', 'Read warehouses of own organization'),
   ('50000000-0000-0000-0000-000000000005', 'role.manage', 'Manage roles and permissions'),
-  ('50000000-0000-0000-0000-000000000006', 'user.assign', 'Assign roles to users')
+  ('50000000-0000-0000-0000-000000000006', 'user.assign', 'Assign roles to users'),
+  ('50000000-0000-0000-0000-000000000007', 'catalog.read', 'Read product master catalog'),
+  ('50000000-0000-0000-0000-000000000008', 'catalog.create', 'Create products, variants and barcodes'),
+  ('50000000-0000-0000-0000-000000000009', 'catalog.update', 'Edit catalog data and active/inactive transitions'),
+  ('50000000-0000-0000-0000-000000000010', 'catalog.archive', 'Discontinue products/variants'),
+  ('50000000-0000-0000-0000-000000000011', 'catalog.manage', 'Manage catalog structure and restore discontinued records')
 on conflict do nothing;
 
 -- Roles: one global (administrator), organization-scoped for PGM and Demo B
@@ -173,16 +182,18 @@ from public.roles r
 join public.permissions p on (
   r.id = '40000000-0000-0000-0000-000000000001' and p.code in (
     'organization.read', 'organization.write', 'branch.read', 'warehouse.read',
-    'role.manage', 'user.assign'
+    'role.manage', 'user.assign', 'catalog.read', 'catalog.create',
+    'catalog.update', 'catalog.archive', 'catalog.manage'
   )
   or r.id = '40000000-0000-0000-0000-000000000002' and p.code in (
-    'organization.read', 'organization.write', 'branch.read', 'warehouse.read'
+    'organization.read', 'organization.write', 'branch.read', 'warehouse.read',
+    'catalog.read', 'catalog.create', 'catalog.update'
   )
   or r.id = '40000000-0000-0000-0000-000000000003' and p.code in (
-    'organization.read', 'branch.read'
+    'organization.read', 'branch.read', 'catalog.read'
   )
   or r.id = '40000000-0000-0000-0000-000000000004' and p.code in (
-    'organization.read'
+    'organization.read', 'catalog.read'
   )
 )
 on conflict do nothing;
@@ -253,5 +264,203 @@ values
   ('10000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000004',
    '40000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002', 'active')
 on conflict do nothing;
+
+commit;
+
+-- ============================================================
+-- F1C.2 catalog demo fixtures (Phase 1C.2)
+-- Org-scoped demo catalog for PGM and PGM-DEMO-B (D-C07). Unit codes cover the
+-- 6 kinds (D-C05). Products are born 'inactive' (D-C13) and are activated below
+-- once their active variants exist. These writes run as the owner (postgres),
+-- so the permission-gated status transition trigger (authenticated-only, D20)
+-- does not interfere; the structural triggers (category tree, active variant)
+-- apply to everyone.
+-- Idempotent: ON CONFLICT (id) on every insert; the final UPDATE is a no-op on
+-- re-runs (product already active).
+-- ============================================================
+
+begin;
+
+-- Units of measure: one per kind (D-C05)
+insert into public.units_of_measure (id, organization_id, code, name, kind, status)
+values
+  ('70000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'PZA',  'Pieza',          'count',   'active'),
+  ('70000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'M',    'Metro',          'length',  'active'),
+  ('70000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001', 'M2',   'Metro cuadrado', 'area',    'active'),
+  ('70000000-0000-0000-0000-000000000004', '10000000-0000-0000-0000-000000000001', 'L',    'Litro',          'volume',  'active'),
+  ('70000000-0000-0000-0000-000000000005', '10000000-0000-0000-0000-000000000001', 'KG',   'Kilogramo',      'mass',    'active'),
+  ('70000000-0000-0000-0000-000000000006', '10000000-0000-0000-0000-000000000001', 'CAJA', 'Caja',           'package', 'active'),
+  ('80000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'PZA',  'Pieza',          'count',   'active')
+on conflict (id) do nothing;
+
+-- Product lines (Intelisis line reference, D-C11)
+insert into public.product_lines (id, organization_id, external_id, name, status)
+values
+  ('70000000-0000-0000-0000-000000000011', '10000000-0000-0000-0000-000000000001', 'TUB', 'Tubería y conexiones', 'active'),
+  ('70000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000001', 'VAL', 'Válvulas y llaves',    'active'),
+  ('70000000-0000-0000-0000-000000000013', '10000000-0000-0000-0000-000000000001', 'HER', 'Herramientas',         'active'),
+  ('80000000-0000-0000-0000-000000000011', '20000000-0000-0000-0000-000000000001', 'GEN', 'Línea general',        'active')
+on conflict (id) do nothing;
+
+-- Brands
+insert into public.product_brands (id, organization_id, code, name, status)
+values
+  ('70000000-0000-0000-0000-000000000021', '10000000-0000-0000-0000-000000000001', 'MD-A', 'Marca Demo A', 'active'),
+  ('70000000-0000-0000-0000-000000000022', '10000000-0000-0000-0000-000000000001', 'MD-B', 'Marca Demo B', 'active'),
+  ('80000000-0000-0000-0000-000000000021', '20000000-0000-0000-0000-000000000001', 'MD-B', 'Marca Demo B', 'active')
+on conflict (id) do nothing;
+
+-- Categories (hierarchy <= 3 levels, D-C01)
+insert into public.product_categories (id, organization_id, parent_id, code, name, status)
+values
+  ('70000000-0000-0000-0000-000000000031', '10000000-0000-0000-0000-000000000001', null, 'TUBERIA',      'Tubería',                 'active'),
+  ('70000000-0000-0000-0000-000000000032', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000031',                        'TUB-PVC',     'Tubería PVC',            'active'),
+  ('70000000-0000-0000-0000-000000000033', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000032',                        'TUB-PVC-PRES', 'Tubería PVC de presión', 'active'),
+  ('80000000-0000-0000-0000-000000000031', '20000000-0000-0000-0000-000000000001', null, 'GENERAL',      'General',                'active')
+on conflict (id) do nothing;
+
+-- Products (born 'inactive', D-C13; activated below once variants exist)
+insert into public.products (
+  id, organization_id, external_id, description, short_name,
+  brand_id, category_id, line_id, technical_description, status
+)
+values
+  (
+    '70000000-0000-0000-0000-000000000041',
+    '10000000-0000-0000-0000-000000000001',
+    'TUB-PVC-100',
+    'Tubo de PVC hidráulico de 1 pulgada, Cédula 40',
+    'Tubo PVC 1" CED 40',
+    '70000000-0000-0000-0000-000000000021',
+    '70000000-0000-0000-0000-000000000032',
+    '70000000-0000-0000-0000-000000000011',
+    null,
+    'inactive'
+  ),
+  (
+    '70000000-0000-0000-0000-000000000042',
+    '10000000-0000-0000-0000-000000000001',
+    'VAL-GLOBO-050',
+    'Válvula de globo de bronce de 1/2 pulgada',
+    'Válvula globo 1/2" bronce',
+    '70000000-0000-0000-0000-000000000022',
+    null,
+    '70000000-0000-0000-0000-000000000012',
+    null,
+    'inactive'
+  ),
+  (
+    '80000000-0000-0000-0000-000000000041',
+    '20000000-0000-0000-0000-000000000001',
+    'P-DEMO-B',
+    'Producto demo B',
+    'Producto demo B',
+    '80000000-0000-0000-0000-000000000021',
+    '80000000-0000-0000-0000-000000000031',
+    '80000000-0000-0000-0000-000000000011',
+    null,
+    'inactive'
+  )
+on conflict (id) do nothing;
+
+-- Variants (active; SKU/barcode/pricing live here, D-C03/D-C04/D-C06)
+insert into public.product_variants (
+  id, organization_id, product_id, sku, display_name, format, finish,
+  base_unit_id, sale_unit_id, base_units_per_sale_unit,
+  pieces_per_box, square_meters_per_box, reference_price, status
+)
+values
+  (
+    '70000000-0000-0000-0000-000000000051',
+    '10000000-0000-0000-0000-000000000001',
+    '70000000-0000-0000-0000-000000000041',
+    'TUB-PVC-100-PZA',
+    'Tubo PVC 1" CED 40 por pieza',
+    null,
+    null,
+    '70000000-0000-0000-0000-000000000001',
+    '70000000-0000-0000-0000-000000000001',
+    1,
+    null,
+    null,
+    42.5000,
+    'active'
+  ),
+  (
+    '70000000-0000-0000-0000-000000000052',
+    '10000000-0000-0000-0000-000000000001',
+    '70000000-0000-0000-0000-000000000041',
+    'TUB-PVC-100-CJA',
+    'Caja con 25 tubos PVC 1" CED 40',
+    null,
+    null,
+    '70000000-0000-0000-0000-000000000001',
+    '70000000-0000-0000-0000-000000000006',
+    25,
+    25,
+    null,
+    1000.0000,
+    'active'
+  ),
+  (
+    '70000000-0000-0000-0000-000000000053',
+    '10000000-0000-0000-0000-000000000001',
+    '70000000-0000-0000-0000-000000000042',
+    'VAL-GLOBO-050-PZA',
+    'Válvula globo 1/2" bronce',
+    null,
+    null,
+    '70000000-0000-0000-0000-000000000001',
+    '70000000-0000-0000-0000-000000000001',
+    1,
+    null,
+    null,
+    185.5000,
+    'active'
+  ),
+  (
+    '80000000-0000-0000-0000-000000000051',
+    '20000000-0000-0000-0000-000000000001',
+    '80000000-0000-0000-0000-000000000041',
+    'P-DEMO-B-PZA',
+    'Producto demo B por pieza',
+    null,
+    null,
+    '80000000-0000-0000-0000-000000000001',
+    '80000000-0000-0000-0000-000000000001',
+    1,
+    null,
+    null,
+    10.0000,
+    'active'
+  )
+on conflict (id) do nothing;
+
+-- Barcodes (multiple per variant, one primary, D-C04)
+insert into public.product_barcodes (id, organization_id, variant_id, barcode, is_primary)
+values
+  ('70000000-0000-0000-0000-000000000061', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000051', '7500000000017', true),
+  ('70000000-0000-0000-0000-000000000062', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000051', '7500000000024', false),
+  ('70000000-0000-0000-0000-000000000063', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000052', '7500000000031', true),
+  ('70000000-0000-0000-0000-000000000064', '10000000-0000-0000-0000-000000000001',
+   '70000000-0000-0000-0000-000000000053', '7500000000048', true),
+  ('80000000-0000-0000-0000-000000000061', '20000000-0000-0000-0000-000000000001',
+   '80000000-0000-0000-0000-000000000051', '7500000001000', true)
+on conflict (id) do nothing;
+
+-- Activate the demo products now that their active variants exist (D-C13).
+-- No-op on re-runs (already active).
+update public.products
+set status = 'active'
+where id in (
+  '70000000-0000-0000-0000-000000000041',
+  '70000000-0000-0000-0000-000000000042',
+  '80000000-0000-0000-0000-000000000041'
+);
 
 commit;

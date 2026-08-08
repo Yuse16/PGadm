@@ -30,6 +30,16 @@ Maps each requirement rule → source pack → responsible agent → history fil
 - **Data model**: `supabase/migrations/00000000000002_organization_structure.sql` (priority semantics: 1 = highest, ascending).
 - Rule-to-code mapping will be completed as requirement rules are stabilized (see Implementation Notes below).
 
+## Phase 1C Implementation
+
+- **Status**: **COMPLETED AND PUSHED** — feature branch `feature/f1c-PG-CATALOG-004-product-master` (HEAD `9a7b4b8`, 17 commits); sin PR, sin merge; pendiente revisión humana + integración a `develop`.
+- **Scope**: Catálogo Maestro de Productos (1C.1 decisiones → 1C.2 migración/seed → 1C.3 dominio/use cases/UI → 1C.4 permisos/seguridad → 1C.5 auditoría + cierre).
+- **History**: `docs/orchestration/handoffs/` (F1C_KICKOFF_CONTRACT, F1C_SCOPE_MATRIX, F1C_DATA_MODEL_PROPOSAL, F1C_RLS_PERMISSION_MATRIX, F1C_TEST_PLAN, F1C_IMPLEMENTATION_SLICES, F1C2_DATABASE_HANDOFF, HANDOFF_004_F1C_PG_CATALOG_004_PRODUCT_MASTER) y `DECISION_LOG.md` (D-C01…D-C22).
+- **Code**: `src/features/catalog/` (domain/application/infrastructure/server/components) + `src/app/admin/catalog/`. Data source: `CATALOG_DATA_SOURCE=demo` (default) | `supabase`, sin fallback silencioso (D031/D-C22).
+- **Tests**: `supabase/tests/test_product_master.sql` (78) + `test_catalog_audit.sql` (32) + suites previas ajustadas → **550/550 SQL**; `src/tests/features/catalog/` → **294/294 app** (39 archivos).
+- **Data model**: `supabase/migrations/00000000000008_product_master.sql` (schema `_catalog` + 7 tablas) y `00000000000009_catalog_audit.sql` (`_audit.catalog_events`).
+- Rule-to-code mapping will be completed as requirement rules are stabilized (see Implementation Notes below).
+
 ## Implementation Notes
 
 1. Each rule follows the format `{DOMAIN}-{NNN}` where DOMAIN is a 3‑letter prefix:

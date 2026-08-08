@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 (2026-08-06) — Phase 1C completed (Catálogo Maestro de Productos)
+
+- **Fase 1C.1–1C.5 COMPLETED AND PUSHED** en `feature/f1c-PG-CATALOG-004-product-master` (17 commits, HEAD `9a7b4b8`); sin PR, sin merge
+- Feat(db): migración 008 `product_master` — schema `_catalog`, 7 tablas org-scoped, FK compuestas, `UNIQUE(organization_id,id)` inline en categorías, índices funcionales `upper(trim(...))`, 21 políticas RLS allowlist, 4 funciones de enforcement SECURITY INVOKER, sin DELETE; seed con permisos `catalog.*` (5) + `role_permissions` (23)
+- Feat(db): migración 009 `catalog_audit` — `_audit.catalog_events` append-only con RLS select/insert, grants==políticas, revokes a public/anon/service_role; esquema `_audit` expuesto en `config.toml`
+- Feat(backend): `src/features/catalog/` domain + application (use cases create/update/archive/restore/query) + infrastructure (demo/supabase, `repository-selection` con `CATALOG_DATA_SOURCE=demo` default, sin fallback)
+- Feat(ui): `/admin/catalog` server-rendered (`force-dynamic`) — dashboard, productos, variantes, categorías, marcas, unidades, líneas; forms con server actions; guards `catalog.*`
+- Feat(1C.5): auditoría persistida en `_audit.catalog_events` (19 call-sites en 7 módulos), timeline de historial en detalle de producto (máx. 30, es-MX), placeholders de integración inventario/compras/precios ("Sin integración de inventario")
+- Tests: app **294/294** (39 archivos) · SQL **550/550** (9 archivos) · `db:verify` ALL CHECKS PASSED · lint/typecheck/build PASS · `git diff --check` clean · sin secretos
+- Docs: HANDOFF_004_F1C_PG_CATALOG_004_PRODUCT_MASTER (cierre 1C), DECISION_LOG (D-C18…D-C22), AGENT_STATE, TRACEABILITY
+- Pendiente: fase "1D" no definida en docs (requiere decisión humana); flip `CATALOG_DATA_SOURCE=supabase` es decisión de ops; merge/PR pendiente
+
 ## 0.4.1 (2026-08-01) — Phase 1B.2 integrated
 
 - **PR #5 MERGED** into `develop` (merge commit `05872c9`), 12 commits (`1feaf20`…`9bc24e1`)

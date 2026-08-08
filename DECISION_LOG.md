@@ -35,3 +35,25 @@
 | 031 | `DemoOrganizationRepository` explícito + `ORGANIZATION_DATA_SOURCE=demo` (default) | Anon no puede leer tablas owner-only hasta 1B.3 (auth+grants+RLS); selección determinista explícita, nunca fallback silencioso tras un fallo | 2026-08-01 |
 | 032 | Semántica de `priority`: 1 = mayor prioridad, orden `ascending` | Unifica comentario SQL, repositorio, dominio y fixtures; 1 evaluado antes que 2; cubierto por `priority-semantics.test.ts` | 2026-08-01 |
 | 033 | PR #5 merged vía merge commit `05872c9`; Fase 1B.2 COMPLETED AND INTEGRATED | Merge commit (no squash/rebase/force); 12 commits integrados en develop; cierre documental en PR #6 | 2026-08-01 |
+| D-C01 | Categorías jerárquicas, máx. 3 niveles; la base impide profundidad >3, self-parent y ciclos | Función privada `_catalog.enforce_category_tree()` (SECURITY INVOKER, `search_path=''`); lógica de catálogo fuera de `_access` | APPROVED · 2026-08-04 |
+| D-C02 | `products` y `product_variants` como tablas separadas | El producto base no tiene SKU/barcode; la presentación vendible es la variante | APPROVED · 2026-08-04 |
+| D-C03 | SKU pertenece a `product_variants` | Toda presentación vendible con SKU/barcode distinto es una variante | APPROVED · 2026-08-04 |
+| D-C04 | Múltiples códigos de barras por variante (`product_barcodes`) | 1 primario por variante; sin barcode primario a nivel producto | APPROVED · 2026-08-04 |
+| D-C05 | Unidad base vs. venta separadas + factor único | `base_unit_id`, `sale_unit_id`, `base_units_per_sale_unit numeric CHECK (>0)`; tabla general de conversiones diferida | APPROVED · 2026-08-04 |
+| D-C06 | Precio de referencia único por variante | `reference_price numeric(14,4)` asociado a `sale_unit_id`; sustituye las 3 columnas unit/box/m²; listas de precios diferidas | APPROVED · 2026-08-04 |
+| D-C07 | Catálogo por organización | Todas las tablas de 1C org-scoped; sin catálogo global compartido | APPROVED · 2026-08-04 |
+| D-C08 | Cruces entre orgs impedidos en la base | RLS `_access.current_organization_ids()` + FK compuestas `(organization_id, id)`; `UNIQUE(organization_id, id)` en tablas padre | APPROVED · 2026-08-04 |
+| D-C09 | Permisos `catalog.read/create/update/archive/manage` | `manage` es administrativo y no sustituye silenciosamente a los demás; `archive` independiente de `update` | APPROVED · 2026-08-04 |
+| D-C10 | Auditoría append-only de mutaciones de catálogo | `_audit.catalog_events` (create/update/archive) con actor `_access.current_user_id()` en 1C.5 | APPROVED · 2026-08-04 |
+| D-C11 | `external_id` normalizado, case-insensitive y único por org | Índice funcional `(organization_id, upper(trim(external_id)))` parcial; regla "no descripción como ID"; sin sync real | APPROVED · 2026-08-04 |
+| D-C12 | Unicidades case-insensitive con índices funcionales `upper(trim(...))` + `CHECK trim(valor) <> ''` | `code`, `sku`, `barcode`, nombres y descripciones obligatorias sin espacios en blanco vacíos | APPROVED · 2026-08-04 |
+| D-C13 | Ciclo de vida de producto | Se crea `inactive`; activo requiere ≥1 variante activa; no puede desactivarse/descontinuarse la última variante activa con producto activo | APPROVED · 2026-08-04 |
+| D-C14 | Descontinuados conservan fila; sin DELETE físico | `status='discontinued'`; baja lógica; `catalog.archive` controla la transición; `catalog.manage` restaura | APPROVED · 2026-08-04 |
+| D-C15 | Visibilidad por sucursal diferida | En 1C el catálogo es org-wide; `product_branch_visibility` en fase posterior | APPROVED · 2026-08-04 |
+| D-C16 | Sustitutos/relacionados diferidos | `product_relations` en fase comercial | APPROVED · 2026-08-04 |
+| D-C17 | Imágenes y fichas técnicas diferidas | Requiere Supabase Storage (deshabilitado) | APPROVED · 2026-08-04 |
+| D-C18 | Auditoría persistida en `_audit.catalog_events` (implementación de D-C10) | Append-only, actor `_access.current_user_id()`, FK a profiles/organizations, RLS allowlist select/insert solo `authenticated`, grants==políticas, revokes a public/anon/service_role | IMPLEMENTED · 2026-08-06 |
+| D-C19 | Esquema `_audit` expuesto en `supabase/config.toml [api] schemas` | PostgREST necesita el esquema en la API para que el cliente anon RLS-scoped del servidor lea/escriba `catalog_events`; acceso limitado por grants+RLS, nunca service_role | IMPLEMENTED · 2026-08-06 |
+| D-C20 | Port de auditoría = `record()` + `listEvents(filter)` | El timeline de historial (P6) requiere consulta filtrada por org/tipo/entidad con límite; Noop mantiene filtro/orden/límite para demo y tests | IMPLEMENTED · 2026-08-06 |
+| D-C21 | Puntos de integración con un solo `CatalogIntegrationRepository.getIntegrationSummary()` | Inventario/compras/precios fuera de alcance en 1C.5; contrato estable + `NoopCatalogIntegrationRepository` para ambas fuentes; UI muestra "Sin integración de inventario" | IMPLEMENTED · 2026-08-06 |
+| D-C22 | `CATALOG_DATA_SOURCE` extiende D031 a catálogo: `demo` default \| `supabase`; sin fallback silencioso | Selección determinista; error tipado `RepositoryConfigurationError` sin configuración; demo y supabase explícitos | IMPLEMENTED · 2026-08-06 |

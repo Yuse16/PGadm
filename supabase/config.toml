@@ -3,7 +3,11 @@ project_id = "organization-foundation"
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "storage"]
+# 1C.5: _audit exposed so the RLS-scoped anon client (never service_role,
+# D09/T09) can append to and read _audit.catalog_events. Access stays gated
+# by grants + RLS (D17/D18, ACC-21): authenticated only, catalog.read for
+# select, catalog.* write for insert.
+schemas = ["public", "storage", "_audit"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 

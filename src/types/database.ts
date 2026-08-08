@@ -7,6 +7,55 @@ export type Json =
   | Json[]
 
 export type Database = {
+  _audit: {
+    Tables: {
+      catalog_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          detail: string
+          entity_id: string
+          entity_type: string
+          id: string
+          occurred_at: string
+          organization_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          detail?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          detail?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       branch_warehouse_relations: {
@@ -245,6 +294,335 @@ export type Database = {
         }
         Relationships: []
       }
+      product_barcodes: {
+        Row: {
+          barcode: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          organization_id: string
+          updated_at: string
+          variant_id: string
+        }
+        Insert: {
+          barcode: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          organization_id: string
+          updated_at?: string
+          variant_id: string
+        }
+        Update: {
+          barcode?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          organization_id?: string
+          updated_at?: string
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_barcodes_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_barcodes_variant_organization_fk"
+            columns: ["organization_id", "variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      product_brands: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_brands_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          parent_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          parent_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          parent_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_parent_organization_fk"
+            columns: ["organization_id", "parent_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      product_lines: {
+        Row: {
+          created_at: string
+          external_id: string | null
+          id: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_lines_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          base_unit_id: string
+          base_units_per_sale_unit: number
+          created_at: string
+          display_name: string | null
+          finish: string | null
+          format: string | null
+          id: string
+          organization_id: string
+          pieces_per_box: number | null
+          product_id: string
+          reference_price: number | null
+          sale_unit_id: string
+          sku: string
+          square_meters_per_box: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          base_unit_id: string
+          base_units_per_sale_unit?: number
+          created_at?: string
+          display_name?: string | null
+          finish?: string | null
+          format?: string | null
+          id?: string
+          organization_id: string
+          pieces_per_box?: number | null
+          product_id: string
+          reference_price?: number | null
+          sale_unit_id: string
+          sku: string
+          square_meters_per_box?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          base_unit_id?: string
+          base_units_per_sale_unit?: number
+          created_at?: string
+          display_name?: string | null
+          finish?: string | null
+          format?: string | null
+          id?: string
+          organization_id?: string
+          pieces_per_box?: number | null
+          product_id?: string
+          reference_price?: number | null
+          sale_unit_id?: string
+          sku?: string
+          square_meters_per_box?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_base_unit_organization_fk"
+            columns: ["organization_id", "base_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "product_variants_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_variants_product_organization_fk"
+            columns: ["organization_id", "product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "product_variants_sale_unit_organization_fk"
+            columns: ["organization_id", "sale_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          brand_id: string | null
+          category_id: string | null
+          created_at: string
+          description: string
+          external_id: string | null
+          id: string
+          line_id: string | null
+          organization_id: string
+          short_name: string | null
+          status: string
+          technical_description: string | null
+          updated_at: string
+        }
+        Insert: {
+          brand_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          description: string
+          external_id?: string | null
+          id?: string
+          line_id?: string | null
+          organization_id: string
+          short_name?: string | null
+          status?: string
+          technical_description?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string | null
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          external_id?: string | null
+          id?: string
+          line_id?: string | null
+          organization_id?: string
+          short_name?: string | null
+          status?: string
+          technical_description?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_brand_organization_fk"
+            columns: ["organization_id", "brand_id"]
+            isOneToOne: false
+            referencedRelation: "product_brands"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "products_category_organization_fk"
+            columns: ["organization_id", "category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "products_line_organization_fk"
+            columns: ["organization_id", "line_id"]
+            isOneToOne: false
+            referencedRelation: "product_lines"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "products_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -342,6 +720,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "roles_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      units_of_measure: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          kind: string
+          name: string
+          organization_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_of_measure_organization_fk"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -731,6 +1150,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  _audit: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
