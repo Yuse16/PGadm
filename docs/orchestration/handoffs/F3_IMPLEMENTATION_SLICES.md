@@ -1,12 +1,12 @@
 # F3 — Slices de Implementación (Layout — Fase 3)
-## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.1 en curso
+## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.3 en curso
 
 **Fecha:** 2026-08-08
 **Rama:** `feature/f3-PG-LAYOUT-006-layout`
 
-División de F3 en subfases entregables e incrementales. Solo la subfase 3.1
-(kickoff + paquete documental) está **COMPLETADA**; las subfases de implementación
-**no se inician** hasta aprobación humana e instrucción expresa.
+División de F3 en subfases entregables e incrementales. Subfases 3.1 (kickoff +
+paquete documental) y 3.2 (migración SQL + seed) están **COMPLETADAS**; las subfases
+de implementación **no se inician** hasta aprobación humana e instrucción expresa.
 
 ---
 
@@ -15,9 +15,9 @@ División de F3 en subfases entregables e incrementales. Solo la subfase 3.1
 ```
 3.1  Kickoff + paquete documental (modelo, RLS, test plan)  ← COMPLETADA
   ↓
-3.2  Migración SQL + seed + verificación DB   ← PENDIENTE (no iniciada)
+3.2  Migración SQL + seed + verificación DB   ← COMPLETADA
   ↓
-3.3  Dominio y casos de uso (layout, editor, versionado, posiciones, stock)
+3.3  Dominio y casos de uso (layout, editor, versionado, posiciones, stock)  ← EN CURSO
   ↓
 3.4  Repositorios supabase, permisos y seguridad
   ↓
@@ -38,22 +38,24 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
 - **Definición de terminado:** solo cambios `.md`; `git diff --check` limpio;
   decisiones registradas como APPROVED en `DECISION_LOG.md` (2026-08-08).
 
-## 3.2 — Migración SQL + seed (PENDIENTE)
+## 3.2 — Migración SQL + seed (COMPLETADA)
 
-- Migración (siguiente número libre de la secuencia, tras `…10_inventory_snapshots.sql`)
-  con las tablas del modelo aprobado (nombres según decisión humana sobre la pregunta
-  abierta 1 de `F3_DATA_MODEL_PROPOSAL.md`).
+- Migración `supabase/migrations/00000000000011_layout.sql` con las tablas del modelo
+  aprobado (4 tablas org-scoped + `_audit.layout_events`).
 - RLS deny-by-default + políticas allowlist (sección 4 de `F3_RLS_PERMISSION_MATRIX.md`).
 - FK compuestas org-scoped a `branches` (1B), `product_variants` (1C) y `profiles`;
   `UNIQUE(organization_id, id)` en tablas padre.
 - `CHECK trim() <> ''`, triggers `_core.updated_at()`, sin DELETE, revokes mínimos.
 - Cargar permisos `layout.*` y `role_permissions` (matriz D-L10) + fixtures demo
-  (tabla de datos de `F3_TEST_PLAN.md` §10: 1 layout, M1-01…M1-04, zonas Nogalera).
+  (1 layout Nogalera draft v1, M1-01…M1-04, 14 elementos, 35 posiciones, 6 filas historial).
 - Auditoría `_audit.layout_events` (patrón 1C.5/1D, D-L12).
 - **Definición de terminado:** `npm run db:lint`, `npm run db:test`, `npm run db:verify`
   en verde; `npm run db:types` regenera `src/types/database.ts`.
+- **Resultado:** commit `d4b5fa5`; `db:lint`/`db:test` (748 PASS)/`db:verify` en verde;
+  asserts actualizados en `test_identity_rbac_rls.sql`, `test_inventory_stock.sql`,
+  `test_organization_rls.sql`.
 
-## 3.3 — Dominio y casos de uso (sin UI)
+## 3.3 — Dominio y casos de uso (sin UI) (EN CURSO)
 
 - `src/features/layout/domain/**`: entidades (Layout, LayoutElement, LayoutPosition,
   LayoutVersionEntry), reglas (editar solo sobre draft, código permanente, no
@@ -62,9 +64,12 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
   moveElement, rotateElement, resizeElement, lockElement, hideElement, duplicateElement,
   assignProduct, removeProduct, publishLayout, restoreVersion, listPositionsWithStock,
   markNeedsReview, confirmReplacement).
-- Repositorios demo (`in-memory`) + contrato de interfaz.
+- Repositorios demo (`in-memory`) + contrato de interfaz; selección
+  `LAYOUT_DATA_SOURCE` con default `demo` y error tipado sin fallback silencioso
+  (D-L11); stock como port de solo lectura (D-L13).
 - **Definición de terminado:** tests unit de dominio/use cases
-  (`src/tests/features/layout/**`); `npm run test` en verde.
+  (`src/tests/features/layout/**`); `npm run lint`/`npm run typecheck`/`npm run test`
+  en verde.
 
 ## 3.4 — Repositorios Supabase, permisos y seguridad
 
