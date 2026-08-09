@@ -64,13 +64,16 @@ describe("layout data source selection (D-L11, LA-34)", () => {
     expect(context.stockProvider).toBeDefined();
   });
 
-  it("does not silently fall back to demo for supabase in 3.3 (wired in 3.4)", async () => {
+  it("wires the supabase source with RLS-scoped repositories (LA-34)", async () => {
     const { createLayoutContext } = await import(
       "@/features/layout/infrastructure/repository-selection"
     );
-    const { RepositoryConfigurationError } = await import(
-      "@/features/layout/domain"
+    const { SupabaseLayoutRepository, SupabaseLayoutAuditRepository } = await import(
+      "@/features/layout/infrastructure"
     );
-    expect(() => createLayoutContext("supabase")).toThrow(RepositoryConfigurationError);
+    const context = createLayoutContext("supabase");
+    expect(context.layoutRepository).toBeInstanceOf(SupabaseLayoutRepository);
+    expect(context.auditRepository).toBeInstanceOf(SupabaseLayoutAuditRepository);
+    expect(context.stockProvider).toBeDefined();
   });
 });

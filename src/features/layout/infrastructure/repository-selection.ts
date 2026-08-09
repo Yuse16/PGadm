@@ -10,6 +10,10 @@ import { DemoLayoutRepository } from "./demo-layout-repository";
 import { DemoLayoutReferenceCatalog } from "./demo-layout-reference-catalog";
 import { DemoLayoutStockProvider } from "./demo-layout-stock-provider";
 import { NoopLayoutAuditRepository } from "./noop-layout-audit-repository";
+import { SupabaseLayoutAuditRepository } from "./supabase-layout-audit-repository";
+import { SupabaseLayoutReferenceCatalog } from "./supabase-layout-reference-catalog";
+import { SupabaseLayoutRepository } from "./supabase-layout-repository";
+import { SupabaseLayoutStockProvider } from "./supabase-layout-stock-provider";
 
 export const LAYOUT_DATA_SOURCES = ["demo", "supabase"] as const;
 export type LayoutDataSource = (typeof LAYOUT_DATA_SOURCES)[number];
@@ -24,10 +28,6 @@ export const LAYOUT_DATA_SOURCE_LABELS: Record<LayoutDataSource, string> = {
  * matching the catalog/inventory features. The selection is deterministic:
  * `LAYOUT_DATA_SOURCE` env var, or the documented default. It is never a
  * silent runtime fallback after a failed read (D-L11/D031).
- *
- * Subphase 3.4 wires the `supabase` source (RLS-scoped repositories + audit +
- * reference/stock providers). Until then, selecting `supabase` raises a typed
- * RepositoryConfigurationError instead of silently falling back to demo.
  */
 const DEFAULT_DATA_SOURCE: LayoutDataSource = "demo";
 
@@ -58,8 +58,8 @@ export interface LayoutRepositories {
 
 /**
  * Builds the full repository set for one data source. There is no partial
- * wiring: demo uses in-memory fakes seeded with the 3.2 fixtures; supabase is
- * wired in subphase 3.4 and errors out deterministically until then.
+ * wiring: demo uses in-memory fakes seeded with the 3.2 fixtures; supabase
+ * uses the RLS-scoped clients against the migration 011 schema.
  */
 export function createLayoutRepositories(
   source: LayoutDataSource = getLayoutDataSource()
@@ -72,9 +72,12 @@ export function createLayoutRepositories(
       stockProvider: new DemoLayoutStockProvider(),
     };
   }
-  throw new RepositoryConfigurationError(
-    "Supabase layout repositories are not wired yet: expected in subphase 3.4 (no silent fallback to demo, D-L11)."
-  );
+  return {
+    layoutRepository: new SupabaseLayoutRepository(),
+    auditRepository: new SupabaseLayoutAuditRepository(),
+    referenceCatalog: new SupabaseLayoutReferenceCatalog(),
+    stockProvider: new SupabaseLayoutStockProvider(),
+  };
 }
 
 export function createLayoutContext(

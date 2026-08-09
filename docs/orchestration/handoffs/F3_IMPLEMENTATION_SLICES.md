@@ -1,12 +1,13 @@
 # F3 — Slices de Implementación (Layout — Fase 3)
-## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.3 en curso
+## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.4 completada, 3.5 pendiente
 
 **Fecha:** 2026-08-08
 **Rama:** `feature/f3-PG-LAYOUT-006-layout`
 
 División de F3 en subfases entregables e incrementales. Subfases 3.1 (kickoff +
-paquete documental) y 3.2 (migración SQL + seed) están **COMPLETADAS**; las subfases
-de implementación **no se inician** hasta aprobación humana e instrucción expresa.
+paquete documental), 3.2 (migración SQL + seed), 3.3 (dominio y casos de uso) y
+3.4 (repositorios supabase + seguridad) están **COMPLETADAS**; las subfases
+restantes **no se inician** hasta aprobación humana e instrucción expresa.
 
 ---
 
@@ -17,11 +18,11 @@ de implementación **no se inician** hasta aprobación humana e instrucción exp
   ↓
 3.2  Migración SQL + seed + verificación DB   ← COMPLETADA
   ↓
-3.3  Dominio y casos de uso (layout, editor, versionado, posiciones, stock)  ← EN CURSO
+3.3  Dominio y casos de uso (layout, editor, versionado, posiciones, stock)  ← COMPLETADA
   ↓
-3.4  Repositorios supabase, permisos y seguridad
+3.4  Repositorios supabase, permisos y seguridad  ← COMPLETADA
   ↓
-3.5  UI / editor (lienzo estructurado, capa base + stock tienda/CEDIS)
+3.5  UI / editor (lienzo estructurado, capa base + stock tienda/CEDIS)  ← PENDIENTE
   ↓
 3.6  Integración stock (port 1C.5/1D) + revisión por cambio + cierre
 ```
@@ -55,7 +56,7 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
   asserts actualizados en `test_identity_rbac_rls.sql`, `test_inventory_stock.sql`,
   `test_organization_rls.sql`.
 
-## 3.3 — Dominio y casos de uso (sin UI) (EN CURSO)
+## 3.3 — Dominio y casos de uso (sin UI) (COMPLETADA)
 
 - `src/features/layout/domain/**`: entidades (Layout, LayoutElement, LayoutPosition,
   LayoutVersionEntry), reglas (editar solo sobre draft, código permanente, no
@@ -70,8 +71,9 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
 - **Definición de terminado:** tests unit de dominio/use cases
   (`src/tests/features/layout/**`); `npm run lint`/`npm run typecheck`/`npm run test`
   en verde.
+- **Resultado:** commit `b808276`; 82 tests de layout, gates en verde.
 
-## 3.4 — Repositorios Supabase, permisos y seguridad
+## 3.4 — Repositorios Supabase, permisos y seguridad (COMPLETADA)
 
 - Repositorio `supabase` (RLS vía `authenticated`), selección por variable de entorno
   `LAYOUT_DATA_SOURCE` con default `"demo"` y **error explícito** sin fallback
@@ -80,6 +82,9 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
 - Tests: LA-22…LA-28 (aislamiento por org, deny-by-default), `admin-separation` y
   `feature-security` de layout.
 - **Definición de terminado:** suite de seguridad F3 en verde + `npm run lint`/`typecheck`.
+- **Resultado:** `supabase-layout-{repository,reference-catalog,audit-repository,stock-provider}`
+  RLS-scoped; `createLayoutContext("supabase")` funcional; `feature-security.test.ts`
+  (6 tests) en verde; gates completos en verde.
 
 ## 3.5 — UI / editor (lienzo estructurado)
 

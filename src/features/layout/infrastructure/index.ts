@@ -32,6 +32,10 @@ export {
 export { DemoLayoutReferenceCatalog } from "./demo-layout-reference-catalog";
 export { DemoLayoutStockProvider } from "./demo-layout-stock-provider";
 export { NoopLayoutAuditRepository } from "./noop-layout-audit-repository";
+export { SupabaseLayoutAuditRepository } from "./supabase-layout-audit-repository";
+export { SupabaseLayoutReferenceCatalog } from "./supabase-layout-reference-catalog";
+export { SupabaseLayoutRepository } from "./supabase-layout-repository";
+export { SupabaseLayoutStockProvider } from "./supabase-layout-stock-provider";
 export {
   LAYOUT_DATA_SOURCES,
   LAYOUT_DATA_SOURCE_LABELS,
