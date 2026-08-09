@@ -43,6 +43,12 @@ export default function HomePage() {
           >
             Preview
           </Link>
+          <Link
+            href="/admin/layout"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Layout
+          </Link>
         </div>
       </div>
     </div>

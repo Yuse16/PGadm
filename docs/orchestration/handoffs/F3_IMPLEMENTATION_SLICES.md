@@ -1,13 +1,13 @@
 # F3 — Slices de Implementación (Layout — Fase 3)
-## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.4 completada, 3.5 pendiente
+## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.5 completada, 3.6 pendiente
 
 **Fecha:** 2026-08-08
 **Rama:** `feature/f3-PG-LAYOUT-006-layout`
 
 División de F3 en subfases entregables e incrementales. Subfases 3.1 (kickoff +
-paquete documental), 3.2 (migración SQL + seed), 3.3 (dominio y casos de uso) y
-3.4 (repositorios supabase + seguridad) están **COMPLETADAS**; las subfases
-restantes **no se inician** hasta aprobación humana e instrucción expresa.
+paquete documental), 3.2 (migración SQL + seed), 3.3 (dominio y casos de uso),
+3.4 (repositorios supabase + seguridad) y 3.5 (UI/editor) están **COMPLETADAS**;
+las subfases restantes **no se inician** hasta aprobación humana e instrucción expresa.
 
 ---
 
@@ -22,7 +22,7 @@ restantes **no se inician** hasta aprobación humana e instrucción expresa.
   ↓
 3.4  Repositorios supabase, permisos y seguridad  ← COMPLETADA
   ↓
-3.5  UI / editor (lienzo estructurado, capa base + stock tienda/CEDIS)  ← PENDIENTE
+3.5  UI / editor (lienzo estructurado, capa base + stock tienda/CEDIS)  ← COMPLETADA
   ↓
 3.6  Integración stock (port 1C.5/1D) + revisión por cambio + cierre
 ```
@@ -86,17 +86,33 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
   RLS-scoped; `createLayoutContext("supabase")` funcional; `feature-security.test.ts`
   (6 tests) en verde; gates completos en verde.
 
-## 3.5 — UI / editor (lienzo estructurado)
+## 3.5 — UI / editor (lienzo estructurado) (COMPLETADA)
 
-- Pantalla `/admin/layout`: lienzo editable con `background_reference` de fondo,
-  elementos arrastrables (mover/rotar/redimensionar/bloquear/ocultar/duplicar),
-  paleta de tipos de mueble/zonas, asignación de producto por búsqueda del catálogo 1C.
-- Solo edición sobre `draft`; botones de publicar/restaurar según permisos
-  (`current_user_permissions()`).
-- Vista de posición: tocar un mueble muestra productos, stock tienda/CEDIS (existencia
-  reportada con fecha), línea, precio, último cambio y alertas (D-L13).
-- **Definición de terminado:** vitest de componentes + `npm run build`; navegación en
+- Server layer: `src/features/layout/server/{context,session,actions,index}.ts`.
+  `requireLayoutSession()` (guard `layout.read` → redirect) + flags de UI derivados de
+  la sesión RLS-scoped (nunca autorizan solos; cada server action re-guarda con
+  `requireLayout*`). `getLayoutContext()`: demo = singleton seed con fixtures,
+  supabase = contexto fresco. 17 server actions envuelven los use cases con
+  `runMutation` (re-guard + org-scope + `ActionResult<T>` sin throw al cliente).
+- Componentes `src/features/layout/components/**`: kit `ui/*` local (badge, button,
+  card, empty-state, toast), `layout-nav`, `layout-list`, `layout-editor`,
+  `element-meta` (labels por tipo, `capacidad_riel`, `metadata.hidden`) y
+  `layout-status-badge` (Borrador/Publicado/Archivado; En orden/Revisar).
+- Páginas: `/admin/layout` (listado con sucursal por layout) y `/admin/layout/[id]`
+  (editor read-only: lienzo 12×6 con grid, elementos posicionados/rotados, ocultos
+  punteados, candado; panel de elementos con posiciones, SKU, estado de revisión y
+  existencia reportada tienda/CEDIS con fecha; historial append-only con restaurar).
+  Link a Layout en `src/app/page.tsx`.
+- Stock: `listPositionsWithStock` sin `warehouseIds` usa las bodegas de la branch
+  (backroom + CEDIS separados, D-L13); sin snapshot = "sin datos", nunca valor
+  fabricado. El editor **nunca** muta inventario (D-L07).
+- **Definición de terminado:** vitest de páginas + `npm run build`; navegación en
   desarrollo sin errores.
+- **Resultado:** `layout-pages.test.tsx` (4 tests) en verde; suite completa
+  **480/480** (57 archivos); `lint`/`typecheck`/`build` en verde.
+- **Nota worktree:** en el worktree `next build` (Turbopack) falla por el junction
+  `node_modules` que apunta fuera del root; `npm run build -- --webpack` compila OK
+  (16 rutas, incluidas `/admin/layout` y `/admin/layout/[id]`).
 
 ## 3.6 — Integración y cierre
 
