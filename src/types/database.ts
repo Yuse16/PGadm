@@ -75,6 +75,39 @@ export type Database = {
         }
         Relationships: []
       }
+      layout_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          detail: string
+          entity_id: string
+          entity_type: string
+          id: string
+          occurred_at: string
+          organization_id: string
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          detail?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          occurred_at?: string
+          organization_id: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          detail?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          occurred_at?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -518,6 +551,297 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "warehouses"
             referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      layout_elements: {
+        Row: {
+          code: string
+          created_at: string
+          element_type: string
+          height: number
+          id: string
+          label: string | null
+          layout_id: string
+          locked: boolean
+          metadata: Json | null
+          organization_id: string
+          rotation: number
+          updated_at: string
+          width: number
+          x: number
+          y: number
+          z_index: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          element_type: string
+          height?: number
+          id?: string
+          label?: string | null
+          layout_id: string
+          locked?: boolean
+          metadata?: Json | null
+          organization_id: string
+          rotation?: number
+          updated_at?: string
+          width?: number
+          x?: number
+          y?: number
+          z_index?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          element_type?: string
+          height?: number
+          id?: string
+          label?: string | null
+          layout_id?: string
+          locked?: boolean
+          metadata?: Json | null
+          organization_id?: string
+          rotation?: number
+          updated_at?: string
+          width?: number
+          x?: number
+          y?: number
+          z_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "layout_elements_layout_organization_fk"
+            columns: ["organization_id", "layout_id"]
+            isOneToOne: false
+            referencedRelation: "layouts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layout_elements_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      layout_positions: {
+        Row: {
+          active_from: string | null
+          active_to: string | null
+          created_at: string
+          element_id: string
+          id: string
+          organization_id: string
+          position_code: string
+          review_status: string
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          active_from?: string | null
+          active_to?: string | null
+          created_at?: string
+          element_id: string
+          id?: string
+          organization_id: string
+          position_code: string
+          review_status?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          active_from?: string | null
+          active_to?: string | null
+          created_at?: string
+          element_id?: string
+          id?: string
+          organization_id?: string
+          position_code?: string
+          review_status?: string
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "layout_positions_element_organization_fk"
+            columns: ["organization_id", "element_id"]
+            isOneToOne: false
+            referencedRelation: "layout_elements"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layout_positions_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "layout_positions_variant_organization_fk"
+            columns: ["organization_id", "variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      layout_version_history: {
+        Row: {
+          change_type: string
+          changed_by: string
+          created_at: string
+          destination: string | null
+          element_id: string | null
+          id: string
+          layout_id: string
+          new_variant_id: string | null
+          organization_id: string
+          origin: string | null
+          position_id: string | null
+          previous_variant_id: string | null
+          reason: string | null
+          version: number
+        }
+        Insert: {
+          change_type: string
+          changed_by: string
+          created_at?: string
+          destination?: string | null
+          element_id?: string | null
+          id?: string
+          layout_id: string
+          new_variant_id?: string | null
+          organization_id: string
+          origin?: string | null
+          position_id?: string | null
+          previous_variant_id?: string | null
+          reason?: string | null
+          version: number
+        }
+        Update: {
+          change_type?: string
+          changed_by?: string
+          created_at?: string
+          destination?: string | null
+          element_id?: string | null
+          id?: string
+          layout_id?: string
+          new_variant_id?: string | null
+          organization_id?: string
+          origin?: string | null
+          position_id?: string | null
+          previous_variant_id?: string | null
+          reason?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "layout_version_history_changed_by_fk"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "layout_version_history_element_organization_fk"
+            columns: ["organization_id", "element_id"]
+            isOneToOne: false
+            referencedRelation: "layout_elements"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layout_version_history_layout_organization_fk"
+            columns: ["organization_id", "layout_id"]
+            isOneToOne: false
+            referencedRelation: "layouts"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layout_version_history_new_variant_organization_fk"
+            columns: ["organization_id", "new_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layout_version_history_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "layout_version_history_position_organization_fk"
+            columns: ["organization_id", "position_id"]
+            isOneToOne: false
+            referencedRelation: "layout_positions"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layout_version_history_previous_variant_organization_fk"
+            columns: ["organization_id", "previous_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      layouts: {
+        Row: {
+          background_reference: string | null
+          branch_id: string
+          created_at: string
+          height: number | null
+          id: string
+          name: string
+          organization_id: string
+          status: string
+          updated_at: string
+          version: number
+          width: number | null
+        }
+        Insert: {
+          background_reference?: string | null
+          branch_id: string
+          created_at?: string
+          height?: number | null
+          id?: string
+          name: string
+          organization_id: string
+          status?: string
+          updated_at?: string
+          version?: number
+          width?: number | null
+        }
+        Update: {
+          background_reference?: string | null
+          branch_id?: string
+          created_at?: string
+          height?: number | null
+          id?: string
+          name?: string
+          organization_id?: string
+          status?: string
+          updated_at?: string
+          version?: number
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "layouts_branch_organization_fk"
+            columns: ["organization_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "layouts_organization_fk"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
