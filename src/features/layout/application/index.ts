@@ -72,3 +72,12 @@ export type {
   ListPositionsWithStockInput,
   PositionWithStock,
 } from "./position-use-cases";
+export {
+  detectStockChanges,
+  suggestCompatibleReplacement,
+} from "./stock-change-use-cases";
+export type {
+  DetectStockChangesInput,
+  DetectStockChangesResult,
+  SuggestCompatibleReplacementInput,
+} from "./stock-change-use-cases";

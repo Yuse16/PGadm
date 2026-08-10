@@ -3,6 +3,7 @@ import {
   getLayout,
   listPositionsWithStock,
   listVersionHistory,
+  suggestCompatibleReplacement,
 } from "@/features/layout/application";
 import type { LayoutNotFoundError } from "@/features/layout/domain";
 import { LayoutEditor } from "@/features/layout/components/layout-editor";
@@ -88,6 +89,23 @@ export default async function LayoutDetailPage({
     })
   );
 
+  const suggestions = new Map<string, { id: string; sku: string }>();
+  await Promise.all(
+    positions
+      .filter((position) => position.reviewStatus === "needs_review")
+      .map(async (position) => {
+        const suggestion = await suggestCompatibleReplacement(access.context, {
+          actor: access.actor,
+          organizationId: access.organizationId,
+          layoutId: id,
+          positionId: position.id,
+        });
+        if (suggestion !== null) {
+          suggestions.set(position.id, suggestion);
+        }
+      })
+  );
+
   return (
     <LayoutEditor
       layout={layout}
@@ -96,6 +114,7 @@ export default async function LayoutDetailPage({
       history={history}
       branch={branch}
       variantByVariantId={variantByVariantId}
+      suggestions={suggestions}
       permissions={access.permissions}
     />
   );

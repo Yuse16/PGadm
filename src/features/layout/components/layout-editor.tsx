@@ -10,6 +10,8 @@ import type { PositionWithStock } from "@/features/layout/application";
 import type { LayoutPermissions } from "@/features/layout/server";
 import {
   archiveLayoutAction,
+  confirmReplacementAction,
+  detectStockChangesAction,
   publishLayoutAction,
   restoreVersionAction,
 } from "@/features/layout/server";
@@ -34,6 +36,14 @@ async function submitRestore(layoutId: string, version: number): Promise<void> {
   await restoreVersionAction(layoutId, version);
 }
 
+async function submitDetectStockChanges(layoutId: string): Promise<void> {
+  await detectStockChangesAction(layoutId);
+}
+
+async function submitConfirmReplacement(positionId: string, variantId: string): Promise<void> {
+  await confirmReplacementAction(positionId, variantId);
+}
+
 export function LayoutEditor({
   layout,
   elements,
@@ -41,6 +51,7 @@ export function LayoutEditor({
   history,
   branch,
   variantByVariantId,
+  suggestions,
   permissions,
 }: {
   layout: Layout;
@@ -49,9 +60,11 @@ export function LayoutEditor({
   history: LayoutVersionEntry[];
   branch: BranchReference | null;
   variantByVariantId: ReadonlyMap<string, VariantReference>;
+  suggestions: ReadonlyMap<string, VariantReference>;
   permissions: LayoutPermissions;
 }) {
   const isDraft = layout.status === "draft";
+  const canConfirm = isDraft && permissions.canEdit;
   const positionsByElement = new Map<string, PositionWithStock[]>();
   for (const entry of positionsWithStock) {
     const bucket = positionsByElement.get(entry.position.elementId) ?? [];
@@ -98,6 +111,13 @@ export function LayoutEditor({
               </dl>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
+              {canConfirm ? (
+                <form action={submitDetectStockChanges.bind(null, layout.id)}>
+                  <Button type="submit" variant="secondary">
+                    Detectar cambios de stock
+                  </Button>
+                </form>
+              ) : null}
               {isDraft && permissions.canPublish ? (
                 <form action={submitPublish.bind(null, layout.id)}>
                   <Button type="submit" variant="primary">
@@ -158,6 +178,8 @@ export function LayoutEditor({
                   element={element}
                   entries={positionsByElement.get(element.id) ?? []}
                   variantByVariantId={variantByVariantId}
+                  suggestions={suggestions}
+                  canConfirm={canConfirm}
                 />
               ))}
             </div>
@@ -277,10 +299,14 @@ function ElementPanel({
   element,
   entries,
   variantByVariantId,
+  suggestions,
+  canConfirm,
 }: {
   element: LayoutElement;
   entries: PositionWithStock[];
   variantByVariantId: ReadonlyMap<string, VariantReference>;
+  suggestions: ReadonlyMap<string, VariantReference>;
+  canConfirm: boolean;
 }) {
   const hidden = isElementHidden(element);
   return (
@@ -306,6 +332,10 @@ function ElementPanel({
         <ul className="mt-3 space-y-2">
           {entries.map(({ position, stock }) => {
             const variant = position.variantId !== null ? variantByVariantId.get(position.variantId) : undefined;
+            const suggestion =
+              position.reviewStatus === "needs_review" && position.variantId !== null
+                ? suggestions.get(position.id)
+                : undefined;
             return (
               <li key={position.id} className="rounded-md border border-gray-100 bg-gray-50 px-3 py-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -321,6 +351,23 @@ function ElementPanel({
                 </div>
                 {position.variantId !== null ? (
                   <StockRows stock={stock} />
+                ) : null}
+                {position.reviewStatus === "needs_review" && suggestion !== undefined ? (
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2">
+                    <p className="text-xs text-gray-700">
+                      <span className="font-medium">Reemplazo sugerido:</span>{" "}
+                      SKU {suggestion.sku}
+                    </p>
+                    {canConfirm ? (
+                      <form
+                        action={submitConfirmReplacement.bind(null, position.id, suggestion.id)}
+                      >
+                        <Button type="submit" variant="outline" size="sm">
+                          Confirmar reemplazo
+                        </Button>
+                      </form>
+                    ) : null}
+                  </div>
                 ) : null}
               </li>
             );

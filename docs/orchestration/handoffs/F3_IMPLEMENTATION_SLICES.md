@@ -1,12 +1,13 @@
 # F3 — Slices de Implementación (Layout — Fase 3)
-## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.5 completada, 3.6 pendiente
+## Estado: kickoff APROBADO — D-L01…D-L14 APPROVED (2026-08-08); 3.1…3.6 COMPLETADAS
 
 **Fecha:** 2026-08-08
 **Rama:** `feature/f3-PG-LAYOUT-006-layout`
 
 División de F3 en subfases entregables e incrementales. Subfases 3.1 (kickoff +
 paquete documental), 3.2 (migración SQL + seed), 3.3 (dominio y casos de uso),
-3.4 (repositorios supabase + seguridad) y 3.5 (UI/editor) están **COMPLETADAS**;
+3.4 (repositorios supabase + seguridad), 3.5 (UI/editor) y 3.6 (integración stock +
+cierre) están **COMPLETADAS**;
 las subfases restantes **no se inician** hasta aprobación humana e instrucción expresa.
 
 ---
@@ -24,7 +25,7 @@ las subfases restantes **no se inician** hasta aprobación humana e instrucción
   ↓
 3.5  UI / editor (lienzo estructurado, capa base + stock tienda/CEDIS)  ← COMPLETADA
   ↓
-3.6  Integración stock (port 1C.5/1D) + revisión por cambio + cierre
+3.6  Integración stock (port 1C.5/1D) + revisión por cambio + cierre  ← COMPLETADA
 ```
 
 Cada slice: definición de terminado clara, repositorios demo + supabase **sin
@@ -114,15 +115,35 @@ fallback silencioso** (patrón D031/D-C22/D-I12/D-L11), sin `service_role` en cl
   `node_modules` que apunta fuera del root; `npm run build -- --webpack` compila OK
   (16 rutas, incluidas `/admin/layout` y `/admin/layout/[id]`).
 
-## 3.6 — Integración y cierre
+## 3.6 — Integración y cierre (COMPLETADA)
 
-- Poblar stock real de 1D en el port de 1C.5/1D (`getIntegrationSummary`) para el
-  layout (reemplaza Noop si no se hizo antes).
 - Detección de cambio de stock → `review_status='needs_review'` + sugerencia de
   reemplazo compatible (D-L07); confirmación del usuario.
-- Verificación final: `npm run validate`, `npm run db:verify`, no-regresión E2E.
+- `stock-change-use-cases.ts`: `detectStockChanges` (require `LAYOUT_EDIT` +
+  `requireEditableLayout`/draft, D-L04) marca `needs_review` solo si la variante
+  asignada reporta existencia total 0 en **todas** las bodegas de la branch; ignora
+  posiciones ya en revisión y posiciones vacías; nunca reasigna (D-L07); audita
+  `element_edited` con detalle "Cambio de stock detectado: …". `suggestCompatibleReplacement`
+  (require `LAYOUT_READ`) devuelve el primer candidato de `findCompatibleVariants`
+  con existencia reportada > 0, o `null`.
+- Port `findCompatibleVariants` en `domain/reference.ts`: demo
+  (`demo-layout-reference-catalog.ts`, variantes `051/052` → producto `041`;
+  `053` → producto `042`) y supabase (`supabase-layout-reference-catalog.ts`,
+  `VariantLookupRepository` inyectable, default `SupabaseProductRepository`; filtra
+  `candidate.id !== variantId && status === 'active'`). Disponibilidad la decide el
+  caller vía el port de stock (identidad y disponibilidad separadas).
+- UI: botón "Detectar cambios de stock" en el header del editor (draft + canEdit);
+  bloque "Reemplazo sugerido: SKU …" con botón "Confirmar reemplazo" por posición en
+  revisión con sugerencia (visible solo si `canConfirm` = draft + canEdit; el texto
+  informativo se muestra siempre). `confirmReplacementAction` + `detectStockChangesAction`
+  en `server/actions.ts` (re-guard + org-scope + `ActionResult<T>`).
 - **Definición de terminado:** cierre de F3; commit de integración y handoff de la
   siguiente fase (ventas y CRM, Fase 4).
+- **Resultado:** +20 tests (14 `stock-change-use-cases`, 4 `supabase-reference-catalog`
+  con stub de `VariantLookupRepository`, 2 UI en `layout-pages`) → suite **500/500**
+  (59 archivos); `lint`/`typecheck`/`build --webpack`/`db:verify` (748 tests SQL) en
+  verde; `e2e:auth` y `e2e:identity` PASS (script actualizado con permisos `layout.*`
+  por rol: manager edit+publish+read, cashier/operator read).
 
 ## Notas de secuenciación
 

@@ -29,4 +29,14 @@ export interface LayoutReferenceCatalog {
   findWarehouseById(organizationId: string, warehouseId: string): Promise<WarehouseReference | null>;
   /** Warehouses that serve the layout stock view: store backroom + CEDIS, separated (D-L13). */
   findWarehousesForBranch(organizationId: string, branchId: string): Promise<WarehouseReference[]>;
+  /**
+   * Candidate compatible replacements for a variant: the other active variants
+   * of the same product (same family), excluding the variant itself. Identity
+   * only — stock availability is decided by the caller via the stock port
+   * (D-L07: the layout never auto-reassigns; it only suggests).
+   */
+  findCompatibleVariants(
+    organizationId: string,
+    variantId: string
+  ): Promise<VariantReference[]>;
 }

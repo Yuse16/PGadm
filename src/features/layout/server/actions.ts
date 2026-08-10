@@ -7,6 +7,7 @@ import {
   assignProduct,
   confirmReplacement,
   createLayout,
+  detectStockChanges,
   duplicateElement,
   hideElement,
   layoutActorFromIdentitySession,
@@ -138,6 +139,14 @@ export async function restoreVersionAction(
 ): Promise<ActionResult<Awaited<ReturnType<typeof restoreVersion>>>> {
   return runMutation(requireLayoutPublish, (context, actor, organizationId) =>
     restoreVersion(context, { actor, organizationId, layoutId, version })
+  );
+}
+
+export async function detectStockChangesAction(
+  layoutId: string
+): Promise<ActionResult<Awaited<ReturnType<typeof detectStockChanges>>>> {
+  return runMutation(requireLayoutEdit, (context, actor, organizationId) =>
+    detectStockChanges(context, { actor, organizationId, layoutId })
   );
 }
 

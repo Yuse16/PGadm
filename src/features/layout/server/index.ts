@@ -12,6 +12,7 @@ export {
   archiveLayoutAction,
   publishLayoutAction,
   restoreVersionAction,
+  detectStockChangesAction,
   addElementAction,
   moveElementAction,
   rotateElementAction,

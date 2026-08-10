@@ -134,4 +134,131 @@ describe("Layout admin pages (demo data source)", () => {
       "/admin/layout"
     );
   });
+
+  it("shows the stock-change actions and a confirm button for a flagged position with a suggestion", async () => {
+    const { LayoutEditor } = await import("@/features/layout/components/layout-editor");
+    const { getLayout, listPositionsWithStock, listVersionHistory } = await import(
+      "@/features/layout/application"
+    );
+    const {
+      ADMIN,
+      LAYOUT_NOGALERA,
+      ORG_A,
+      POSITION_M1_01_RF_P01,
+      VARIANT_051,
+      VARIANT_052,
+      actor,
+      makeContext,
+    } = await import("./helpers");
+
+    const context = makeContext();
+    const detail = await getLayout(context, {
+      actor: actor(ADMIN),
+      organizationId: ORG_A,
+      layoutId: LAYOUT_NOGALERA,
+    });
+    const positionsWithStock = await listPositionsWithStock(context, {
+      actor: actor(ADMIN),
+      organizationId: ORG_A,
+      layoutId: LAYOUT_NOGALERA,
+    });
+    const history = await listVersionHistory(context, {
+      actor: actor(ADMIN),
+      organizationId: ORG_A,
+      layoutId: LAYOUT_NOGALERA,
+    });
+
+    renderLayout(
+      <LayoutEditor
+        layout={detail.layout}
+        elements={detail.elements}
+        positionsWithStock={positionsWithStock}
+        history={history}
+        branch={null}
+        variantByVariantId={
+          new Map([
+            [VARIANT_051, { id: VARIANT_051, sku: "7500000000017" }],
+            [VARIANT_052, { id: VARIANT_052, sku: "7500000000031" }],
+          ])
+        }
+        suggestions={
+          new Map([
+            [POSITION_M1_01_RF_P01, { id: VARIANT_052, sku: "7500000000031" }],
+          ])
+        }
+        permissions={{ canEdit: true, canPublish: true, canManage: true }}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Detectar cambios de stock" })
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Reemplazo sugerido:").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Confirmar reemplazo" })).toBeInTheDocument();
+  });
+
+  it("hides the stock-change actions and confirm button in read-only mode", async () => {
+    const { LayoutEditor } = await import("@/features/layout/components/layout-editor");
+    const { getLayout, listPositionsWithStock, listVersionHistory } = await import(
+      "@/features/layout/application"
+    );
+    const {
+      ADMIN,
+      LAYOUT_NOGALERA,
+      ORG_A,
+      POSITION_M1_01_RF_P01,
+      VARIANT_051,
+      VARIANT_052,
+      actor,
+      makeContext,
+    } = await import("./helpers");
+
+    const context = makeContext();
+    const detail = await getLayout(context, {
+      actor: actor(ADMIN),
+      organizationId: ORG_A,
+      layoutId: LAYOUT_NOGALERA,
+    });
+    const positionsWithStock = await listPositionsWithStock(context, {
+      actor: actor(ADMIN),
+      organizationId: ORG_A,
+      layoutId: LAYOUT_NOGALERA,
+    });
+    const history = await listVersionHistory(context, {
+      actor: actor(ADMIN),
+      organizationId: ORG_A,
+      layoutId: LAYOUT_NOGALERA,
+    });
+
+    renderLayout(
+      <LayoutEditor
+        layout={detail.layout}
+        elements={detail.elements}
+        positionsWithStock={positionsWithStock}
+        history={history}
+        branch={null}
+        variantByVariantId={
+          new Map([
+            [VARIANT_051, { id: VARIANT_051, sku: "7500000000017" }],
+            [VARIANT_052, { id: VARIANT_052, sku: "7500000000031" }],
+          ])
+        }
+        suggestions={
+          new Map([
+            [POSITION_M1_01_RF_P01, { id: VARIANT_052, sku: "7500000000031" }],
+          ])
+        }
+        permissions={{ canEdit: false, canPublish: false, canManage: false }}
+      />
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Detectar cambios de stock" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Confirmar reemplazo" })
+    ).not.toBeInTheDocument();
+    // The suggestion itself is informational and still rendered.
+    expect(screen.getAllByText("Reemplazo sugerido:").length).toBeGreaterThan(0);
+  });
 });

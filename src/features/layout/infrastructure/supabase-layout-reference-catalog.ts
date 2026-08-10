@@ -7,7 +7,15 @@ import type {
   WarehouseReference,
 } from "../domain";
 import { RepositoryConfigurationError } from "../domain";
+import type { ProductRepository } from "../../catalog/domain/catalog-repository";
 import { SupabaseProductRepository } from "../../catalog/infrastructure/supabase-catalog-repository";
+
+/**
+ * Minimal variant lookup used by the layout reference catalog. Kept as a
+ * structural subset of `ProductRepository` so tests can stub just the two
+ * methods the layout needs.
+ */
+type VariantLookupRepository = Pick<ProductRepository, "findVariantById" | "listVariantsByProduct">;
 
 /**
  * Supabase reference catalog for layout use cases (3.4). Branches are looked up
@@ -18,6 +26,9 @@ import { SupabaseProductRepository } from "../../catalog/infrastructure/supabase
  * the database through the RLS-scoped client, never a client payload.
  */
 export class SupabaseLayoutReferenceCatalog implements LayoutReferenceCatalog {
+  constructor(
+    private readonly productRepository: VariantLookupRepository = new SupabaseProductRepository()
+  ) {}
   async findBranchById(
     organizationId: string,
     branchId: string
@@ -43,11 +54,31 @@ export class SupabaseLayoutReferenceCatalog implements LayoutReferenceCatalog {
     organizationId: string,
     variantId: string
   ): Promise<VariantReference | null> {
-    const variant = await new SupabaseProductRepository().findVariantById(
+    const variant = await this.productRepository.findVariantById(
       organizationId,
       variantId
     );
     return variant ? { id: variant.id, sku: variant.sku } : null;
+  }
+
+  async findCompatibleVariants(
+    organizationId: string,
+    variantId: string
+  ): Promise<VariantReference[]> {
+    const variant = await this.productRepository.findVariantById(
+      organizationId,
+      variantId
+    );
+    if (variant === null) {
+      return [];
+    }
+    const siblings = await this.productRepository.listVariantsByProduct(
+      organizationId,
+      variant.productId
+    );
+    return siblings
+      .filter((candidate) => candidate.id !== variantId && candidate.status === "active")
+      .map((candidate) => ({ id: candidate.id, sku: candidate.sku }));
   }
 
   async findWarehouseById(

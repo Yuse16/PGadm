@@ -22,6 +22,24 @@ const VARIANTS: VariantReference[] = [
   { id: "70000000-0000-0000-0000-000000000053", sku: "7500000000048" },
 ];
 
+// Same product family (1C fixtures): variants 051 and 052 belong to product
+// ...041; variant 053 is the only variant of product ...042. Used by
+// findCompatibleVariants (D-L07: identity only, availability is decided by the
+// stock port).
+const VARIANT_PRODUCT: Record<string, string> = {
+  "70000000-0000-0000-0000-000000000051": "70000000-0000-0000-0000-000000000041",
+  "70000000-0000-0000-0000-000000000052": "70000000-0000-0000-0000-000000000041",
+  "70000000-0000-0000-0000-000000000053": "70000000-0000-0000-0000-000000000042",
+};
+
+const PRODUCT_VARIANTS: Record<string, string[]> = {
+  "70000000-0000-0000-0000-000000000041": [
+    "70000000-0000-0000-0000-000000000051",
+    "70000000-0000-0000-0000-000000000052",
+  ],
+  "70000000-0000-0000-0000-000000000042": ["70000000-0000-0000-0000-000000000053"],
+};
+
 const WAREHOUSES: WarehouseReference[] = [
   { id: DEMO_WAREHOUSE_NOG_01, code: "NOG-01", warehouseType: "store_backroom" },
   { id: DEMO_WAREHOUSE_SAL_01, code: "SAL-01", warehouseType: "distribution" },
@@ -73,5 +91,22 @@ export class DemoLayoutReferenceCatalog implements LayoutReferenceCatalog {
     }
     // Store backroom + CEDIS, kept separate in the stock view (D-L13).
     return WAREHOUSES;
+  }
+
+  async findCompatibleVariants(
+    organizationId: string,
+    variantId: string
+  ): Promise<VariantReference[]> {
+    if (organizationId !== DEMO_ORG_PGM) {
+      return [];
+    }
+    const productId = VARIANT_PRODUCT[variantId];
+    if (productId === undefined) {
+      return [];
+    }
+    return (PRODUCT_VARIANTS[productId] ?? [])
+      .filter((candidateId) => candidateId !== variantId)
+      .map((candidateId) => VARIANTS.find((entry) => entry.id === candidateId))
+      .filter((variant): variant is VariantReference => variant !== undefined);
   }
 }
