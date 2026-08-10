@@ -217,7 +217,7 @@ select is(
 -- ============================================================
 
 select is((select count(*)::int from public.permissions where code like 'layout.%'), 4, 'seed defines 4 layout.* permissions (D-L10, LA-29)');
-select is((select count(*)::int from public.permissions), 19, 'total permissions = 19 (15 + 4 layout.*)');
+select is((select count(*)::int from public.permissions), 25, 'total permissions = 25 (15 + 4 layout.* + 6 sales.*)');
 select is((select count(*)::int from public.role_permissions rp join public.permissions p on p.id = rp.permission_id where rp.role_id = '40000000-0000-0000-0000-000000000001' and p.code like 'layout.%'), 4, 'administrator role has all 4 layout permissions');
 select is((select count(*)::int from public.role_permissions rp join public.permissions p on p.id = rp.permission_id where rp.role_id = '40000000-0000-0000-0000-000000000002' and p.code like 'layout.%'), 3, 'manager role has read/edit/publish (no manage)');
 select is((select count(*)::int from public.role_permissions rp join public.permissions p on p.id = rp.permission_id where rp.role_id = '40000000-0000-0000-0000-000000000003' and p.code like 'layout.%'), 1, 'cashier role has layout.read only');

@@ -176,7 +176,13 @@ values
   ('50000000-0000-0000-0000-000000000016', 'layout.read', 'Read layout plans, elements, positions and version history'),
   ('50000000-0000-0000-0000-000000000017', 'layout.edit', 'Edit draft layouts: add/move/rotate/resize/lock/hide/duplicate elements and assign products'),
   ('50000000-0000-0000-0000-000000000018', 'layout.publish', 'Publish layout versions (draft -> published) and restore versions'),
-  ('50000000-0000-0000-0000-000000000019', 'layout.manage', 'Manage layouts: archive/rename, soft-retire drafts and reassign store')
+  ('50000000-0000-0000-0000-000000000019', 'layout.manage', 'Manage layouts: archive/rename, soft-retire drafts and reassign store'),
+  ('50000000-0000-0000-0000-000000000020', 'sales.read', 'Read sales data: quotations, customers, manual captures, budgets and CEDIS requests'),
+  ('50000000-0000-0000-0000-000000000021', 'sales.quote', 'Create/edit/duplicate own quotations and create own customers'),
+  ('50000000-0000-0000-0000-000000000022', 'sales.capture_own', 'Capture own daily manual sales'),
+  ('50000000-0000-0000-0000-000000000023', 'sales.edit_all', 'View and correct all sales and quotations; correct captures with history (manager)'),
+  ('50000000-0000-0000-0000-000000000024', 'sales.budget_manage', 'Configure sales budgets per store and per seller'),
+  ('50000000-0000-0000-0000-000000000025', 'sales.cedis_request', 'Create CEDIS requests from quotations')
 on conflict do nothing;
 
 -- Roles: one global (administrator), organization-scoped for PGM and Demo B
@@ -198,23 +204,29 @@ join public.permissions p on (
     'role.manage', 'user.assign', 'catalog.read', 'catalog.create',
     'catalog.update', 'catalog.archive', 'catalog.manage',
     'inventory.read', 'inventory.import', 'inventory.approve', 'inventory.observe',
-    'layout.read', 'layout.edit', 'layout.publish', 'layout.manage'
+    'layout.read', 'layout.edit', 'layout.publish', 'layout.manage',
+    'sales.read', 'sales.quote', 'sales.capture_own', 'sales.edit_all',
+    'sales.budget_manage', 'sales.cedis_request'
   )
   or r.id = '40000000-0000-0000-0000-000000000002' and p.code in (
     'organization.read', 'organization.write', 'branch.read', 'warehouse.read',
     'catalog.read', 'catalog.create', 'catalog.update',
     'inventory.read', 'inventory.import', 'inventory.approve', 'inventory.observe',
-    'layout.read', 'layout.edit', 'layout.publish'
+    'layout.read', 'layout.edit', 'layout.publish',
+    'sales.read', 'sales.quote', 'sales.capture_own', 'sales.edit_all',
+    'sales.budget_manage', 'sales.cedis_request'
   )
   or r.id = '40000000-0000-0000-0000-000000000003' and p.code in (
     'organization.read', 'branch.read', 'catalog.read',
     'inventory.read', 'inventory.observe',
-    'layout.read'
+    'layout.read',
+    'sales.read', 'sales.quote', 'sales.capture_own', 'sales.cedis_request'
   )
   or r.id = '40000000-0000-0000-0000-000000000004' and p.code in (
     'organization.read', 'catalog.read',
     'inventory.read', 'inventory.observe',
-    'layout.read'
+    'layout.read',
+    'sales.read'
   )
 )
 on conflict do nothing;
@@ -835,6 +847,161 @@ values
    'A0000000-0000-0000-0000-000000000011', 'A0000000-0000-0000-0000-000000000103',
    '70000000-0000-0000-0000-000000000051', null, 'picking', 'Retirar producto de la posición',
    '30000000-0000-0000-0000-000000000006')
+on conflict (id) do nothing;
+
+commit;
+
+-- ============================================================
+-- F4.2 sales demo fixtures (Phase 4.2)
+-- Org-scoped demo data for PGM only (D-V01..D-V14): 3 minimal customers,
+-- 2 quotations with items (snapshot of 1C price/coverage, D-V04), 3 daily
+-- manual captures (one per seller/branch/day, D-V07), 3 monthly budgets
+-- (store + per seller, D-V11) and 1 CEDIS request tied to a quotation
+-- (D-V06). Variants/sellers/branches reuse exact existing fixtures: 051/052/053
+-- (1C PGM), profiles 001 (user_A) / 003 (user_X), branch NOG. The approved
+-- model (D-V02) has no explicit item quantity column: piece/box quantity is
+-- implied by box_quantity (closed box) and the snapshot unit_price/line_total.
+-- Fixed UUIDs in the B0000000-... range keep the fixtures deterministic and
+-- idempotent (ON CONFLICT (id) DO NOTHING). Writes run as the owner
+-- (postgres), so RLS deny-by-default is bypassed as in the other sections.
+-- ============================================================
+
+begin;
+
+-- Customers: minimal customer, enough to quote (D-V01/D-V02).
+insert into public.customers (
+  id, organization_id, name, phone, whatsapp, assigned_seller_id, status
+)
+values
+  ('B0000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001',
+   'Construcciones Del Norte', '+52 844 123 4567', '+52 844 123 4567',
+   '30000000-0000-0000-0000-000000000003', 'active'),
+  ('B0000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001',
+   'Mueblería San José', '+52 844 765 4321', null,
+   '30000000-0000-0000-0000-000000000003', 'active'),
+  ('B0000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001',
+   'Doña Carmen Reyes', null, '+52 844 555 0199',
+   '30000000-0000-0000-0000-000000000001', 'active')
+on conflict (id) do nothing;
+
+-- Quotations: one sent + one draft, folio unique per org (D-V02/D-V08/D-V14).
+insert into public.quotations (
+  id, organization_id, folio, customer_id, seller_id, branch_id, status,
+  subtotal, total, valid_until, delivery_status, observations
+)
+values
+  ('B0000000-0000-0000-0000-000000000011', '10000000-0000-0000-0000-000000000001',
+   'COT-2026-0001', 'B0000000-0000-0000-0000-000000000001',
+   '30000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002',
+   'sent', 2167.00, 2167.00, '2026-09-10 00:00:00+00', 'immediate',
+   'Entrega inmediata disponible en tienda'),
+  ('B0000000-0000-0000-0000-000000000012', '10000000-0000-0000-0000-000000000001',
+   'COT-2026-0002', 'B0000000-0000-0000-0000-000000000002',
+   '30000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002',
+   'draft', 4855.00, 4855.00, null, 'insufficient',
+   'Se requiere solicitud a CEDIS para cubrir las cajas')
+on conflict (id) do nothing;
+
+-- Quotation items: snapshot of 1C price/coverage at quoting time (D-V04).
+insert into public.quotation_items (
+  id, organization_id, quotation_id, variant_id, sale_unit_id,
+  reference_price, base_units_per_sale_unit, pieces_per_box,
+  square_meters_per_box, area_square_meters, waste_percent, box_quantity,
+  unit_price, line_total, complement_of_id, sort_order
+)
+values
+  ('B0000000-0000-0000-0000-000000000021', '10000000-0000-0000-0000-000000000001',
+   'B0000000-0000-0000-0000-000000000011', '70000000-0000-0000-0000-000000000051',
+   '70000000-0000-0000-0000-000000000001',
+   42.5000, 1, null, null, null, null, null, 42.5000, 425.00, null, 1),
+  ('B0000000-0000-0000-0000-000000000022', '10000000-0000-0000-0000-000000000001',
+   'B0000000-0000-0000-0000-000000000011', '70000000-0000-0000-0000-000000000052',
+   '70000000-0000-0000-0000-000000000006',
+   1000.0000, 25, 25, null, null, null, 1, 1000.0000, 1000.00, null, 2),
+  ('B0000000-0000-0000-0000-000000000023', '10000000-0000-0000-0000-000000000001',
+   'B0000000-0000-0000-0000-000000000011', '70000000-0000-0000-0000-000000000053',
+   '70000000-0000-0000-0000-000000000001',
+   185.5000, 1, null, null, null, null, null, 185.5000, 742.00, null, 3),
+  ('B0000000-0000-0000-0000-000000000024', '10000000-0000-0000-0000-000000000001',
+   'B0000000-0000-0000-0000-000000000012', '70000000-0000-0000-0000-000000000052',
+   '70000000-0000-0000-0000-000000000006',
+   1000.0000, 25, 25, null, null, null, 3, 1000.0000, 3000.00, null, 1),
+  ('B0000000-0000-0000-0000-000000000025', '10000000-0000-0000-0000-000000000001',
+   'B0000000-0000-0000-0000-000000000012', '70000000-0000-0000-0000-000000000053',
+   '70000000-0000-0000-0000-000000000001',
+   185.5000, 1, null, null, null, null, null, 185.5000, 1855.00, null, 2)
+on conflict (id) do nothing;
+
+-- Manual sale entries: one capture per seller/branch/day (D-V07).
+insert into public.manual_sale_entries (
+  id, organization_id, seller_id, branch_id, sale_date,
+  sales_amount, tickets_count, returns_amount, comment
+)
+values
+  ('B0000000-0000-0000-0000-000000000031', '10000000-0000-0000-0000-000000000001',
+   '30000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002',
+   '2026-08-04', 12450.50, 18, 0, null),
+  ('B0000000-0000-0000-0000-000000000032', '10000000-0000-0000-0000-000000000001',
+   '30000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000002',
+   '2026-08-05', 9800.00, 14, 320.00, 'Devolución de válvula'),
+  ('B0000000-0000-0000-0000-000000000033', '10000000-0000-0000-0000-000000000001',
+   '30000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002',
+   '2026-08-05', 15200.00, 21, 0, null)
+on conflict (id) do nothing;
+
+-- Sales budgets: one store budget + per-seller budgets for the current month
+-- (D-V11); indicators are derived, never stored.
+insert into public.sales_budgets (
+  id, organization_id, branch_id, seller_id, period, amount, status
+)
+values
+  ('B0000000-0000-0000-0000-000000000041', '10000000-0000-0000-0000-000000000001',
+   '10000000-0000-0000-0000-000000000002', null, '2026-08', 800000.00, 'active'),
+  ('B0000000-0000-0000-0000-000000000042', '10000000-0000-0000-0000-000000000001',
+   '10000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000003',
+   '2026-08', 250000.00, 'active'),
+  ('B0000000-0000-0000-0000-000000000043', '10000000-0000-0000-0000-000000000001',
+   '10000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000001',
+   '2026-08', 300000.00, 'active')
+on conflict (id) do nothing;
+
+-- CEDIS request: tied to quotation 012, initial status requested (D-V06);
+-- response/chat/balancing are Phase 7.
+insert into public.cedis_requests (
+  id, organization_id, quotation_id, variant_id, requested_quantity,
+  requested_date, required_date, status, seller_id, branch_id, observations
+)
+values (
+  'B0000000-0000-0000-0000-000000000051',
+  '10000000-0000-0000-0000-000000000001',
+  'B0000000-0000-0000-0000-000000000012',
+  '70000000-0000-0000-0000-000000000052',
+  3, '2026-08-06', '2026-08-14', 'requested',
+  '30000000-0000-0000-0000-000000000003',
+  '10000000-0000-0000-0000-000000000002',
+  'Falta stock en tienda para cubrir la cotización'
+)
+on conflict (id) do nothing;
+
+-- Audit demo: sales events for the seeded mutations (D-V14, append-only).
+insert into _audit.sales_events (
+  id, occurred_at, actor_user_id, organization_id, action,
+  entity_type, entity_id, previous_data, new_data, detail
+)
+values
+  ('B0000000-0000-0000-0000-000000000061',
+   '2026-08-10 09:00:00+00', '30000000-0000-0000-0000-000000000003',
+   '10000000-0000-0000-0000-000000000001', 'quotation_created',
+   'quotation', 'B0000000-0000-0000-0000-000000000011',
+   null, '{"folio":"COT-2026-0001","status":"sent"}'::jsonb,
+   'Cotización COT-2026-0001 creada y enviada'),
+  ('B0000000-0000-0000-0000-000000000062',
+   '2026-08-10 09:30:00+00', '30000000-0000-0000-0000-000000000003',
+   '10000000-0000-0000-0000-000000000001', 'manual_sale_corrected',
+   'manual_sale_entry', 'B0000000-0000-0000-0000-000000000032',
+   '{"sales_amount":9800.00,"returns_amount":320.00}'::jsonb,
+   '{"sales_amount":9800.00,"returns_amount":220.00}'::jsonb,
+   'Corrección de devolución de la captura del 2026-08-05')
 on conflict (id) do nothing;
 
 commit;

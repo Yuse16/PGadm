@@ -3,7 +3,7 @@
 -- PostgreSQL database. Runs inside a transaction that is rolled back.
 
 begin;
-select plan(47);
+select plan(50);
 
 -- ============================================================
 -- Base foundation (migration 00000000000001)
@@ -79,8 +79,8 @@ select ok(
 );
 
 select ok(
-  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('users', 'user_profiles', 'customers', 'inventory_items')),
-  'No F1B2-prohibited tables beyond the F1B3 identity and F1C catalog scopes'
+  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('users', 'user_profiles', 'inventory_items')),
+  'No F1B2-prohibited tables beyond the F1B3 identity, F1C catalog and F4 sales scopes'
 );
 
 -- Primary keys
@@ -376,6 +376,39 @@ select ok(
   exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = '_catalog' and p.proname = 'enforce_status_transition'),
   'Function _catalog.enforce_status_transition should exist'
+);
+
+-- ============================================================
+-- Sales (migration 00000000000012, F4)
+-- ============================================================
+
+select ok(
+  (select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where ((n.nspname = 'public' and c.relname in (
+     'customers', 'quotations', 'quotation_items', 'manual_sale_entries',
+     'sales_budgets', 'cedis_requests'))
+     or (n.nspname = '_audit' and c.relname = 'sales_events')) and c.relkind = 'r') = 7,
+  'All 6 F4 sales tables and _audit.sales_events should exist'
+);
+
+select ok(
+  (select count(*)::int from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where ((n.nspname = 'public' and c.relname in (
+     'customers', 'quotations', 'quotation_items', 'manual_sale_entries',
+     'sales_budgets', 'cedis_requests'))
+     or (n.nspname = '_audit' and c.relname = 'sales_events')) and c.relkind = 'r'
+     and c.relrowsecurity) = 7,
+  'All 6 F4 sales tables and _audit.sales_events should have RLS enabled'
+);
+
+select ok(
+  not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where ((n.nspname = 'public' and c.relname in (
+     'customers', 'quotations', 'quotation_items', 'manual_sale_entries',
+     'sales_budgets', 'cedis_requests'))
+     or (n.nspname = '_audit' and c.relname = 'sales_events')) and c.relkind = 'r'
+     and has_table_privilege('authenticated', c.oid, 'delete')),
+  'authenticated should have no DELETE privilege on any F4 sales table (D-V05/D-V14)'
 );
 
 select * from finish();
