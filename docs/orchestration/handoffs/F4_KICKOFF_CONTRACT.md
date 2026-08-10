@@ -1,5 +1,5 @@
 # F4 — Kickoff Contract: Ventas y cotizaciones (Fase 4 — búsqueda, calculadora, cajas, complementos, comparador, cotización y venta manual)
-## Estado: PROPUESTO — D-V01…D-V14 PENDIENTES de revisión humana (no implementar hasta aprobación)
+## Estado: APROBADO — D-V01…D-V14 registradas en `DECISION_LOG.md` (2026-08-10)
 
 **Fecha:** 2026-08-10
 **Fase:** Fase 4 — Ventas y cotizaciones (`docs/orchestration/phases/07_PHASE_7.md`;
@@ -8,8 +8,11 @@ separa CRM en Fase 5 — ver D-V01)
 **Rama propuesta:** `feature/f4-PG-SALES-007-sales`
 **Base:** `develop` `90c2184` (merge PR #12 F3 `5617831` + PR #13 handoff F4)
 **Worktree:** `C:\Users\GVTASNOG\Documents\PGadm-worktrees\layout-kickoff` (o uno nuevo aislado)
-**Estado:** kickoff contract **PROPUESTO**. Decisiones D-V01…D-V14 **PENDIENTES** de
-aprobación humana. No se crea migración ni código hasta esa aprobación e instrucción expresa.
+**Estado:** kickoff contract **APROBADO** por revisión humana el 2026-08-10.
+Decisiones D-V01…D-V14 **registradas en `DECISION_LOG.md`**. Aprobación confirma:
+D-V01 (alcance ventas; CRM = Fase 5), D-V03 (mapeo `sales.*` sobre roles existentes) y
+D-V08 (vigencia estándar de cotización 30 días; impuestos fuera de F4).
+Paquete documental de F4 en preparación.
 
 ---
 
