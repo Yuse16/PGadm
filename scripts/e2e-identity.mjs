@@ -64,9 +64,9 @@ const ROLE_MANAGER = "40000000-0000-0000-0000-000000000002";
 const ROLE_CASHIER = "40000000-0000-0000-0000-000000000003";
 const ROLE_OPERATOR = "40000000-0000-0000-0000-000000000004";
 
-const MANAGER_PERMS = ["branch.read", "catalog.create", "catalog.read", "catalog.update", "inventory.approve", "inventory.import", "inventory.observe", "inventory.read", "organization.read", "organization.write", "warehouse.read"];
-const CASHIER_PERMS = ["branch.read", "catalog.read", "inventory.observe", "inventory.read", "organization.read"];
-const OPERATOR_PERMS = ["catalog.read", "inventory.observe", "inventory.read", "organization.read"];
+const MANAGER_PERMS = ["branch.read", "catalog.create", "catalog.read", "catalog.update", "inventory.approve", "inventory.import", "inventory.observe", "inventory.read", "layout.edit", "layout.publish", "layout.read", "organization.read", "organization.write", "warehouse.read"];
+const CASHIER_PERMS = ["branch.read", "catalog.read", "inventory.observe", "inventory.read", "layout.read", "organization.read"];
+const OPERATOR_PERMS = ["catalog.read", "inventory.observe", "inventory.read", "layout.read", "organization.read"];
 
 // Per-user scenario: what to provision, what effective permissions are expected,
 // and what RLS should expose. RLS is enforced at the membership + profile-status

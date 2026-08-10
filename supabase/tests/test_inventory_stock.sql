@@ -219,7 +219,7 @@ select is(
 -- ============================================================
 
 select is((select count(*)::int from public.permissions where code like 'inventory.%'), 4, 'seed defines 4 inventory.* permissions (D-I10)');
-select is((select count(*)::int from public.permissions), 15, 'total permissions = 15 (11 + 4 inventory.*)');
+select is((select count(*)::int from public.permissions), 19, 'total permissions = 19 (11 + 4 inventory.* + 4 layout.*)');
 select is((select count(*)::int from public.role_permissions rp join public.permissions p on p.id = rp.permission_id where rp.role_id = '40000000-0000-0000-0000-000000000001' and p.code like 'inventory.%'), 4, 'administrator role has all 4 inventory permissions');
 select is((select count(*)::int from public.role_permissions rp join public.permissions p on p.id = rp.permission_id where rp.role_id = '40000000-0000-0000-0000-000000000002' and p.code like 'inventory.%'), 4, 'manager role has all 4 inventory permissions');
 select is((select count(*)::int from public.role_permissions rp join public.permissions p on p.id = rp.permission_id where rp.role_id = '40000000-0000-0000-0000-000000000003' and p.code like 'inventory.%'), 2, 'cashier role has inventory.read + inventory.observe');
