@@ -48,3 +48,7 @@ temp/
 
 # Local agent configuration (never committed)
 .opencode/
+
+# Local reference copies of documentation packs (already versioned in docs/packs/)
+plomeria_garcia_pwa_docs_v0.1/
+Plomeria_Garcia_PWA_Pack_*/
